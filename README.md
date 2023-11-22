@@ -28,10 +28,7 @@ python setup.py install
 ## Run MicroHap Quality Control step
 Create sample list CSV file to run script.
 ```
-ls *_R1.fastq.gz | sed 's/.fastq.gz//' > samples.txt
-sed -i 's/_R1$//' samples.txt
-echo -e "sample" | cat - samples.txt > samples_header.txt
-sed 's/ \+/,/g' samples_header.txt > sample_file.csv
+ls *_R1.fastq.gz | sed 's/.fastq.gz//' | sed 's/_R1$//' | (echo "sample" && cat -) | sed 's/ \+/,/g' > sample_file.csv
 
 usage: microhap_QC.py [-h] --index-file INDEX_FILE --ref REF [--version]
 
