@@ -7,6 +7,11 @@ Install pre-requisite packages and repositories; storing repositories in easily 
 conda create -n microhapQC
 conda activate microhapQC
 
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+
 conda install python=3.7 bwa samtools bcftools freebayes parallel datamash gatk4=4.1.4.1 delly tqdm trimmomatic minimap2 biopython bedtools r-ggplot2 iqtree fastqc mosdepth samclip sambamba
 
 mkdir tools
