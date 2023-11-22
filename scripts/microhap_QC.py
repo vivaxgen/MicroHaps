@@ -15,10 +15,6 @@ def run_cmd(cmd):
     if res!=0:
         sys.exit("Error running last command, please check!\n")
 
-    run_cmd("ls *_R1.fastq.gz | sed 's/.fastq.gz//' > samples.txt")
-    run_cmd("echo -e 'sample' | cat - samples.txt > samples_header.txt")
-    run_cmd("sed 's/ \+/,/g' samples_header.txt > sample_file.csv")
-
 def main(args):
 
     samples = []
