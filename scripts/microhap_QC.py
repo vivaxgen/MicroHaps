@@ -44,9 +44,9 @@ def main(args):
         run_cmd("sambamba depth base %(sample)s.bam > %(sample)s.coverage.txt" % vars(args))
 
     run_cmd("multiqc FASTQC_results")
-    run_cmd("for f in *.bam ; do mv "$f" bam_files ; done")
-    run_cmd("for f in *.bam.bai ; do mv "$f" bam_files ; done")
-    run_cmd("for f in *.txt ; do mv "$f" cov_stats ; done")
+    run_cmd("for f in *.bam ; do mv '$f' bam_files ; done")
+    run_cmd("for f in *.bam.bai ; do mv '$f' bam_files ; done")
+    run_cmd("for f in *.txt ; do mv '$f' cov_stats ; done")
     
     
 #    with open("bam_list.txt","w") as O:
