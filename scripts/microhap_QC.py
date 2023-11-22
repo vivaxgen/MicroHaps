@@ -45,12 +45,14 @@ def main(args):
 
     run_cmd("multiqc FASTQC_results")
 
-    bash_command = 'for f in *.bam ; do mv "$f" bam_files ; done'
-    subprocess.run(bash_command, shell=True)
-    bash_command = 'for f in *.bam.bai ; do mv "$f" bam_files ; done'
-    subprocess.run(bash_command, shell=True)
-    bash_command = 'for f in *.txt ; do mv "$f" cov_stats ; done'
-    subprocess.run(bash_command, shell=True)
+import subprocess
+
+bash_command = 'for f in *.bam ; do mv "$f" bam_files ; done'
+subprocess.run(bash_command, shell=True)
+bash_command = 'for f in *.bam.bai ; do mv "$f" bam_files ; done'
+subprocess.run(bash_command, shell=True)
+bash_command = 'for f in *.txt ; do mv "$f" cov_stats ; done'
+subprocess.run(bash_command, shell=True)
     
     
 #    with open("bam_list.txt","w") as O:
