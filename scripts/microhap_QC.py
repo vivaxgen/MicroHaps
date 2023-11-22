@@ -47,39 +47,27 @@ def main(args):
 
     run_cmd("multiqc FASTQC_results")
 
-source_directory = os.getcwd()
-destination_directory = 'bam_files'
-os.makedirs(destination_directory, exist_ok=True)
-for filename in os.listdir(source_directory):
-    if filename.endswith(".bam"):
-        source_path = os.path.join(source_directory, filename)
-        destination_path = os.path.join(destination_directory, filename)
-        
-        # Move the file
-        shutil.move(source_path, destination_path)
-print("Bam files moved successfully.")
+    destination_directory = 'bam_files'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".bam") or filename.endswith(".bam.bai"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
 
-destination_directory = 'bam_files'
-os.makedirs(destination_directory, exist_ok=True)
-for filename in os.listdir(source_directory):
-    if filename.endswith(".bam.bai"):
-        source_path = os.path.join(source_directory, filename)
-        destination_path = os.path.join(destination_directory, filename)
-        
-        # Move the file
-        shutil.move(source_path, destination_path)
-print("Bam index files moved successfully.")
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("Bam files and index files moved successfully.")
 
-destination_directory = 'cov_stats'
-os.makedirs(destination_directory, exist_ok=True)
-for filename in os.listdir(source_directory):
-    if filename.endswith(".txt"):
-        source_path = os.path.join(source_directory, filename)
-        destination_path = os.path.join(destination_directory, filename)
-        
-        # Move the file
-        shutil.move(source_path, destination_path)
-print("Coverage stats moved successfully.")
+    destination_directory = 'cov_stats'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".txt"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("Coverage stats moved successfully.")
     
 #    with open("bam_list.txt","w") as O:
 #        for s in samples:
