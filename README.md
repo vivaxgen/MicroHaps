@@ -2,7 +2,7 @@
 GitHub adaptation of MicroHaplotype pipeline for collaborators.
 
 ## Installation
-Install pre-requisite packages and repositories; storing repositories in easily accessible tools folder for quick maintenance. Conda channel configuration is shown in instructions for first time users. If your conda is already configured, please skip those steps.
+Create conda environment to store required packages. Conda channel configuration is shown in instructions for first time users. If your conda is already configured, please skip those steps.
 ```
 conda create -n microhapQC
 conda activate microhapQC
@@ -13,7 +13,9 @@ conda config --add channels conda-forge
 conda config --set channel_priority strict
 
 conda install python=3.8 bwa samtools bcftools freebayes parallel datamash gatk4=4.1.4.1 delly tqdm trimmomatic minimap2 biopython bedtools r-ggplot2 iqtree fastqc mosdepth samclip sambamba multiqc
-
+```
+Install pre-requisite packages and repositories; storing repositories in easily accessible "tools" folder for quick maintenance.
+```
 mkdir tools
 cd /tools/
 git clone https://github.com/pathogenseq/fastq2matrix.git
