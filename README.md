@@ -2,7 +2,7 @@
 GitHub adaptation of MicroHaplotype pipeline for collaborators.
 
 ## Installation
-Install pre-requisite packages and repositories
+Install pre-requisite packages and repositories, sotring repositories in easily accessible tools folder for quick maintenance.
 ```
 conda create -n microhapQC
 conda activate microhapQC
