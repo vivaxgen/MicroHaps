@@ -54,7 +54,7 @@ def main(args):
 
 
 # Set up the parser
-parser = argparse.ArgumentParser(description='Amplicon sequencing analysis script',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser = argparse.ArgumentParser(description='MicroHaplotype Quality Control script',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--index-file',type=str,help='CSV file containing field "Sample"',required=True)
 parser.add_argument('--ref',type=str,help='Reference fasta',required=True)
 #parser.add_argument('--gff',type=str,help='GFF file',required=True)
