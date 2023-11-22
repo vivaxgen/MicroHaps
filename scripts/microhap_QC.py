@@ -28,6 +28,8 @@ def main(args):
     fm.bwa_index(args.ref)
     fm.create_seq_dict(args.ref)
     fm.faidx(args.ref)
+    
+    run_cmd("mkdir FASTQC_results")
   
     for sample in samples:
         args.sample = sample
