@@ -12,12 +12,10 @@ conda install python=3.7 bwa samtools bcftools freebayes parallel datamash gatk4
 mkdir tools
 cd /tools/
 git clone https://github.com/pathogenseq/fastq2matrix.git
+cd fastq2matrix
 python setup.py install
 
-```
-
-Installation of MicroHaps GitHub
-```
+cd ..
 git clone https://github.com/aosborne13/Menzies_MicroHaps
 cd Menzies_MicroHaps
 python setup.py install
