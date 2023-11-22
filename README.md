@@ -32,5 +32,15 @@ ls *_R1.fastq.gz | sed 's/.fastq.gz//' > samples.txt
 echo -e "sample" | cat - samples.txt > samples_header.txt
 sed 's/ \+/,/g' samples_header.txt > sample_file.csv
 
+usage: microhap_QC.py [-h] --index-file INDEX_FILE --ref REF [--version]
+
+MicroHaplotype Quality Control script
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --index-file INDEX_FILE
+                        CSV file containing field "Sample" (default: None)
+  --ref REF             Reference fasta (default: None)
+  --version             show program's version number and exit
 
 ```
