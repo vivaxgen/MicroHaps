@@ -56,7 +56,7 @@ def main(args):
 
             # Move the file
             shutil.move(source_path, destination_path)
-    print("Bam files and index files moved successfully.")
+    print("Bam and index files moved successfully.")
 
     destination_directory = 'cov_stats'
     os.makedirs(destination_directory, exist_ok=True)
