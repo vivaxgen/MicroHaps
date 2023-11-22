@@ -30,11 +30,12 @@ def main(args):
     fm.faidx(args.ref)
     
     run_cmd("mkdir FASTQC_results")
+    run_cmd("mkdir bam_files")
+    run_cmd("mkdir cov_stats")
   
     for sample in samples:
         args.sample = sample
         run_cmd("fastqc -t 6 %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz -o FASTQC_results" % vars(args))
-        #run_cmd("bwa mem -t 6 -R \"@RG\\tID:%(sample)s\\tSM:%(sample)s\\tLB:MicroHap\\tPL:Illumina\" %(ref)s %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz | samclip --ref %(ref)s --max 50 | samtools sort -o %(sample)s.bam -" % vars(args))
         run_cmd("bwa mem -t 6 -R \"@RG\\tID:M00859\\tSM:%(sample)s\\tLB:MicroHap\\tPU:L6WVN:1\\tPL:Illumina\" %(ref)s %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz | samclip --ref %(ref)s --max 50 | samtools sort -o %(sample)s.bam -" % vars(args))
         run_cmd("samtools index %(sample)s.bam" % vars(args))
         run_cmd("samtools flagstat %(sample)s.bam > %(sample)s.flagstat.txt" % vars(args))
@@ -43,6 +44,10 @@ def main(args):
         run_cmd("sambamba depth base %(sample)s.bam > %(sample)s.coverage.txt" % vars(args))
 
     run_cmd("multiqc FASTQC_results")
+    run_cmd("for f in *.bam ; do mv "$f" bam_files ; done")
+    run_cmd("for f in *.bam.bai ; do mv "$f" bam_files ; done")
+    run_cmd("for f in *.txt ; do mv "$f" cov_stats ; done")
+    
     
 #    with open("bam_list.txt","w") as O:
 #        for s in samples:
