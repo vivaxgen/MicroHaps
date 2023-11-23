@@ -1,0 +1,13 @@
+# P. vivax
+#
+# Reference file: 
+# PlasmoDB-51_PvivaxP01_Genome.fasta
+# OR
+# PlasmoDB-53_PvivaxP01_Genome.fasta
+#
+# Bed file:
+# microhap.bed
+# 
+# 
+# P. falciparum
+# Coming Soon
