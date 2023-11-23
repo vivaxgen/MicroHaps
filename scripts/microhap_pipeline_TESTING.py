@@ -19,12 +19,12 @@ def run_cmd(cmd):
     if res!=0:
         sys.exit("Error running last command, please check!\n")
       
-def create_meta(path_to_fq, output_file, pattern_fw, pattern_rv):
-    proc = sp.Popen(['python', '-m', 'create_meta.py',
-                    '--path_to_fq', path_to_fq,
-                    '--output_file', output_file,
-                    '--pattern_fw', pattern_fw,
-                    '--pattern_rv', pattern_rv],
+def create_meta(args):
+    proc = sp.Popen(['python', 'create_meta.py',
+                    '--path_to_fq', args.path_to_fq,
+                    '--output_file', args.output_file,
+                    '--pattern_fw', args.pattern_fw,
+                    '--pattern_rv', args.pattern_rv],
                     stdout=sys.stdout, stderr=sys.stderr)
     proc.wait()
 
