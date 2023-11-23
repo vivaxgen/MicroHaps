@@ -19,13 +19,16 @@ def main():
     pattern_fw = args.pattern_fw
     pattern_rv = args.pattern_rv
 
-    filelist = os.listdir(pathdir)
+    filelist_fw = fnmatch.filter(os.listdir(pathdir), pattern_fw)
+    filelist_rv = fnmatch.filter(os.listdir(pathdir), pattern_rv)
 
-    for entry in filelist:
-        if fnmatch.fnmatch(entry, pattern_fw):
-            sampleid = entry.split(pattern_fw[:-8], 1)[0]
-            ipath_fw = os.path.join(pathdir, entry)
-            ipath_rv = os.path.join(pathdir, sampleid + pattern_rv[1:])
+    for entry_fw in filelist_fw:
+        sampleid = entry_fw.split(pattern_fw[:-8], 1)[0]
+        entry_rv = next((entry for entry in filelist_rv if sampleid in entry), None)
+        
+        if entry_rv:
+            ipath_fw = os.path.join(pathdir, entry_fw)
+            ipath_rv = os.path.join(pathdir, entry_rv)
             df = pd.DataFrame({'id': [sampleid], 'ip1': [ipath_fw], 'ip2': [ipath_rv]})
             meta_df = pd.concat([meta_df, df], ignore_index=True)
 
