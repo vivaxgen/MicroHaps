@@ -22,8 +22,7 @@ def main():
 
 	for entry in filelist:
 		if fnmatch.fnmatch(entry, pattern_fw):
-			#sampleid = entry.split(pattern_fw[1:],1)[0]
-			sampleid = entry.split(pattern_fw, 1)[0]
+			sampleid = entry.split(pattern_fw[1:],1)[0]
 			ipath_fw = os.path.join(pathdir, sampleid+pattern_fw[1:])
 			ipath_rv = os.path.join(pathdir, sampleid+pattern_rv[1:])
 			df = pd.DataFrame({'id' : [sampleid], 'ip1' : [ipath_fw], 'ip2' : [ipath_rv]})
