@@ -45,6 +45,7 @@ def main(args):
     run_cmd("mkdir FASTQC_results")
     run_cmd("mkdir bam_files")
     run_cmd("mkdir cov_stats")
+    run_cmd("mkdir fastq")
   
     for sample in samples:
         args.sample = sample
@@ -62,7 +63,18 @@ def main(args):
         run_cmd("sambamba depth base %(sample)s.bam > %(sample)s.position_coverage.txt" % vars(args))
 
     run_cmd("multiqc FASTQC_results")
+    
+    destination_directory = 'fastq'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".fastq.gz") or filename.endswith(".trimlog"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
 
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("FASTQ files moved successfully.")
+    
     destination_directory = 'bam_files'
     os.makedirs(destination_directory, exist_ok=True)
     for filename in os.listdir(os.getcwd()):
