@@ -4,6 +4,7 @@
 # PlasmoDB-51_PvivaxP01_Genome.fasta
 # OR
 # PlasmoDB-53_PvivaxP01_Genome.fasta
+# URL: https://www.ncbi.nlm.nih.gov/datasets/genome/GCA_900093555.2/
 #
 # Bed file:
 # microhap.bed
