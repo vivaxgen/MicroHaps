@@ -1,3 +1,9 @@
+import argparse
+import pandas as pd
+import numpy as np
+import os
+import fnmatch
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--path_to_fq', required=True, help="Path to fastq files")
