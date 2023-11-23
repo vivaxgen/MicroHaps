@@ -20,7 +20,7 @@ def run_cmd(cmd):
         sys.exit("Error running last command, please check!\n")
       
 def create_meta(path_to_fq, output_file, pattern_fw, pattern_rv):
-    proc = sp.Popen(['python', os.path.join(path, 'create_meta.py'),
+    proc = sp.Popen(['python', '-m', 'create_meta',
                     '--path_to_fq', path_to_fq,
                     '--output_file', output_file,
                     '--pattern_fw', pattern_fw,
