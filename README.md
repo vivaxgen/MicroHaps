@@ -42,7 +42,7 @@ MicroHaplotype Quality Control script
 
 optional arguments:
   -h, --help            show this help message and exit
-  --index-file INDEX_FILE
+  --index-file          INDEX_FILE
                         CSV file containing field "Sample" (default: None)
   --ref REF             Reference fasta (default: None)
   --bed BED             BED file with MicroHaplotype locations (default: None)
