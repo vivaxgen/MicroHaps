@@ -15,7 +15,7 @@ def main():
 
     pathdir = args.path_to_fq
     odir = args.output_file
-    meta_df = pd.DataFrame(columns=['id', 'ip1', 'ip2'])
+    meta_df = pd.DataFrame()
     pattern_fw = args.pattern_fw
     pattern_rv = args.pattern_rv
 
