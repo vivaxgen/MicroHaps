@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import argparse
 import pandas as pd
-import numpy as np
 import os
 import fnmatch
 
@@ -30,6 +29,7 @@ def main():
             df = pd.DataFrame({'id': [sampleid], 'ip1': [ipath_fw], 'ip2': [ipath_rv]})
             meta_df = pd.concat([meta_df, df], ignore_index=True)
 
+    meta_df['id'] = meta_df['id'].str.replace('_R1', '').str.replace('_R2', '')
     meta_df.to_csv(odir, sep="\t", header=False, index=False)
     print("meta file generated at " + odir)
 
