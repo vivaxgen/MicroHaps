@@ -26,9 +26,9 @@ def create_meta(args):
                     '--pattern_fw', args.pattern_fw,
                     '--pattern_rv', args.pattern_rv],
                     stdout=sys.stdout, stderr=sys.stderr)
-    proc.wait()
+    #proc.wait()
 
-create_meta()
+
 
 def main(args):
 
