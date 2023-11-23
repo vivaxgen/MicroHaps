@@ -28,7 +28,7 @@ def create_meta(args):
                     stdout=sys.stdout, stderr=sys.stderr)
     #proc.wait()
 
-
+create_meta(args)
 
 def main(args):
 
