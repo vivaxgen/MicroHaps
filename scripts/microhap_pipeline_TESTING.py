@@ -117,8 +117,8 @@ parser.add_argument('--trim-qv',default=5,type=int,help='Quality value to use in
 #parser.add_argument('--min-sample-af',default=0.05,type=float,help='Quality value to use in the sliding window analysis')
 parser.add_argument('--path_to_fq', type=str, help='Path to fastq files', required=True)
 parser.add_argument('--output_file', type=str, help='Output meta file', required=True)
-parser.add_argument('--pattern_fw', type=str, help='Pattern for forward reads', required=True)
-parser.add_argument('--pattern_rv', type=str, help='Pattern for reverse reads', required=True)
+parser.add_argument('--pattern_fw', type=str, help='Pattern for forward reads, e.g. "*_R1.fastq.gz"', required=True)
+parser.add_argument('--pattern_rv', type=str, help='Pattern for reverse reads, e.g. "*_R2.fastq.gz"', required=True)
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 parser.set_defaults(func=main)
 
