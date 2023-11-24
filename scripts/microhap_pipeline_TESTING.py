@@ -50,14 +50,14 @@ def main(args):
     run_cmd("mkdir fastq")
     
     # Use glob to expand wildcards
-    fw_files = glob.glob(args.path_to_fq + '/' + args.pattern_fw)
-    rv_files = glob.glob(args.path_to_fq + '/' + args.pattern_rv)
+    #fw_files = glob.glob(args.path_to_fq + '/' + args.pattern_fw)
+    #rv_files = glob.glob(args.path_to_fq + '/' + args.pattern_rv)
 
     # Join the file names into a space-separated string
-    args.pattern_fw = " ".join(fw_files)
-    args.pattern_rv = " ".join(rv_files)
+    #args.pattern_fw = " ".join(fw_files)
+    #args.pattern_rv = " ".join(rv_files)
 
-    run_cmd('create_meta.py --path_to_fq "%(path_to_fq)s" --output_file "%(output_file)s" --pattern_fw "%(pattern_fw)s" --pattern_rv "%(pattern_rv)s"' % vars(args))
+    run_cmd('create_meta.py --path_to_fq %(path_to_fq)s --output_file %(output_file)s --pattern_fw %(pattern_fw)s --pattern_rv %(pattern_rv)s' % vars(args))
   
     for sample in samples:
         args.sample = sample
