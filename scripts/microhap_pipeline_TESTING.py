@@ -48,7 +48,7 @@ def main(args):
     run_cmd("mkdir cov_stats")
     run_cmd("mkdir fastq")
 
-    run_cmd("create_meta.py --path_to_fq %(path_to_fq)s --output_file meta_file --pattern_fw %(pattern_fw)s --pattern_rv %(pattern_rv)s" % vars(args))
+    run_cmd("create_meta.py --path_to_fq %(path_to_fq)s --output_file %(output_file)s --pattern_fw %(pattern_fw)s --pattern_rv %(pattern_rv)s" % vars(args))
   
     for sample in samples:
         args.sample = sample
