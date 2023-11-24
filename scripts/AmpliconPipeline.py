@@ -113,9 +113,9 @@ def main():
 
     print("Now running DADA2..")
     cmd = ['Rscript', os.path.join(path, 'runDADA2.R'), '-p', path_to_meta, '-d', os.path.join(run_dir, 'run_dada2'),
-           '-o', 'seqtab.tsv', '-c', Class, '-ee', str(args.maxEE), '-tR', str(args.trimRight), '-mL', str(args.minLen),
-           '-tQ', str(args.truncQ), '-mC', str(args.max_consist), '-wA', str(args.omegaA), '-jC', str(args.justConcatenate),
-           '-s', args.saveRdata, '--bimera']
+       '-o', 'seqtab.tsv', '-c', args.Class, '-ee', str(args.maxEE), '-tR', str(args.trimRight), '-mL', str(args.minLen),
+       '-tQ', str(args.truncQ), '-mC', str(args.max_consist), '-wA', str(args.omegaA), '-jC', str(args.justConcatenate),
+       '-s', args.saveRdata, '--bimera']
     proc = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
     proc.wait()
 
