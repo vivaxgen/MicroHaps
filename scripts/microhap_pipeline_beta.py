@@ -40,8 +40,6 @@ def main(args):
     run_cmd("mkdir cov_stats")
     run_cmd("mkdir untrimmed_fastq")
     run_cmd("mkdir trimmed_fastq")
-
-    #run_cmd('create_meta.py --path_to_fq %(path_to_fq)s --output_file %(output_file)s --pattern_fw "%(pattern_fw)s" --pattern_rv "%(pattern_rv)s"' % vars(args))
   
     for sample in samples:
         args.sample = sample
@@ -105,29 +103,33 @@ def main(args):
             # Move the file
             shutil.move(source_path, destination_path)
     print("Coverage stats moved successfully.")
-    
-#    with open("bam_list.txt","w") as O:
-#        for s in samples:
-#            O.write("%s.bam\n" % (s))
 
-#    run_cmd("freebayes -f %(ref)s -t %(bed)s -L bam_list.txt --haplotype-length -1 --min-coverage 50 --min-base-quality %(min_base_qual)s --gvcf --gvcf-dont-use-chunk true | bcftools view -T %(bed)s | bcftools norm -f %(ref)s | bcftools sort -Oz -o combined.genotyped.vcf.gz" % vars(args))
+    # Run Amplicon Pipeline and DADA 2
+    run_cmd('AmpliconPipeline.py --path_to_meta %(output_file)s --pr1 %(pr1)s --pr2 %(pr2)s --Class %(Class)s --maxEE %(maxEE)s --trimRight %(trimRight)s --minLen %(minLen)s --truncQ %(truncQ)s --max_consist %(max_consist)s --omegaA %(omegaA)s --justConcatenate %(justConcatenate)s --saveRdata %(saveRdata)s' % vars(args))
 
 # Set up the parser
 parser = argparse.ArgumentParser(description='MicroHaplotype Pipeline',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--index-file',type=str,help='CSV file containing field "Sample"',required=True)
 parser.add_argument('--ref',type=str,help='Reference fasta',required=True)
-#parser.add_argument('--gff',type=str,help='GFF file',required=True)
 parser.add_argument('--bed',type=str,help='BED file with MicroHaplotype locations',required=True)
 parser.add_argument('--trim',action="store_true",help='Perform triming')
 parser.add_argument('--trim-qv',default=5,type=int,help='Quality value to use in the sliding window analysis')
-#parser.add_argument('--min-base-qual',default=30,type=int,help='Minimum base quality to use by freebayes')
-#parser.add_argument('--min-adf',type=float,help='Set a minimum frequency for a mixed call')
-#parser.add_argument('--min-variant-qual',default=30,type=int,help='Quality value to use in the sliding window analysis')
-#parser.add_argument('--min-sample-af',default=0.05,type=float,help='Quality value to use in the sliding window analysis')
-#parser.add_argument('--path_to_fq', type=str, help='Path to fastq files', required=True)
-parser.add_argument('--output_file', type=str, help='Output meta file', required=True)
+parser.add_argument('--output_file', type=str, help='Output meta file; to be used in path to meta', required=True)
 parser.add_argument('--pattern_fw', type=str, help='Pattern for forward reads, e.g. "*_R1.fastq.gz"', required=True)
 parser.add_argument('--pattern_rv', type=str, help='Pattern for reverse reads, e.g. "*_R2.fastq.gz"', required=True)
+parser.add_argument('--path_to_meta', help="Path to input fastq files", required=True)
+#parser.add_argument('--keep_primers', action="store_true",default=1, help="Skip primer removal step")
+parser.add_argument('--pr1', help="Path to forward primers FASTA file", required=True)
+parser.add_argument('--pr2', help="Path to reverse primers FASTA file", required=True)
+parser.add_argument('--Class', default="parasite", help="Specify Analysis class. Accepts one of two: parasite/vector")
+parser.add_argument('--maxEE', default="5,5", help="Maximum Expected errors (dada2 filtering argument)")
+parser.add_argument('--trimRight', default="10,10", help="Hard trim number of bases at 5` end (dada2 filtering argument)")
+parser.add_argument('--minLen', default=30, help="Minimum length filter (dada2 filtering argument)")
+parser.add_argument('--truncQ', default="5,5", help="Soft trim bases based on quality (dada2 filtering argument)")
+parser.add_argument('--max_consist', default=10, help="Number of cycles for consistency in error model (dada2 argument)")
+parser.add_argument('--omegaA', default=1e-120, help="p-value for the partitioning algorithm (dada2 argument)")
+parser.add_argument('--justConcatenate', default=0, help="whether reads should be concatenated with N's during merge (dada2 argument)")
+parser.add_argument('--saveRdata',default="", help="Optionally save dada2 part of this run as Rdata object")
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 parser.set_defaults(func=main)
 
