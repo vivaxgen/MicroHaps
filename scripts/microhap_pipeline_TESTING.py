@@ -39,16 +39,17 @@ def main(args):
     run_cmd("mkdir bam_files")
     run_cmd("mkdir cov_stats")
     run_cmd("mkdir untrimmed_fastq")
+    run_cmd("mkdir trimmed_fastq")
 
-    run_cmd('create_meta.py --path_to_fq %(path_to_fq)s --output_file %(output_file)s --pattern_fw "%(pattern_fw)s" --pattern_rv "%(pattern_rv)s"' % vars(args))
+    #run_cmd('create_meta.py --path_to_fq %(path_to_fq)s --output_file %(output_file)s --pattern_fw "%(pattern_fw)s" --pattern_rv "%(pattern_rv)s"' % vars(args))
   
     for sample in samples:
         args.sample = sample
         run_cmd("fastqc -t 6 %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz -o FASTQC_results" % vars(args))
 
         if args.trim:
-            run_cmd("trimmomatic PE %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz %(sample)s_1.trimmed.fastq.gz %(sample)s_1.untrimmed.fastq.gz %(sample)s_2.trimmed.fastq.gz %(sample)s_2.untrimmed.fastq.gz LEADING:3 TRAILING:3 SLIDINGWINDOW:4:%(trim_qv)s MINLEN:20 2> %(sample)s.trimlog" % vars(args))
-            run_cmd("bwa mem -t 6 -R \"@RG\\tID:M00859\\tSM:%(sample)s\\tLB:MicroHap\\tPU:L6WVN:1\\tPL:Illumina\" %(ref)s %(sample)s_1.trimmed.fastq.gz %(sample)s_2.trimmed.fastq.gz | samclip --ref %(ref)s --max 50 | samtools sort -o %(sample)s.bam -" % vars(args))
+            run_cmd("trimmomatic PE %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz %(sample)s_R1.trimmed.fastq.gz %(sample)s_R1.untrimmed.fastq.gz %(sample)s_R2.trimmed.fastq.gz %(sample)s_R2.untrimmed.fastq.gz LEADING:3 TRAILING:3 SLIDINGWINDOW:4:%(trim_qv)s MINLEN:20 2> %(sample)s.trimlog" % vars(args))
+            run_cmd("bwa mem -t 6 -R \"@RG\\tID:M00859\\tSM:%(sample)s\\tLB:MicroHap\\tPU:L6WVN:1\\tPL:Illumina\" %(ref)s %(sample)s_R1.trimmed.fastq.gz %(sample)s_R2.trimmed.fastq.gz | samclip --ref %(ref)s --max 50 | samtools sort -o %(sample)s.bam -" % vars(args))
         else:
             run_cmd("bwa mem -t 6 -R \"@RG\\tID:M00859\\tSM:%(sample)s\\tLB:MicroHap\\tPU:L6WVN:1\\tPL:Illumina\" %(ref)s %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz | samclip --ref %(ref)s --max 50 | samtools sort -o %(sample)s.bam -" % vars(args))
 
@@ -58,17 +59,30 @@ def main(args):
         run_cmd("sambamba depth base %(sample)s.bam > %(sample)s.position_coverage.txt" % vars(args))
 
     run_cmd("multiqc FASTQC_results")
+
+    run_cmd('create_meta.py --path_to_fq trimmed_fastq --output_file %(output_file)s --pattern_fw "%(pattern_fw)s" --pattern_rv "%(pattern_rv)s"' % vars(args))
     
-    destination_directory = 'fastq'
+    destination_directory = 'trimmed_fastq'
     os.makedirs(destination_directory, exist_ok=True)
     for filename in os.listdir(os.getcwd()):
-        if filename.endswith(".untrimmed.fastq.gz") or filename.endswith(".trimlog"):
+        if filename.endswith(".trimmed.fastq.gz") or filename.endswith(".trimlog"):
             source_path = os.path.join(os.getcwd(), filename)
             destination_path = os.path.join(destination_directory, filename)
 
             # Move the file
             shutil.move(source_path, destination_path)
-    print("FASTQ files moved successfully.")
+    print("Trimmed FASTQ files moved successfully.")
+
+    destination_directory = 'untrimmed_fastq'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".untrimmed.fastq.gz"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("Untrimmed FASTQ files moved successfully.")
     
     destination_directory = 'bam_files'
     os.makedirs(destination_directory, exist_ok=True)
@@ -110,7 +124,7 @@ parser.add_argument('--trim-qv',default=5,type=int,help='Quality value to use in
 #parser.add_argument('--min-adf',type=float,help='Set a minimum frequency for a mixed call')
 #parser.add_argument('--min-variant-qual',default=30,type=int,help='Quality value to use in the sliding window analysis')
 #parser.add_argument('--min-sample-af',default=0.05,type=float,help='Quality value to use in the sliding window analysis')
-parser.add_argument('--path_to_fq', type=str, help='Path to fastq files', required=True)
+#parser.add_argument('--path_to_fq', type=str, help='Path to fastq files', required=True)
 parser.add_argument('--output_file', type=str, help='Output meta file', required=True)
 parser.add_argument('--pattern_fw', type=str, help='Pattern for forward reads, e.g. "*_R1.fastq.gz"', required=True)
 parser.add_argument('--pattern_rv', type=str, help='Pattern for reverse reads, e.g. "*_R2.fastq.gz"', required=True)
