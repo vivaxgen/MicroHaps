@@ -57,7 +57,7 @@ def main(args):
     args.pattern_fw = " ".join(fw_files)
     args.pattern_rv = " ".join(rv_files)
 
-    run_cmd("create_meta.py --path_to_fq %(path_to_fq)s --output_file %(output_file)s --pattern_fw %(pattern_fw)s --pattern_rv %(pattern_rv)s" % vars(args))
+    run_cmd("create_meta.py --path_to_fq "%(path_to_fq)s" --output_file "%(output_file)s" --pattern_fw "%(pattern_fw)s" --pattern_rv "%(pattern_rv)s"" % vars(args))
   
     for sample in samples:
         args.sample = sample
