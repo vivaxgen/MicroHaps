@@ -47,13 +47,13 @@ optional arguments:
   --bed BED             BED file with MicroHaplotype locations (default: None)
   --trim                Perform triming (default: False)
   --trim-qv TRIM_QV     Quality value to use in the sliding window analysis (default: 5)
-  --path_to_fq PATH_TO_FQ
+  --path_to_fq          PATH_TO_FQ
                         Path to fastq files (default: None)
-  --output_file OUTPUT_FILE
+  --output_file         OUTPUT_FILE
                         Output meta file (default: None)
-  --pattern_fw PATTERN_FW
+  --pattern_fw          PATTERN_FW
                         Pattern for forward reads, e.g. "*_R1.fastq.gz" (default: None)
-  --pattern_rv PATTERN_RV
+  --pattern_rv          PATTERN_RV
                         Pattern for reverse reads, e.g. "*_R2.fastq.gz" (default: None)
   --version             show program's version number and exit
 ```
