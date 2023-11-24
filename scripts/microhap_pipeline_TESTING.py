@@ -59,8 +59,6 @@ def main(args):
         run_cmd("sambamba depth base %(sample)s.bam > %(sample)s.position_coverage.txt" % vars(args))
 
     run_cmd("multiqc FASTQC_results")
-
-    run_cmd('create_meta.py --path_to_fq trimmed_fastq --output_file %(output_file)s --pattern_fw "%(pattern_fw)s" --pattern_rv "%(pattern_rv)s"' % vars(args))
     
     destination_directory = 'trimmed_fastq'
     os.makedirs(destination_directory, exist_ok=True)
@@ -73,6 +71,8 @@ def main(args):
             shutil.move(source_path, destination_path)
     print("Trimmed FASTQ files moved successfully.")
 
+    run_cmd('create_meta.py --path_to_fq trimmed_fastq --output_file %(output_file)s --pattern_fw "%(pattern_fw)s" --pattern_rv "%(pattern_rv)s"' % vars(args))
+    
     destination_directory = 'untrimmed_fastq'
     os.makedirs(destination_directory, exist_ok=True)
     for filename in os.listdir(os.getcwd()):
