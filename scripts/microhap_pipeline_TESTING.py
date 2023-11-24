@@ -38,7 +38,7 @@ def main(args):
     run_cmd("mkdir FASTQC_results")
     run_cmd("mkdir bam_files")
     run_cmd("mkdir cov_stats")
-    run_cmd("mkdir fastq")
+    run_cmd("mkdir untrimmed_fastq")
 
     run_cmd('create_meta.py --path_to_fq %(path_to_fq)s --output_file %(output_file)s --pattern_fw "%(pattern_fw)s" --pattern_rv "%(pattern_rv)s"' % vars(args))
   
@@ -62,7 +62,7 @@ def main(args):
     destination_directory = 'fastq'
     os.makedirs(destination_directory, exist_ok=True)
     for filename in os.listdir(os.getcwd()):
-        if filename.endswith(".fastq.gz") or filename.endswith(".trimlog"):
+        if filename.endswith(".untrimmed.fastq.gz") or filename.endswith(".trimlog"):
             source_path = os.path.join(os.getcwd(), filename)
             destination_path = os.path.join(destination_directory, filename)
 
