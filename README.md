@@ -30,12 +30,15 @@ python setup.py install
 ## Running the MicroHaplotype pipeline
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2.
 
-DOWNSTREAM PROCESSING NOT ADDED YET - COMING SOON
+DOWNSTREAM PROCESSING COMING SOON
 ```
-usage: microhap_pipeline.py [-h] --index-file INDEX_FILE --ref REF --bed BED [--trim]
-                                    [--trim-qv TRIM_QV] --path_to_fq PATH_TO_FQ --output_file
-                                    OUTPUT_FILE --pattern_fw PATTERN_FW --pattern_rv PATTERN_RV
-                                    [--version]
+usage: microhap_pipeline_beta.py [-h] --index-file INDEX_FILE --ref REF --bed BED [--trim]
+                                 [--trim-qv TRIM_QV] --output_file OUTPUT_FILE --pattern_fw
+                                 PATTERN_FW --pattern_rv PATTERN_RV --pr1 PR1 --pr2 PR2
+                                 [--Class CLASS] [--maxEE MAXEE] [--trimRight TRIMRIGHT]
+                                 [--minLen MINLEN] [--truncQ TRUNCQ] [--max_consist MAX_CONSIST]
+                                 [--omegaA OMEGAA] [--justConcatenate JUSTCONCATENATE]
+                                 [--saveRdata SAVERDATA] [--version]
 
 MicroHaplotype Pipeline
 
@@ -47,20 +50,37 @@ optional arguments:
   --bed BED             BED file with MicroHaplotype locations (default: None)
   --trim                Perform triming (default: False)
   --trim-qv TRIM_QV     Quality value to use in the sliding window analysis (default: 5)
-  --path_to_fq          PATH_TO_FQ
-                        Path to fastq files (default: None)
   --output_file         OUTPUT_FILE
-                        Output meta file (default: None)
+                        Output meta file; to be used in path to meta (default: None)
   --pattern_fw          PATTERN_FW
                         Pattern for forward reads, e.g. "*_R1.fastq.gz" (default: None)
   --pattern_rv          PATTERN_RV
                         Pattern for reverse reads, e.g. "*_R2.fastq.gz" (default: None)
+  --pr1 PR1             Path to forward primers FASTA file (default: None)
+  --pr2 PR2             Path to reverse primers FASTA file (default: None)
+  --Class CLASS         Specify Analysis class. Accepts one of two: parasite/vector (default:
+                        parasite)
+  --maxEE MAXEE         Maximum Expected errors (dada2 filtering argument) (default: 5,5)
+  --trimRight           TRIMRIGHT
+                        Hard trim number of bases at 5` end (dada2 filtering argument) (default:
+                        10,10)
+  --minLen MINLEN       Minimum length filter (dada2 filtering argument) (default: 30)
+  --truncQ TRUNCQ       Soft trim bases based on quality (dada2 filtering argument) (default: 5,5)
+  --max_consist         MAX_CONSIST
+                        Number of cycles for consistency in error model (dada2 argument) (default:
+                        10)
+  --omegaA OMEGAA       p-value for the partitioning algorithm (dada2 argument) (default: 1e-120)
+  --justConcatenate     JUSTCONCATENATE
+                        whether reads should be concatenated with N's during merge (dada2
+                        argument) (default: 0)
+  --saveRdata           SAVERDATA
+                        Optionally save dada2 part of this run as Rdata object (default: None)
   --version             show program's version number and exit
 ```
 
 Example Usage:
 ```
-microhap_pipeline.py --index-file sample_file.csv --ref PlasmoDB-51_PvivaxP01_Genome.fasta --bed microhap.bed --trim --path_to_fq /path/to/fastq/FASTQ_FILES --output_file meta_file --pattern_fw "*_R1.fastq.gz" --pattern_rv "*_R2.fastq.gz"
+microhap_pipeline_beta.py --index-file /home/ashley/Documents/microhaps/sample_file.csv --ref /home/ashley/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed /home/ashley/Documents/microhaps/microhap.bed --trim --output_file meta_file --pattern_fw "*_R1.trimmed.fastq.gz" --pattern_rv "*_R2.trimmed.fastq.gz" --pr1 /home/ashley/Documents/microhaps/microhap_pr_fwd.min_overlap.fasta --pr2 /home/ashley/Documents/microhaps/microhap_pr_rv.min_overlap.fasta
 ```
 
 ## Running only the MicroHaplotype Quality Control step
