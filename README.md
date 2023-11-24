@@ -27,8 +27,8 @@ git clone https://github.com/aosborne13/Menzies_MicroHaps
 cd Menzies_MicroHaps
 python setup.py install
 ```
-## Run MicroHap pipeline
-Running the MicroHap pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2.
+## Run MicroHaplotype pipeline
+Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2.
 
 DOWNSTREAM PROCESSING NOT ADDED YET - COMING SOON
 ```
