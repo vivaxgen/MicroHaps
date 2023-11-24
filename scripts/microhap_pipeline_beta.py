@@ -117,7 +117,7 @@ parser.add_argument('--trim-qv',default=5,type=int,help='Quality value to use in
 parser.add_argument('--output_file', type=str, help='Output meta file; to be used in path to meta', required=True)
 parser.add_argument('--pattern_fw', type=str, help='Pattern for forward reads, e.g. "*_R1.fastq.gz"', required=True)
 parser.add_argument('--pattern_rv', type=str, help='Pattern for reverse reads, e.g. "*_R2.fastq.gz"', required=True)
-parser.add_argument('--path_to_meta', help="Path to input fastq files", required=True)
+#parser.add_argument('--path_to_meta', default="output_file", help="Path to input fastq files")
 #parser.add_argument('--keep_primers', action="store_true",default=1, help="Skip primer removal step")
 parser.add_argument('--pr1', help="Path to forward primers FASTA file", required=True)
 parser.add_argument('--pr2', help="Path to reverse primers FASTA file", required=True)
