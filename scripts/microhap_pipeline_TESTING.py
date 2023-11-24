@@ -29,7 +29,7 @@ def create_meta(args):
     proc.wait()
 
 def main(args):
-     create_meta(args)  # call create_meta function here
+    create_meta(args)  # call create_meta function here
 
     samples = []
     reader = csv.DictReader(open(args.index_file))
