@@ -26,11 +26,10 @@ def create_meta(args):
                     '--pattern_fw', args.pattern_fw,
                     '--pattern_rv', args.pattern_rv],
                     stdout=sys.stdout, stderr=sys.stderr)
-    #proc.wait()
-
-create_meta(args)
+    proc.wait()
 
 def main(args):
+     create_meta(args)  # call create_meta function here
 
     samples = []
     reader = csv.DictReader(open(args.index_file))
