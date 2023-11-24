@@ -15,15 +15,6 @@ def create_meta(path_to_fq,output_file,pattern_fw,pattern_rv):
 	proc.wait()
 	return()
 
-def preprocess(sampleid,fileF,fileR, qvalue = 5, length = 20):
-	if os.path.isfile(fileF) and os.path.isfile(fileR):
-		proc = subprocess.Popen(['trim_galore', '--paired', '--gzip', '--quality', str(qvalue), '--length', str(length),
-			'--output_dir', os.path.join(run_dir,"preprocess_fq"), '--basename', sampleid, fileF, fileR],
-			stdout=sys.stdout, stderr=sys.stderr)
-		proc.wait()
-	else:
-		sys.exit('Pre-process halted : one or both of the fastq files not found! Exiting..')
-	return()
 
 def trim_primer(sampleid,fileF,fileR,pr1,pr2):
 	if os.path.isfile(fileF) and os.path.isfile(fileR):
