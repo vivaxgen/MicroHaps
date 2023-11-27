@@ -156,7 +156,7 @@ def main():
 
     #print('DADA2 step complete!')
     print("Now running DADA2..")
-    run_cmd('runDADA2.R -p prim_meta.txt -d run_dada2 -o seqtab.tsv -c "%(Class)s" --maxEE "%(maxEE)s" --trimRight "%(trimRight)s" --minLen %(minLen)s --truncQ "%(truncQ)s" --max_consist %(max_consist)s --omegaA %(omegaA)s --justConcatenate %(justConcatenate)s --saveRdata %(saveRdata)s' % vars(args))
+    run_cmd('Rscript runDADA2.R -p prim_meta.txt -d run_dada2 -o seqtab.tsv -c "%(Class)s" --maxEE "%(maxEE)s" --trimRight "%(trimRight)s" --minLen %(minLen)s --truncQ "%(truncQ)s" --max_consist %(max_consist)s --omegaA %(omegaA)s --justConcatenate %(justConcatenate)s --saveRdata %(saveRdata)s' % vars(args))
 
     print('DADA2 step complete!')
 
