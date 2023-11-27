@@ -146,7 +146,7 @@ def main():
     '--max_consist', str(args.max_consist),
     '--omegaA', str(args.omegaA),
     '--justConcatenate', str(args.justConcatenate),
-    '--saveRdata', args.saveRdata,
+#    '--saveRdata', args.saveRdata,
     '--bimera'
     ]
     dada2_cmd_str = ' '.join(map(str, dada2_cmd))
