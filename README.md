@@ -104,7 +104,7 @@ Example of usage with your input files stored in a separate directory. The comma
 ```
 microhap_QC.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed
 ```
-## Manual Cond environment setup and installation
+## Manual Conda environment setup and installation
 Create conda environment to store required packages. Conda channel configuration is shown in instructions for first time users. If your conda is already configured, please skip those steps.
 ```
 conda create -n microhapQC
