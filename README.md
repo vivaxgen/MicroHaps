@@ -24,6 +24,10 @@ R
 BiocManager::install("GenomeInfoDb")
 BiocManager::install("GenomicRanges")
 BiocManager::install("Biostrings")
+BiocManager::install("Rsamtools")
+BiocManager::install("SummarizedExperiment")
+BiocManager::install("GenomicAlignments")
+BiocManager::install("ShortRead")
 BiocManager::install("dada2")
 
 # Quit R and do not save current workspace using 'n'
