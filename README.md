@@ -24,7 +24,11 @@ python setup.py install
 ## Running the MicroHaplotype pipeline on local devices and private servers (not ADA)
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2.
 
-COMING SOON
+Run the below command to generate a sample file for the pipeline. Alternatively, you can manually create a CSV sample file with only the samples you require. The CSV needs the sample IDs (which should correspond to your FASTQ file IDs) in a single column with "sample" as the column name. The column name "sample" is case sensitive.
+```
+ls *_R1.fastq.gz | sed 's/.fastq.gz//' | sed 's/_R1$//' | (echo "sample" && cat -) | sed 's/ \+/,/g' > sample_file.csv
+```
+Run the pipeline using the sample_file.csv as the INDEX_FILE. You can store the index file elsewhere but the FASTQ files should be located in the directory where you run the pipeline.
 ```
 usage: microhap_pipeline_beta.py [-h] --index-file INDEX_FILE --ref REF --bed BED [--trim]
                                  [--trim-qv TRIM_QV] --output_file OUTPUT_FILE --pattern_fw
@@ -79,6 +83,7 @@ microhap_pipeline_beta.py --index-file ~/Documents/microhaps/sample_file.csv --r
 ```
 ## Running the MicroHaplotype pipeline on ADA
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2. Running on ADA using JSON inputs to submit a patch job for processing.
+
 COMING SOON
 
 ## Running only the MicroHaplotype Quality Control step (on local devices/private servers)
