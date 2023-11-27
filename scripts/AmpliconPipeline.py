@@ -134,7 +134,7 @@ def main():
     #print('DADA2 step complete!')
     print("Now running DADA2..")
     dada2_cmd = [
-    'runDADA2.R',
+    'Rscript','runDADA2.R',
     '--path_to_meta', 'prim_meta.txt',
     '--output_dir', os.path.join(run_dir, 'run_dada2'),
     '--output_file', 'seqtab.tsv',
