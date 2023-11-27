@@ -86,7 +86,7 @@ Running the MicroHaplotype pipeline carries out both quality control of raw read
 
 COMING SOON
 
-## Running only the MicroHaplotype Quality Control step (on local devices/private servers)
+## Running only the MicroHaplotype FASTQ Quality Control step (on local devices/private servers)
 Create sample list CSV file, using the command below, to run script in the folder containing your FASTQ files. 
 
 Alternatively, you can manually create a CSV sample file with only the samples you require. The CSV needs the sample IDs (which should correspond to your FASTQ file IDs) in a single column with "sample" as the column name. The column name "sample" is case sensitive.
