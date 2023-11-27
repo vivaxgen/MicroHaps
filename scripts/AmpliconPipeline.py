@@ -6,6 +6,7 @@ import threading
 import multiprocessing
 import sys
 import os
+import subprocess as sp
 from fastq2matrix import run_cmd
 
 def run_cmd(cmd):
