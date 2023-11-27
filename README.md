@@ -67,7 +67,6 @@ optional arguments:
   --justConcatenate     JUSTCONCATENATE
                         whether reads should be concatenated with N's during merge (dada2
                         argument) (default: 0)
-  --saveRdata           SAVERDATA
                         Optionally save dada2 part of this run as Rdata object (default: None)
   --version             show program's version number and exit
 ```
