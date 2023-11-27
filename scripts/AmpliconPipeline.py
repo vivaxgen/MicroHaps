@@ -149,7 +149,8 @@ def main():
     '--saveRdata', args.saveRdata,
     '--bimera'
     ]
-    run_cmd(dada2_cmd)
+    dada2_cmd_str = ' '.join(map(str, dada2_cmd))
+    run_cmd(dada2_cmd_str)
     print('DADA2 step complete!')
 
     return
