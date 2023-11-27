@@ -105,7 +105,7 @@ def main(args):
     print("Coverage stats moved successfully.")
 
     # Run Amplicon Pipeline and DADA 2
-    run_cmd('AmpliconPipeline.py --path_to_meta %(output_file)s --pr1 %(pr1)s --pr2 %(pr2)s --Class "%(Class)s" --maxEE "%(maxEE)s" --trimRight "%(trimRight)s" --minLen %(minLen)s --truncQ "%(truncQ)s" --max_consist %(max_consist)s --omegaA %(omegaA)s --justConcatenate %(justConcatenate)s --saveRdata %(saveRdata)s' % vars(args))
+    run_cmd('AmpliconPipeline.py --path_to_meta %(output_file)s --pr1 %(pr1)s --pr2 %(pr2)s --Class "%(Class)s" --maxEE "%(maxEE)s" --trimRight "%(trimRight)s" --minLen %(minLen)s --truncQ "%(truncQ)s" --max_consist %(max_consist)s --omegaA %(omegaA)s --justConcatenate %(justConcatenate)s' % vars(args))
 
 # Set up the parser
 parser = argparse.ArgumentParser(description='MicroHaplotype Pipeline',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -129,7 +129,7 @@ parser.add_argument('--truncQ', default="5,5", help="Soft trim bases based on qu
 parser.add_argument('--max_consist', default=10, help="Number of cycles for consistency in error model (dada2 argument)")
 parser.add_argument('--omegaA', default=1e-120, help="p-value for the partitioning algorithm (dada2 argument)")
 parser.add_argument('--justConcatenate', default=0, help="whether reads should be concatenated with N's during merge (dada2 argument)")
-parser.add_argument('--saveRdata', help="Optionally save dada2 part of this run as Rdata object")
+#parser.add_argument('--saveRdata', help="Optionally save dada2 part of this run as Rdata object")
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 parser.set_defaults(func=main)
 
