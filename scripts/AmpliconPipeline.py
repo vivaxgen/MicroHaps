@@ -132,20 +132,40 @@ def main():
     #print("Now running DADA2..")
     #run_cmd('runDADA2.R -p prim_meta.txt -d run_dada2 -o seqtab.tsv -c "%(Class)s" --maxEE "%(maxEE)s" --trimRight "%(trimRight)s" --minLen %(minLen)s --truncQ "%(truncQ)s" --max_consist %(max_consist)s --omegaA %(omegaA)s --justConcatenate %(justConcatenate)s --saveRdata %(saveRdata)s' % vars(args))
     #print('DADA2 step complete!')
+    #print("Now running DADA2..")
+    #dada2_cmd = [
+    #'Rscript','runDADA2.R',
+    #'--path_to_meta', 'prim_meta.txt',
+    #'--output_dir', os.path.join(run_dir, 'run_dada2'),
+    #'--output_file', 'seqtab.tsv',
+    #'--Class', args.Class,
+    #'--maxEE', str(args.maxEE),
+    #'--trimRight', str(args.trimRight),
+    #'--minLen', str(args.minLen),
+    #'--truncQ', str(args.truncQ),
+    #'--max_consist', str(args.max_consist),
+    #'--omegaA', str(args.omegaA),
+    #'--justConcatenate', str(args.justConcatenate),
+#    '--saveRdata', args.saveRdata,
+    #'--bimera'
+    #]
+    #dada2_cmd_str = ' '.join(map(str, dada2_cmd))
+    #run_cmd(dada2_cmd_str)
+    #print('DADA2 step complete!')
     print("Now running DADA2..")
     dada2_cmd = [
     'Rscript','runDADA2.R',
-    '--path_to_meta', 'prim_meta.txt',
-    '--output_dir', os.path.join(run_dir, 'run_dada2'),
-    '--output_file', 'seqtab.tsv',
-    '--Class', args.Class,
-    '--maxEE', str(args.maxEE),
-    '--trimRight', str(args.trimRight),
-    '--minLen', str(args.minLen),
-    '--truncQ', str(args.truncQ),
-    '--max_consist', str(args.max_consist),
-    '--omegaA', str(args.omegaA),
-    '--justConcatenate', str(args.justConcatenate),
+    '-p', 'prim_meta.txt',
+    '-d', os.path.join(run_dir, 'run_dada2'),
+    '-o', 'seqtab.tsv',
+    '-c', args.Class,
+    '-ee', str(args.maxEE),
+    '-tR', str(args.trimRight),
+    '-mL', str(args.minLen),
+    '-tQ', str(args.truncQ),
+    '-mC', str(args.max_consist),
+    '-wA', str(args.omegaA),
+    '-jC', str(args.justConcatenate),
 #    '--saveRdata', args.saveRdata,
     '--bimera'
     ]
