@@ -6,6 +6,14 @@ import threading
 import multiprocessing
 import sys
 import os
+from fastq2matrix import run_cmd
+
+def run_cmd(cmd):
+    sys.stderr.write("Running command:\n%s\n\n" % cmd)
+    with open("/dev/null","w") as O:
+        res = sp.call(cmd,shell=True,stderr=O,stdout=O)
+    if res!=0:
+        sys.exit("Error running last command, please check!\n")
 
 #def create_meta(path_to_fq, output_file, pattern_fw, pattern_rv):
     #proc = subprocess.Popen(['python', os.path.join(path, 'create_meta.py'), '--path_to_fq', path_to_fq,
