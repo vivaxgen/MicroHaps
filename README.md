@@ -17,8 +17,13 @@ conda install python=3.8 bwa samtools bcftools freebayes parallel datamash gatk4
 ```
 Install DADA2 into R Client
 ```
+# Open R in command line
 R
+
+#install DADA2 using BiocManager
 BiocManager::install("dada2")
+
+# Quit R and do not save current workspace using 'n'
 q()
 n
 ```
