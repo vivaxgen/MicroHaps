@@ -2,40 +2,12 @@
 GitHub adaptation of MicroHaplotype pipeline for collaborators.
 
 ## Installation on local devices and private servers (Skip this if using ADA)
-Create conda environment to store required packages. Conda channel configuration is shown in instructions for first time users. If your conda is already configured, please skip those steps.
+Create conda environment with required packages by downloadind the .yaml file provided in input files () and following the commands below. Manual installation is found below if required or if individual packages are missing/incorrectly installed.
 ```
-conda create -n microhapQC
-conda activate microhapQC
-
-conda config --add channels defaults
-conda config --add channels bioconda
-conda config --add channels conda-forge
-conda config --set channel_priority strict
-
-conda install python=3.8 bwa samtools bcftools freebayes parallel datamash gatk4=4.1.4.1 delly tqdm trimmomatic minimap2 biopython bedtools r-ggplot2 iqtree fastqc mosdepth samclip sambamba multiqc pandas cutadapt r-BiocManager r-RCurl
-
-```
-Install DADA2 into R Client
-```
-# Open R in command line
-R
-
-#install DADA2 and pre-requisites using BiocManager
-BiocManager::install("GenomeInfoDb")
-BiocManager::install("GenomicRanges")
-BiocManager::install("Biostrings")
-BiocManager::install("Rsamtools")
-BiocManager::install("SummarizedExperiment")
-BiocManager::install("GenomicAlignments")
-BiocManager::install("ShortRead")
-BiocManager::install("dada2")
-
-# Quit R and do not save current workspace using 'n'
-q()
-n
+conda env create -f microhapQC.yaml
 ```
 
-Install pre-requisite packages and repositories; storing repositories in easily accessible "tools" folder for quick maintenance.
+Install pre-requisite GitHub repositories; storing repositories in easily accessible "tools" folder for quick maintenance.
 ```
 mkdir tools
 cd /tools/
@@ -131,4 +103,38 @@ optional arguments:
 Example of usage with your input files stored in a separate directory. The command is run in the directory containing the FASTQ files listed in the CSV file.
 ```
 microhap_QC.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed
+```
+## Manual Cond environment setup and installation
+Create conda environment to store required packages. Conda channel configuration is shown in instructions for first time users. If your conda is already configured, please skip those steps.
+```
+conda create -n microhapQC
+conda activate microhapQC
+
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+
+conda install python=3.8 bwa samtools bcftools freebayes parallel datamash gatk4=4.1.4.1 delly tqdm trimmomatic minimap2 biopython bedtools r-ggplot2 iqtree fastqc mosdepth samclip sambamba multiqc pandas cutadapt r-BiocManager r-RCurl
+
+```
+Install DADA2 into R Client
+```
+# Open R in command line
+R
+
+#install DADA2 and pre-requisites using BiocManager
+BiocManager::install("GenomeInfoDb")
+BiocManager::install("GenomicRanges")
+BiocManager::install("Biostrings")
+BiocManager::install("Rsamtools")
+BiocManager::install("SummarizedExperiment")
+BiocManager::install("GenomicAlignments")
+BiocManager::install("ShortRead")
+BiocManager::install("dada2")
+BiocManager::install("limma")
+
+# Quit R and do not save current workspace using 'n'
+q()
+n
 ```
