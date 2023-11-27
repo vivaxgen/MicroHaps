@@ -16,28 +16,6 @@ def run_cmd(cmd):
     if res!=0:
         sys.exit("Error running last command, please check!\n")
 
-#def create_meta(path_to_fq, output_file, pattern_fw, pattern_rv):
-    #proc = subprocess.Popen(['python', os.path.join(path, 'create_meta.py'), '--path_to_fq', path_to_fq,
-    #                         '--output_file', output_file, '--pattern_fw', pattern_fw, '--pattern_rv', pattern_rv],
-    #                        stdout=sys.stdout, stderr=sys.stderr)
-#    proc = subprocess.Popen([sys.executable, 'create_meta.py', '--path_to_fq', path_to_fq,
-#                         '--output_file', output_file, '--pattern_fw', pattern_fw, '--pattern_rv', pattern_rv],
-#                        stdout=sys.stdout, stderr=sys.stderr)
-#    proc.wait()
-#    return
-
-#def trim_primer(sampleid, fileF, fileR, pr1, pr2):
-#    if os.path.isfile(fileF) and os.path.isfile(fileR):
-#        proc = subprocess.Popen(['cutadapt', '-g', ('file:' + pr1), '-G', ('file:' + pr2),
-#                                 '-o', os.path.join(run_dir, "prim_fq", sampleid + "_prim_1.fq.gz"),
-#                                 '-p', os.path.join(run_dir, "prim_fq", sampleid + "_prim_2.fq.gz"),
-#                                 '--pair-adapters', '--discard-untrimmed', '--action=trim',
-#                                 fileF, fileR], stdout=sys.stdout, stderr=sys.stderr)
-#        proc.wait()
-#    else:
-#        sys.exit('Pre-process halted: one or both of the fastq files not found! Exiting..')
-#    return
-
 def trim_primer(sampleid, fileF, fileR, pr1, pr2):
     if os.path.isfile(fileF) and os.path.isfile(fileR):
         cmd = [
@@ -143,21 +121,16 @@ def main():
         print("Directory %s already exists.." % (os.path.join(run_dir, "run_dada2")))
 
     #print("Now running DADA2..")
-    #cmd = ['Rscript', os.path.join(path, 'runDADA2.R'), '-p', path_to_meta, '-d', os.path.join(run_dir, 'run_dada2'),
-    #   '-o', 'seqtab.tsv', '-c', args.Class, '-ee', str(args.maxEE), '-tR', str(args.trimRight), '-mL', str(args.minLen),
-    #   '-tQ', str(args.truncQ), '-mC', str(args.max_consist), '-wA', str(args.omegaA), '-jC', str(args.justConcatenate),
-    #   '-s', args.saveRdata, '--bimera']
     #cmd = ['Rscript', os.path.join(path, 'runDADA2.R'), '-p', 'prim_meta.txt', '-d', os.path.join(run_dir, 'run_dada2'),
     #   '-o', 'seqtab.tsv', '-c', args.Class, '-ee', str(args.maxEE), '-tR', str(args.trimRight), '-mL', str(args.minLen),
     #   '-tQ', str(args.truncQ), '-mC', str(args.max_consist), '-wA', str(args.omegaA), '-jC', str(args.justConcatenate),
     #   '-s', args.saveRdata, '--bimera']
     #proc = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
     #proc.wait()
-
     #print('DADA2 step complete!')
+    
     print("Now running DADA2..")
-    run_cmd('Rscript runDADA2.R -p prim_meta.txt -d run_dada2 -o seqtab.tsv -c "%(Class)s" --maxEE "%(maxEE)s" --trimRight "%(trimRight)s" --minLen %(minLen)s --truncQ "%(truncQ)s" --max_consist %(max_consist)s --omegaA %(omegaA)s --justConcatenate %(justConcatenate)s --saveRdata %(saveRdata)s' % vars(args))
-
+    run_cmd('runDADA2.R -p prim_meta.txt -d run_dada2 -o seqtab.tsv -c "%(Class)s" --maxEE "%(maxEE)s" --trimRight "%(trimRight)s" --minLen %(minLen)s --truncQ "%(truncQ)s" --max_consist %(max_consist)s --omegaA %(omegaA)s --justConcatenate %(justConcatenate)s --saveRdata %(saveRdata)s' % vars(args))
     print('DADA2 step complete!')
 
     return
