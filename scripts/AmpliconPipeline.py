@@ -8,9 +8,12 @@ import sys
 import os
 
 def create_meta(path_to_fq, output_file, pattern_fw, pattern_rv):
-    proc = subprocess.Popen(['python', os.path.join(path, 'create_meta.py'), '--path_to_fq', path_to_fq,
-                             '--output_file', output_file, '--pattern_fw', pattern_fw, '--pattern_rv', pattern_rv],
-                            stdout=sys.stdout, stderr=sys.stderr)
+    #proc = subprocess.Popen(['python', os.path.join(path, 'create_meta.py'), '--path_to_fq', path_to_fq,
+    #                         '--output_file', output_file, '--pattern_fw', pattern_fw, '--pattern_rv', pattern_rv],
+    #                        stdout=sys.stdout, stderr=sys.stderr)
+    proc = subprocess.Popen([sys.executable, 'create_meta.py', '--path_to_fq', path_to_fq,
+                         '--output_file', output_file, '--pattern_fw', pattern_fw, '--pattern_rv', pattern_rv],
+                        stdout=sys.stdout, stderr=sys.stderr)
     proc.wait()
     return
 
