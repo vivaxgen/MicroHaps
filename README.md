@@ -2,15 +2,16 @@
 GitHub adaptation of MicroHaplotype pipeline for collaborators.
 
 ## Installation on local devices and private servers (Skip this if using ADA)
-Create conda environment with required packages by downloadind the .yaml file provided in input files () and following the commands below. Manual installation is found below if required or if individual packages are missing/incorrectly installed.
-```
-conda env create -f microhapQC.yaml
-```
-
-Install pre-requisite GitHub repositories; storing repositories in easily accessible "tools" folder for quick maintenance.
+Create conda environment with required packages by downloading the microhapQC.yaml file provided in input files (https://github.com/aosborne13/Menzies_MicroHaps/blob/main/input_files/microhapQC.yaml) and following the commands below. Manual installation is found below if required or if individual packages are missing/incorrectly installed.
 ```
 mkdir tools
 cd /tools/
+conda env create -f microhapQC.yaml
+conda activate microhapQC
+```
+
+Install pre-requisite GitHub repositories; store repositories in easily accessible "tools" folder for quick maintenance.
+```
 git clone https://github.com/pathogenseq/fastq2matrix.git
 cd fastq2matrix
 python setup.py install
