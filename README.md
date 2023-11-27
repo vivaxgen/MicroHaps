@@ -1,7 +1,7 @@
 # Menzies_MicroHaps
 GitHub adaptation of MicroHaplotype pipeline for collaborators.
 
-## Installation
+## Installation on local devices and private servers (Skip this if using ADA)
 Create conda environment to store required packages. Conda channel configuration is shown in instructions for first time users. If your conda is already configured, please skip those steps.
 ```
 conda create -n microhapQC
@@ -12,7 +12,7 @@ conda config --add channels bioconda
 conda config --add channels conda-forge
 conda config --set channel_priority strict
 
-conda install python=3.8 bwa samtools bcftools freebayes parallel datamash gatk4=4.1.4.1 delly tqdm trimmomatic minimap2 biopython bedtools r-ggplot2 iqtree fastqc mosdepth samclip sambamba multiqc pandas cutadapt r-BiocManager
+conda install python=3.8 bwa samtools bcftools freebayes parallel datamash gatk4=4.1.4.1 delly tqdm trimmomatic minimap2 biopython bedtools r-ggplot2 iqtree fastqc mosdepth samclip sambamba multiqc pandas cutadapt r-BiocManager r-RCurl
 
 ```
 Install DADA2 into R Client
@@ -20,7 +20,10 @@ Install DADA2 into R Client
 # Open R in command line
 R
 
-#install DADA2 using BiocManager
+#install DADA2 and pre-requisites using BiocManager
+BiocManager::install("GenomeInfoDb")
+BiocManager::install("GenomicRanges")
+BiocManager::install("Biostrings")
 BiocManager::install("dada2")
 
 # Quit R and do not save current workspace using 'n'
@@ -41,10 +44,10 @@ git clone https://github.com/aosborne13/Menzies_MicroHaps
 cd Menzies_MicroHaps
 python setup.py install
 ```
-## Running the MicroHaplotype pipeline
+## Running the MicroHaplotype pipeline on local devices and private servers (not ADA)
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2.
 
-DOWNSTREAM PROCESSING COMING SOON
+COMING SOON
 ```
 usage: microhap_pipeline_beta.py [-h] --index-file INDEX_FILE --ref REF --bed BED [--trim]
                                  [--trim-qv TRIM_QV] --output_file OUTPUT_FILE --pattern_fw
@@ -96,8 +99,11 @@ Example Usage:
 ```
 microhap_pipeline_beta.py --index-file /home/ashley/Documents/microhaps/sample_file.csv --ref /home/ashley/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed /home/ashley/Documents/microhaps/microhap.bed --trim --output_file meta_file --pattern_fw "*_R1.trimmed.fastq.gz" --pattern_rv "*_R2.trimmed.fastq.gz" --pr1 /home/ashley/Documents/microhaps/microhap_pr_fwd.min_overlap.fasta --pr2 /home/ashley/Documents/microhaps/microhap_pr_rv.min_overlap.fasta
 ```
+## Running the MicroHaplotype pipeline on ADA
+Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2. Running on ADA using JSON inputs to submit a patch job for processing.
+COMING SOON
 
-## Running only the MicroHaplotype Quality Control step
+## Running only the MicroHaplotype Quality Control step (on local devices/private servers)
 Create sample list CSV file, using the command below, to run script in the folder containing your FASTQ files. 
 
 Alternatively, you can manually create a CSV sample file with only the samples you require. The CSV needs the sample IDs (which should correspond to your FASTQ file IDs) in a single column with "sample" as the column name. The column name "sample" is case sensitive.
