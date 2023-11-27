@@ -35,9 +35,9 @@ usage: microhap_pipeline_beta.py [-h] --index-file INDEX_FILE --ref REF --bed BE
                                  [--saveRdata SAVERDATA] [--version]
 
 MicroHaplotype Pipeline
-
-optional arguments:
   -h, --help            show this help message and exit
+
+required arguments:
   --index-file          INDEX_FILE
                         CSV file containing field "Sample" (default: None)
   --ref REF             Reference fasta (default: None)
@@ -52,6 +52,8 @@ optional arguments:
                         Pattern for reverse reads, e.g. "*_R2.fastq.gz" (default: None)
   --pr1 PR1             Path to forward primers FASTA file (default: None)
   --pr2 PR2             Path to reverse primers FASTA file (default: None)
+
+optional arguments:
   --Class CLASS         Specify Analysis class. Accepts one of two: parasite/vector (default:
                         parasite)
   --maxEE MAXEE         Maximum Expected errors (dada2 filtering argument) (default: 5,5)
@@ -73,7 +75,7 @@ optional arguments:
 
 Example Usage:
 ```
-microhap_pipeline_beta.py --index-file /home/ashley/Documents/microhaps/sample_file.csv --ref /home/ashley/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed /home/ashley/Documents/microhaps/microhap.bed --trim --output_file meta_file --pattern_fw "*_R1.trimmed.fastq.gz" --pattern_rv "*_R2.trimmed.fastq.gz" --pr1 /home/ashley/Documents/microhaps/microhap_pr_fwd.min_overlap.fasta --pr2 /home/ashley/Documents/microhaps/microhap_pr_rv.min_overlap.fasta
+microhap_pipeline_beta.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed --trim --output_file meta_file --pattern_fw "*_R1.trimmed.fastq.gz" --pattern_rv "*_R2.trimmed.fastq.gz" --pr1 ~/Documents/microhaps/microhap_pr_fwd.min_overlap.fasta --pr2 ~/Documents/microhaps/microhap_pr_rv.min_overlap.fasta
 ```
 ## Running the MicroHaplotype pipeline on ADA
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2. Running on ADA using JSON inputs to submit a patch job for processing.
