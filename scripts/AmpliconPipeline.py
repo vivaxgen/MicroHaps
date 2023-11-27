@@ -7,15 +7,15 @@ import multiprocessing
 import sys
 import os
 
-def create_meta(path_to_fq, output_file, pattern_fw, pattern_rv):
+#def create_meta(path_to_fq, output_file, pattern_fw, pattern_rv):
     #proc = subprocess.Popen(['python', os.path.join(path, 'create_meta.py'), '--path_to_fq', path_to_fq,
     #                         '--output_file', output_file, '--pattern_fw', pattern_fw, '--pattern_rv', pattern_rv],
     #                        stdout=sys.stdout, stderr=sys.stderr)
-    proc = subprocess.Popen([sys.executable, 'create_meta.py', '--path_to_fq', path_to_fq,
-                         '--output_file', output_file, '--pattern_fw', pattern_fw, '--pattern_rv', pattern_rv],
-                        stdout=sys.stdout, stderr=sys.stderr)
-    proc.wait()
-    return
+#    proc = subprocess.Popen([sys.executable, 'create_meta.py', '--path_to_fq', path_to_fq,
+#                         '--output_file', output_file, '--pattern_fw', pattern_fw, '--pattern_rv', pattern_rv],
+#                        stdout=sys.stdout, stderr=sys.stderr)
+#    proc.wait()
+#    return
 
 def trim_primer(sampleid, fileF, fileR, pr1, pr2):
     if os.path.isfile(fileF) and os.path.isfile(fileR):
@@ -104,9 +104,12 @@ def main():
             p.join()
             meta.close()
 
-            create_meta(os.path.join(run_dir, "prim_fq"), os.path.join(run_dir, "prim_meta.txt"),
-                        pattern_fw="*_prim_1.fq.gz", pattern_rv="*_prim_2.fq.gz")
-            path_to_meta = os.path.join(run_dir, "prim_meta.txt")
+            #create_meta(os.path.join(run_dir, "prim_fq"), os.path.join(run_dir, "prim_meta.txt"),
+            #            pattern_fw="*_prim_1.fq.gz", pattern_rv="*_prim_2.fq.gz")
+            #path_to_meta = os.path.join(run_dir, "prim_meta.txt")
+
+            run_cmd('create_meta.py --path_to_fq prim_fq --output_file prim_meta.txt --pattern_fw "*_prim_1.fq.gz" --pattern_rv "*_prim_2.fq.gz"' % vars(args))
+            
 
     # Steps after Primer removal
     if not os.path.exists(os.path.join(run_dir, "run_dada2")):
@@ -115,7 +118,11 @@ def main():
         print("Directory %s already exists.." % (os.path.join(run_dir, "run_dada2")))
 
     print("Now running DADA2..")
-    cmd = ['Rscript', os.path.join(path, 'runDADA2.R'), '-p', path_to_meta, '-d', os.path.join(run_dir, 'run_dada2'),
+    #cmd = ['Rscript', os.path.join(path, 'runDADA2.R'), '-p', path_to_meta, '-d', os.path.join(run_dir, 'run_dada2'),
+    #   '-o', 'seqtab.tsv', '-c', args.Class, '-ee', str(args.maxEE), '-tR', str(args.trimRight), '-mL', str(args.minLen),
+    #   '-tQ', str(args.truncQ), '-mC', str(args.max_consist), '-wA', str(args.omegaA), '-jC', str(args.justConcatenate),
+    #   '-s', args.saveRdata, '--bimera']
+    cmd = ['Rscript', os.path.join(path, 'runDADA2.R'), '-p', 'prim_meta.txt', '-d', os.path.join(run_dir, 'run_dada2'),
        '-o', 'seqtab.tsv', '-c', args.Class, '-ee', str(args.maxEE), '-tR', str(args.trimRight), '-mL', str(args.minLen),
        '-tQ', str(args.truncQ), '-mC', str(args.max_consist), '-wA', str(args.omegaA), '-jC', str(args.justConcatenate),
        '-s', args.saveRdata, '--bimera']
