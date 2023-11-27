@@ -26,17 +26,33 @@ def run_cmd(cmd):
 #    proc.wait()
 #    return
 
+#def trim_primer(sampleid, fileF, fileR, pr1, pr2):
+#    if os.path.isfile(fileF) and os.path.isfile(fileR):
+#        proc = subprocess.Popen(['cutadapt', '-g', ('file:' + pr1), '-G', ('file:' + pr2),
+#                                 '-o', os.path.join(run_dir, "prim_fq", sampleid + "_prim_1.fq.gz"),
+#                                 '-p', os.path.join(run_dir, "prim_fq", sampleid + "_prim_2.fq.gz"),
+#                                 '--pair-adapters', '--discard-untrimmed', '--action=trim',
+#                                 fileF, fileR], stdout=sys.stdout, stderr=sys.stderr)
+#        proc.wait()
+#    else:
+#        sys.exit('Pre-process halted: one or both of the fastq files not found! Exiting..')
+#    return
+
 def trim_primer(sampleid, fileF, fileR, pr1, pr2):
     if os.path.isfile(fileF) and os.path.isfile(fileR):
-        proc = subprocess.Popen(['cutadapt', '-g', ('file:' + pr1), '-G', ('file:' + pr2),
-                                 '-o', os.path.join(run_dir, "prim_fq", sampleid + "_prim_1.fq.gz"),
-                                 '-p', os.path.join(run_dir, "prim_fq", sampleid + "_prim_2.fq.gz"),
-                                 '--pair-adapters', '--discard-untrimmed', '--action=trim',
-                                 fileF, fileR], stdout=sys.stdout, stderr=sys.stderr)
+        cmd = [
+            'cutadapt', '-g', ('file:' + pr1), '-G', ('file:' + pr2),
+            '-o', os.path.join(run_dir, "prim_fq", sampleid + "_prim_1.fq.gz"),
+            '-p', os.path.join(run_dir, "prim_fq", sampleid + "_prim_2.fq.gz"),
+            '--pair-adapters', '--discard-untrimmed', '--action=trim',
+            fileF, fileR
+        ]
+        print("Primer Removal Command:", " ".join(cmd))
+        proc = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
         proc.wait()
     else:
         sys.exit('Pre-process halted: one or both of the fastq files not found! Exiting..')
-    return
+
 
 def main():
     global run_dir
