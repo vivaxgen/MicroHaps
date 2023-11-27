@@ -50,7 +50,7 @@ def main():
     parser.add_argument('--max_consist', help="Number of cycles for consistency in error model (dada2 argument)")
     parser.add_argument('--omegaA', help="p-value for the partitioning algorithm (dada2 argument)")
     parser.add_argument('--justConcatenate', help="whether reads should be concatenated with N's during merge (dada2 argument)")
-    parser.add_argument('--saveRdata', help="Optionally save dada2 part of this run as Rdata object")
+    #parser.add_argument('--saveRdata', help="Optionally save dada2 part of this run as Rdata object")
 
     args = parser.parse_args()
 
