@@ -156,24 +156,7 @@ def main():
 
     #print('DADA2 step complete!')
     print("Now running DADA2..")
-    cmd = [
-        'Rscript', 
-        'runDADA2.R',  # Use a relative path assuming 'runDADA2.R' is in the same directory
-        '-p', 'prim_meta.txt',
-        '-d', os.path.join(run_dir, 'run_dada2'),
-        '-o', 'seqtab.tsv',
-        '-c', args.Class,
-        '-ee', str(args.maxEE),
-        '-tR', str(args.trimRight),
-        '-mL', str(args.minLen),
-        '-tQ', str(args.truncQ),
-        '-mC', str(args.max_consist),
-        '-wA', str(args.omegaA),
-        '-jC', str(args.justConcatenate),
-        '-s', args.saveRdata,
-        '--bimera'
-    ]
-    run_cmd(cmd)
+    run_cmd('runDADA2.R -p prim_meta.txt -d run_dada2 -o seqtab.tsv -c "%(Class)s" --maxEE "%(maxEE)s" --trimRight "%(trimRight)s" --minLen %(minLen)s --truncQ "%(truncQ)s" --max_consist %(max_consist)s --omegaA %(omegaA)s --justConcatenate %(justConcatenate)s --saveRdata %(saveRdata)s' % vars(args))
 
     print('DADA2 step complete!')
 
