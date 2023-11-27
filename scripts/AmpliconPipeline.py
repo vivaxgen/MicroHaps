@@ -142,17 +142,38 @@ def main():
     else:
         print("Directory %s already exists.." % (os.path.join(run_dir, "run_dada2")))
 
-    print("Now running DADA2..")
+    #print("Now running DADA2..")
     #cmd = ['Rscript', os.path.join(path, 'runDADA2.R'), '-p', path_to_meta, '-d', os.path.join(run_dir, 'run_dada2'),
     #   '-o', 'seqtab.tsv', '-c', args.Class, '-ee', str(args.maxEE), '-tR', str(args.trimRight), '-mL', str(args.minLen),
     #   '-tQ', str(args.truncQ), '-mC', str(args.max_consist), '-wA', str(args.omegaA), '-jC', str(args.justConcatenate),
     #   '-s', args.saveRdata, '--bimera']
-    cmd = ['Rscript', os.path.join(path, 'runDADA2.R'), '-p', 'prim_meta.txt', '-d', os.path.join(run_dir, 'run_dada2'),
-       '-o', 'seqtab.tsv', '-c', args.Class, '-ee', str(args.maxEE), '-tR', str(args.trimRight), '-mL', str(args.minLen),
-       '-tQ', str(args.truncQ), '-mC', str(args.max_consist), '-wA', str(args.omegaA), '-jC', str(args.justConcatenate),
-       '-s', args.saveRdata, '--bimera']
-    proc = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
-    proc.wait()
+    #cmd = ['Rscript', os.path.join(path, 'runDADA2.R'), '-p', 'prim_meta.txt', '-d', os.path.join(run_dir, 'run_dada2'),
+    #   '-o', 'seqtab.tsv', '-c', args.Class, '-ee', str(args.maxEE), '-tR', str(args.trimRight), '-mL', str(args.minLen),
+    #   '-tQ', str(args.truncQ), '-mC', str(args.max_consist), '-wA', str(args.omegaA), '-jC', str(args.justConcatenate),
+    #   '-s', args.saveRdata, '--bimera']
+    #proc = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
+    #proc.wait()
+
+    #print('DADA2 step complete!')
+    print("Now running DADA2..")
+    cmd = [
+        'Rscript', 
+        'runDADA2.R',  # Use a relative path assuming 'runDADA2.R' is in the same directory
+        '-p', 'prim_meta.txt',
+        '-d', os.path.join(run_dir, 'run_dada2'),
+        '-o', 'seqtab.tsv',
+        '-c', args.Class,
+        '-ee', str(args.maxEE),
+        '-tR', str(args.trimRight),
+        '-mL', str(args.minLen),
+        '-tQ', str(args.truncQ),
+        '-mC', str(args.max_consist),
+        '-wA', str(args.omegaA),
+        '-jC', str(args.justConcatenate),
+        '-s', args.saveRdata,
+        '--bimera'
+    ]
+    run_cmd(cmd)
 
     print('DADA2 step complete!')
 
