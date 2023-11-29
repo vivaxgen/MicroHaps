@@ -4,7 +4,7 @@ GitHub adaptation of MicroHaplotype pipeline.
 ## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
 COMING SOON
 
-## Installation on local devices and private servers (Skip this if using ADA)
+## Installation on local devices and private servers (skip this step if using ADA)
 First create a tools directory to keep track of all software and repositories used by this pipeline.
 ```
 mkdir tools
