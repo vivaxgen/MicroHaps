@@ -51,7 +51,7 @@ Example of usage with your input files stored in a separate directory. The comma
 ```
 microhap_QC.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed
 ```
-## Running the MicroHaplotype pipeline on local devices and private servers (not ADA)
+## Running the complete MicroHaplotype pipeline on local devices and private servers (not ADA)
 POSTPROC_DADA2 AND ASV_TO_CIGAR COMING SOON.
 
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2.
