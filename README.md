@@ -23,9 +23,6 @@ git clone https://github.com/aosborne13/Menzies_MicroHaps
 cd Menzies_MicroHaps
 python setup.py install
 ```
-## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
-COMING SOON
-
 ## Running the MicroHaplotype pipeline on local devices and private servers (not ADA)
 POSTPROC_DADA2 AND ASV_TO_CIGAR COMING SOON.
 
@@ -88,6 +85,9 @@ Example Usage:
 ```
 microhap_pipeline_beta.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed --trim --output_file meta_file --pattern_fw "*_R1.trimmed.fastq.gz" --pattern_rv "*_R2.trimmed.fastq.gz" --pr1 ~/Documents/microhaps/microhap_pr_fwd.min_overlap.fasta --pr2 ~/Documents/microhaps/microhap_pr_rv.min_overlap.fasta
 ```
+## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
+COMING SOON
+
 ## Running the MicroHaplotype pipeline on ADA
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2. Running on ADA using JSON inputs to submit a patch job for processing.
 
