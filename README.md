@@ -23,6 +23,9 @@ git clone https://github.com/aosborne13/Menzies_MicroHaps
 cd Menzies_MicroHaps
 python setup.py install
 ```
+## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
+COMING SOON
+
 ## Running the MicroHaplotype pipeline on local devices and private servers (not ADA)
 POSTPROC_DADA2 AND ASV_TO_CIGAR COMING SOON.
 
