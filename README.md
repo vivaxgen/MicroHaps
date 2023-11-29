@@ -40,9 +40,7 @@ q()
 n
 ```
 
-Install pre-requisite GitHub repositories; store repositories in the easily accessible "tools" folder for quick maintenance.
-
-Remember to have the conda environment active while running the python setup installation.
+Install pre-requisite GitHub repositories; store repositories in the easily accessible "tools" folder for quick maintenance. Remember to keep the conda environment active while running the python setup installation step and for running any parts of the pipeline.
 ```
 git clone https://github.com/pathogenseq/fastq2matrix.git
 cd fastq2matrix
