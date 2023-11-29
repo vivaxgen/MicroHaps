@@ -51,7 +51,7 @@ git clone https://github.com/aosborne13/Menzies_MicroHaps
 cd Menzies_MicroHaps
 python setup.py install
 ```
-## Running only the FASTQ Quality Control step (on local devices/private servers)
+## Running only the FASTQ Quality Control step on local devices/private servers (not ADA)
 Create sample list CSV file, using the command below, to run script in the folder containing your FASTQ files. 
 
 Alternatively, you can manually create a CSV sample file with only the samples you require. The CSV needs the sample IDs (which should correspond to your FASTQ file IDs) in a single column with "sample" as the column name. The column name "sample" is case sensitive.
