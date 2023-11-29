@@ -4,6 +4,28 @@ GitHub adaptation of MicroHaplotype pipeline.
 ## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
 COMING SOON
 
+## Installation on local devices and private servers (Skip this if using ADA)
+Create conda environment with required packages by downloading the microhapQC.yaml file provided in input files (https://github.com/aosborne13/Menzies_MicroHaps/blob/main/input_files/microhapQC.yaml) and following the commands below. 
+
+Manual installation is found at the bottom of this page if required or if individual packages are missing/incorrectly installed.
+```
+mkdir tools
+cd /tools/
+conda env create -f microhapQC.yaml
+conda activate microhapQC
+```
+
+Install pre-requisite GitHub repositories; store repositories in easily accessible "tools" folder for quick maintenance.
+```
+git clone https://github.com/pathogenseq/fastq2matrix.git
+cd fastq2matrix
+python setup.py install
+
+cd ..
+git clone https://github.com/aosborne13/Menzies_MicroHaps
+cd Menzies_MicroHaps
+python setup.py install
+```
 ## Running only the MicroHaplotype FASTQ Quality Control step (on local devices/private servers)
 Create sample list CSV file, using the command below, to run script in the folder containing your FASTQ files. 
 
@@ -28,28 +50,6 @@ optional arguments:
 Example of usage with your input files stored in a separate directory. The command is run in the directory containing the FASTQ files listed in the CSV file.
 ```
 microhap_QC.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed
-```
-## Installation on local devices and private servers (Skip this if using ADA)
-Create conda environment with required packages by downloading the microhapQC.yaml file provided in input files (https://github.com/aosborne13/Menzies_MicroHaps/blob/main/input_files/microhapQC.yaml) and following the commands below. 
-
-Manual installation is found at the bottom of this page if required or if individual packages are missing/incorrectly installed.
-```
-mkdir tools
-cd /tools/
-conda env create -f microhapQC.yaml
-conda activate microhapQC
-```
-
-Install pre-requisite GitHub repositories; store repositories in easily accessible "tools" folder for quick maintenance.
-```
-git clone https://github.com/pathogenseq/fastq2matrix.git
-cd fastq2matrix
-python setup.py install
-
-cd ..
-git clone https://github.com/aosborne13/Menzies_MicroHaps
-cd Menzies_MicroHaps
-python setup.py install
 ```
 ## Running the MicroHaplotype pipeline on local devices and private servers (not ADA)
 POSTPROC_DADA2 AND ASV_TO_CIGAR COMING SOON.
