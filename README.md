@@ -58,7 +58,9 @@ Alternatively, you can manually create a CSV sample file with only the samples y
 ```
 ls *_R1.fastq.gz | sed 's/.fastq.gz//' | sed 's/_R1$//' | (echo "sample" && cat -) | sed 's/ \+/,/g' > sample_file.csv
 ```
-The MicroHaplotype Quality Control script needs to be run in the same directory as your FASTQ files. Remember to create a back-up copy of your raw FASTQ files elsewhere, in case of error.
+The MicroHaplotype Quality Control script needs to be run in the same directory as your FASTQ files. Remember to create a separate copy of your raw FASTQ files elsewhere. 
+
+DO NOT RUN WITHOUT MAKING A BACKUP COPY OF YOUR RAW FASTQ FILES STORED ELSEWHERE.
 ```
 usage: microhap_QC.py [-h] --index-file INDEX_FILE --ref REF --bed BED [--version]
 
@@ -72,7 +74,7 @@ arguments:
   --version             show program's version number and exit
 
 ```
-Example of usage with your input files stored in a separate directory. The command is run in the directory containing the FASTQ files listed in the CSV file.
+Example of usage with your input files stored in a separate directory. The command is run in the directory containing copies of the FASTQ files listed in the CSV file.
 ```
 microhap_QC.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed
 ```
