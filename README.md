@@ -14,6 +14,28 @@ cd /tools/
 conda env create -f microhapQC.yaml
 conda activate microhapQC
 ```
+R packages managed by BiocManager are not currently included in the conda environment and require manual installation.
+
+Install DADA2 into the R client while the microhapQC conda environment is active.
+```
+# Open R in command line
+R
+
+#install DADA2 and pre-requisites using BiocManager
+BiocManager::install("GenomeInfoDb")
+BiocManager::install("GenomicRanges")
+BiocManager::install("Biostrings")
+BiocManager::install("Rsamtools")
+BiocManager::install("SummarizedExperiment")
+BiocManager::install("GenomicAlignments")
+BiocManager::install("ShortRead")
+BiocManager::install("dada2")
+BiocManager::install("limma")
+
+# Quit R and do not save current workspace using 'n'
+q()
+n
+```
 
 Install pre-requisite GitHub repositories; store repositories in easily accessible "tools" folder for quick maintenance.
 ```
