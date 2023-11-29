@@ -1,5 +1,5 @@
 # Menzies_MicroHaps
-GitHub adaptation of MicroHaplotype pipeline for collaborators.
+GitHub adaptation of MicroHaplotype pipeline.
 
 ## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
 COMING SOON
