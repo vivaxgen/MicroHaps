@@ -5,11 +5,14 @@ GitHub adaptation of MicroHaplotype pipeline.
 COMING SOON
 
 ## Installation on local devices and private servers (Skip this if using ADA)
-Create conda environment with required packages by downloading the microhapQC.yaml file provided in input files (https://github.com/aosborne13/Menzies_MicroHaps/blob/main/input_files/microhapQC.yaml) and following the commands below. 
-
-Manual installation is found at the bottom of this page if required or if individual packages are missing/incorrectly installed.
+First create a tools directory to keep track of all software and repositories used by this pipeline.
 ```
 mkdir tools
+```
+Create conda environment with required packages by downloading the microhapQC.yaml file provided in input files (https://github.com/aosborne13/Menzies_MicroHaps/blob/main/input_files/microhapQC.yaml). Move the microhapQC.yaml file to your tools folder, if desired, and follow the commands below. 
+
+Manual installation of the conda environment and included packages is found at the bottom of this page if required or if individual packages are missing/incorrectly installed.
+```
 cd /tools/
 conda env create -f microhapQC.yaml
 conda activate microhapQC
@@ -37,7 +40,7 @@ q()
 n
 ```
 
-Install pre-requisite GitHub repositories; store repositories in easily accessible "tools" folder for quick maintenance.
+Install pre-requisite GitHub repositories; store repositories in the easily accessible "tools" folder for quick maintenance.
 
 Remember to have the conda environment active while running the python setup installation.
 ```
