@@ -81,7 +81,6 @@ required arguments:
   --ref REF             Reference fasta (default: None)
   --bed BED             BED file with MicroHaplotype locations (default: None)
   --trim                Perform triming (default: False)
-  --trim-qv TRIM_QV     Quality value to use in the sliding window analysis (default: 5)
   --output_file         OUTPUT_FILE
                         Output meta file; to be used in path to meta (default: None)
   --pattern_fw          PATTERN_FW
@@ -92,6 +91,8 @@ required arguments:
   --pr2 PR2             Path to reverse primers FASTA file (default: None)
 
 optional arguments:
+  --trim-qv             TRIM_QV
+                        Quality value to use in the sliding window analysis (default: 5)
   --Class CLASS         Specify Analysis class. Accepts one of two: parasite/vector (default:
                         parasite)
   --maxEE MAXEE         Maximum Expected errors (dada2 filtering argument) (default: 5,5)
