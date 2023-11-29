@@ -120,7 +120,7 @@ Running the MicroHaplotype pipeline carries out both quality control of raw read
 
 COMING SOON
 
-## Manual Conda environment setup and installation
+## Manual Conda environment setup and R package installation
 Create conda environment to store required packages. Conda channel configuration is shown in instructions for first time users. If your conda is already configured, please skip those steps.
 ```
 conda create -n microhapQC
