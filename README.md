@@ -64,7 +64,7 @@ usage: microhap_QC.py [-h] --index-file INDEX_FILE --ref REF --bed BED [--versio
 
 MicroHaplotype Quality Control script
 
-optional arguments:
+arguments:
   -h, --help            show this help message and exit
   --index-file          INDEX_FILE CSV file containing field "Sample" (default: None)
   --ref REF             Reference fasta (default: None)
