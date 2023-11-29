@@ -1,5 +1,9 @@
 # Menzies_MicroHaps
 GitHub adaptation of MicroHaplotype pipeline.
+
+## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
+COMING SOON
+
 ## Running only the MicroHaplotype FASTQ Quality Control step (on local devices/private servers)
 Create sample list CSV file, using the command below, to run script in the folder containing your FASTQ files. 
 
@@ -25,9 +29,6 @@ Example of usage with your input files stored in a separate directory. The comma
 ```
 microhap_QC.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed
 ```
-## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
-COMING SOON
-
 ## Installation on local devices and private servers (Skip this if using ADA)
 Create conda environment with required packages by downloading the microhapQC.yaml file provided in input files (https://github.com/aosborne13/Menzies_MicroHaps/blob/main/input_files/microhapQC.yaml) and following the commands below. 
 
