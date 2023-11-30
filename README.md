@@ -47,7 +47,7 @@ cd fastq2matrix
 python setup.py install
 
 cd ..
-git clone https://github.com/aosborne13/Menzies_MicroHaps
+git clone https://github.com/vivaxgen/MicroHaps
 cd Menzies_MicroHaps
 python setup.py install
 ```
