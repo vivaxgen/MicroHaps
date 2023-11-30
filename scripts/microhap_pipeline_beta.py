@@ -116,6 +116,7 @@ def main(args):
         args.sample = sample
         run_cmd("fastqc -t 6 run_dada2/filtered/%(sample)s_filt_R1.fastq.gz run_dada2/filtered/%(sample)s_filt_R2.fastq.gz -o run_dada2/filtered/FASTQC_results" % vars(args))
     run_cmd("multiqc run_dada2/filtered/FASTQC_results")
+    run_cmd("mv multiqc_report.html multiqc_data")
 
     #run DADA2 post-processing
     run_cmd('Rscript ~/tools/MicroHaps/scripts/postProc_dada2.R -s run_dada2/seqtab.tsv --strain PvP01 -ref %(ref_post)s -o ASVTable.txt --fasta --parallel' % vars(args))
