@@ -106,6 +106,9 @@ def main(args):
 
     # Run Amplicon Pipeline and DADA 2
     run_cmd('AmpliconPipeline.py --path_to_meta %(output_file)s --pr1 %(pr1)s --pr2 %(pr2)s --Class "%(Class)s" --maxEE "%(maxEE)s" --trimRight "%(trimRight)s" --minLen %(minLen)s --truncQ "%(truncQ)s" --max_consist %(max_consist)s --omegaA %(omegaA)s --justConcatenate %(justConcatenate)s' % vars(args))
+    
+    run_cmd('Rscript ~/tools/MicroHaps/scripts/postProc_dada2.R -s run_dada2/seqtab.tsv --strain PvP01 -ref %(ref_post)s -o ASVTable.txt --fasta --parallel' % vars(args))
+    run_cmd('ASV_to_CIGAR.py ASVSeqs.fasta ASVTable.txt run_dada2/seqtab.tsv outputCIGAR.tsv --asv_to_cigar asv_to_cigar --amp_db %(ref_post)s' % vars(args))
 
 # Set up the parser
 parser = argparse.ArgumentParser(description='MicroHaplotype Pipeline',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -117,10 +120,9 @@ parser.add_argument('--trim-qv',default=10,type=int,help='Quality value to use i
 parser.add_argument('--output_file', type=str, help='Output meta file; to be used in path to meta', required=True)
 parser.add_argument('--pattern_fw', type=str, help='Pattern for forward reads, e.g. "*_R1.fastq.gz"', required=True)
 parser.add_argument('--pattern_rv', type=str, help='Pattern for reverse reads, e.g. "*_R2.fastq.gz"', required=True)
-#parser.add_argument('--path_to_meta', default="output_file", help="Path to input fastq files")
-#parser.add_argument('--keep_primers', action="store_true",default=1, help="Skip primer removal step")
 parser.add_argument('--pr1', help="Path to forward primers FASTA file", required=True)
 parser.add_argument('--pr2', help="Path to reverse primers FASTA file", required=True)
+parser.add_argument('--ref_post',type=str,help='Reference fasta for post processing, following DADA2',required=True)
 parser.add_argument('--Class', default="parasite", help="Specify Analysis class. Accepts one of two: parasite/vector")
 parser.add_argument('--maxEE', default="5,5", help="Maximum Expected errors (dada2 filtering argument)")
 parser.add_argument('--trimRight', default="10,10", help="Hard trim number of bases at 5` end (dada2 filtering argument)")
