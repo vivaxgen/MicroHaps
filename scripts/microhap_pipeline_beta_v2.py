@@ -57,6 +57,8 @@ def main(args):
         run_cmd("sambamba depth base %(sample)s.bam > %(sample)s.position_coverage.txt" % vars(args))
 
     run_cmd("multiqc FASTQC_results")
+    run_cmd("mv multiqc_report.html multiqc_data")
+    run_cmd("mv multiqc_data multiqc_data_pre_dada2")
     
     destination_directory = 'trimmed_fastq'
     os.makedirs(destination_directory, exist_ok=True)
