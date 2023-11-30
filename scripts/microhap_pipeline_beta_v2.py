@@ -46,7 +46,7 @@ def main(args):
         run_cmd("fastqc -t 6 %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz -o FASTQC_results" % vars(args))
 
         if args.trim:
-            run_cmd("trimmomatic PE %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz %(sample)s_R1.trimmed.fastq.gz %(sample)s_R1.untrimmed.fastq.gz %(sample)s_R2.trimmed.fastq.gz %(sample)s_R2.untrimmed.fastq.gz LEADING:3 TRAILING:3 SLIDINGWINDOW:4:%(trim_qv)s MINLEN:20 2> %(sample)s.trimlog" % vars(args))
+            run_cmd("trimmomatic PE %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz %(sample)s_R1.trimmed.fastq.gz %(sample)s_R1.untrimmed.fastq.gz %(sample)s_R2.trimmed.fastq.gz %(sample)s_R2.untrimmed.fastq.gz LEADING:5 TRAILING:5 SLIDINGWINDOW:4:%(trim_qv)s MINLEN:20 2> %(sample)s.trimlog" % vars(args))
             run_cmd("bwa mem -t 6 -R \"@RG\\tID:M00859\\tSM:%(sample)s\\tLB:MicroHap\\tPU:L6WVN:1\\tPL:Illumina\" %(ref)s %(sample)s_R1.trimmed.fastq.gz %(sample)s_R2.trimmed.fastq.gz | samclip --ref %(ref)s --max 50 | samtools sort -o %(sample)s.bam -" % vars(args))
         else:
             run_cmd("bwa mem -t 6 -R \"@RG\\tID:M00859\\tSM:%(sample)s\\tLB:MicroHap\\tPU:L6WVN:1\\tPL:Illumina\" %(ref)s %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz | samclip --ref %(ref)s --max 50 | samtools sort -o %(sample)s.bam -" % vars(args))
@@ -116,7 +116,7 @@ parser.add_argument('--index-file',type=str,help='CSV file containing field "Sam
 parser.add_argument('--ref',type=str,help='Reference fasta',required=True)
 parser.add_argument('--bed',type=str,help='BED file with MicroHaplotype locations',required=True)
 parser.add_argument('--trim',action="store_true",help='Perform triming')
-parser.add_argument('--trim-qv',default=10,type=int,help='Quality value to use in the sliding window analysis')
+parser.add_argument('--trim-qv',default=5,type=int,help='Quality value to use in the sliding window analysis')
 parser.add_argument('--output_file', type=str, help='Output meta file; to be used in path to meta', required=True)
 parser.add_argument('--pattern_fw', type=str, help='Pattern for forward reads, e.g. "*_R1.fastq.gz"', required=True)
 parser.add_argument('--pattern_rv', type=str, help='Pattern for reverse reads, e.g. "*_R2.fastq.gz"', required=True)
