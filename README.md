@@ -51,33 +51,6 @@ git clone https://github.com/vivaxgen/MicroHaps
 cd MicroHaps
 python setup.py install
 ```
-## Running only the FASTQ Quality Control step on local devices/private servers (not ADA)
-Create sample list CSV file, using the command below, to run script in the folder containing your FASTQ files. 
-
-Alternatively, you can manually create a CSV sample file with only the samples you require. The CSV needs the sample IDs (which should correspond to your FASTQ file IDs) in a single column with "sample" as the column name. The column name "sample" is case sensitive.
-```
-ls *_R1.fastq.gz | sed 's/.fastq.gz//' | sed 's/_R1$//' | (echo "sample" && cat -) | sed 's/ \+/,/g' > sample_file.csv
-```
-The MicroHaplotype Quality Control script needs to be run in the same directory as your FASTQ files. Remember to create a separate copy of your raw FASTQ files elsewhere. 
-
-DO NOT RUN WITHOUT MAKING A BACKUP COPY OF YOUR RAW FASTQ FILES STORED ELSEWHERE.
-```
-usage: microhap_QC.py [-h] --index-file INDEX_FILE --ref REF --bed BED [--version]
-
-MicroHaplotype Quality Control script
-
-arguments:
-  -h, --help            show this help message and exit
-  --index-file          INDEX_FILE CSV file containing field "Sample" (default: None)
-  --ref REF             Reference fasta (default: None)
-  --bed BED             BED file with MicroHaplotype locations (default: None)
-  --version             show program's version number and exit
-
-```
-Example of usage with your input files stored in a separate directory. The command is run in the directory containing copies of the FASTQ files listed in the CSV file.
-```
-microhap_QC.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed
-```
 ## Running the complete MicroHaplotype pipeline on local devices and private servers (not ADA)
 POSTPROC_DADA2 AND ASV_TO_CIGAR COMING SOON.
 
@@ -148,6 +121,34 @@ microhap_pipeline_beta.py --index-file ~/Documents/microhaps/sample_file.csv --r
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2. Running on ADA using JSON inputs to submit a patch job for processing.
 
 COMING SOON
+
+## Running only the FASTQ Quality Control step on local devices/private servers (not ADA)
+Create sample list CSV file, using the command below, to run script in the folder containing your FASTQ files. 
+
+Alternatively, you can manually create a CSV sample file with only the samples you require. The CSV needs the sample IDs (which should correspond to your FASTQ file IDs) in a single column with "sample" as the column name. The column name "sample" is case sensitive.
+```
+ls *_R1.fastq.gz | sed 's/.fastq.gz//' | sed 's/_R1$//' | (echo "sample" && cat -) | sed 's/ \+/,/g' > sample_file.csv
+```
+The MicroHaplotype Quality Control script needs to be run in the same directory as your FASTQ files. Remember to create a separate copy of your raw FASTQ files elsewhere. 
+
+DO NOT RUN WITHOUT MAKING A BACKUP COPY OF YOUR RAW FASTQ FILES STORED ELSEWHERE.
+```
+usage: microhap_QC.py [-h] --index-file INDEX_FILE --ref REF --bed BED [--version]
+
+MicroHaplotype Quality Control script
+
+arguments:
+  -h, --help            show this help message and exit
+  --index-file          INDEX_FILE CSV file containing field "Sample" (default: None)
+  --ref REF             Reference fasta (default: None)
+  --bed BED             BED file with MicroHaplotype locations (default: None)
+  --version             show program's version number and exit
+
+```
+Example of usage with your input files stored in a separate directory. The command is run in the directory containing copies of the FASTQ files listed in the CSV file.
+```
+microhap_QC.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed
+```
 
 ## Manual Conda environment setup and R package installation
 Create conda environment to store required packages. Conda channel configuration is shown in instructions for first time users. If your conda is already configured, please skip those steps.
