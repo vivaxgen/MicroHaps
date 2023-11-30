@@ -52,8 +52,6 @@ cd MicroHaps
 python setup.py install
 ```
 ## Running the complete MicroHaplotype pipeline on local devices and private servers (not ADA)
-POSTPROC_DADA2 AND ASV_TO_CIGAR COMING SOON.
-
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2.
 
 Run the below command to generate a sample file for the pipeline in the sirectory containing your raw FASTQ reads. 
