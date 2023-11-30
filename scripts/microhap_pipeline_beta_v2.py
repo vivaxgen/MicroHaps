@@ -12,6 +12,7 @@ import shutil
 import threading
 import multiprocessing
 import glob
+import re
 
 def run_cmd(cmd):
     sys.stderr.write("Running command:\n%s\n\n" % cmd)
