@@ -114,7 +114,7 @@ def main(args):
     run_cmd("mkdir run_dada2/filtered/FASTQC_results")
     for sample in samples:
         args.sample = sample
-        run_cmd("fastqc -t 6 run_dada2/filtered/%(sample)s_R1.fastq.gz run_dada2/filtered/%(sample)s_R2.fastq.gz -o run_dada2/filtered/FASTQC_results" % vars(args))
+        run_cmd("fastqc -t 6 run_dada2/filtered/%(sample)s_filt_R1.fastq.gz run_dada2/filtered/%(sample)s_filt_R2.fastq.gz -o run_dada2/filtered/FASTQC_results" % vars(args))
     run_cmd("multiqc run_dada2/filtered/FASTQC_results")
 
     #run DADA2 post-processing
