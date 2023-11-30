@@ -48,7 +48,7 @@ python setup.py install
 
 cd ..
 git clone https://github.com/vivaxgen/MicroHaps
-cd Menzies_MicroHaps
+cd MicroHaps
 python setup.py install
 ```
 ## Running only the FASTQ Quality Control step on local devices/private servers (not ADA)
