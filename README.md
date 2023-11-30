@@ -9,7 +9,7 @@ First create a tools directory to keep track of all software and repositories us
 ```
 mkdir tools
 ```
-Create conda environment with required packages by downloading the microhapQC.yaml file provided in input files (https://github.com/aosborne13/Menzies_MicroHaps/blob/main/input_files/microhapQC.yaml). Move the microhapQC.yaml file to your tools folder, if desired, and follow the commands below. 
+Create conda environment with required packages by downloading the microhapQC.yaml file provided in input files (https://github.com/vivaxgen/MicroHaps/blob/main/input_files/microhapQC.yaml). Move the microhapQC.yaml file to your tools folder, if desired, and follow the commands below. 
 
 Manual installation of the conda environment and included packages is found at the bottom of this page if required or if individual packages are missing/incorrectly installed.
 ```
