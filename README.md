@@ -6,7 +6,7 @@ COMING SOON
 
 ## Installation on local devices and private servers (skip if using ADA)
 
-For vivaxGEN `MicroHaps sequencing pipeline <https://github.com/vivaxgen/MicroHaps>`_, install with the following command::
+For vivaxGEN MicroHaps sequencing pipeline, install with the following command::
 
 	"${SHELL}" <(curl -L https://raw.githubusercontent.com/vivaxgen/install/main/MicroHaps-pl.sh)
 
