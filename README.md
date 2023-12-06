@@ -10,6 +10,12 @@ For vivaxGEN MicroHaps sequencing pipeline, install with the following command::
 
 	"${SHELL}" <(curl -L https://raw.githubusercontent.com/vivaxgen/install/main/MicroHaps-pl.sh)
 
+# Updating the MicroHaps Pipeline
+```
+cd /path/to/MicroHaps-pl
+git pull
+python setup.py install
+```
 ## Running the complete MicroHaplotype pipeline on local devices and private servers (not ADA)
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2.
 
