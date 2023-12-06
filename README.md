@@ -4,53 +4,12 @@ GitHub adaptation of MicroHaplotype pipeline.
 ## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
 COMING SOON
 
-## Installation on local devices and private servers (skip this step if using ADA)
-First create a tools directory to keep track of all software and repositories used by this pipeline.
-```
-mkdir tools
-```
-Create conda environment with required packages by downloading the microhapQC.yaml file provided in input files (https://github.com/vivaxgen/MicroHaps/blob/main/input_files/microhapQC.yaml). Move the microhapQC.yaml file to your tools folder, if desired, and follow the commands below. 
+## Installation on local devices and private servers (skip if using ADA)
 
-Manual installation of the conda environment and included packages is found at the bottom of this page if required or if individual packages are missing/incorrectly installed.
-```
-cd /tools/
-conda env create -f microhapQC.yaml
-conda activate microhapQC
-```
-R packages managed by BiocManager are not currently included in the conda environment and require manual installation.
+For vivaxGEN `MicroHaps sequencing pipeline <https://github.com/vivaxgen/MicroHaps>`_, install with the following command::
 
-Install DADA2 into the R client while the microhapQC conda environment is active.
-```
-# Open R in command line
-R
+	"${SHELL}" <(curl -L https://raw.githubusercontent.com/vivaxgen/install/main/MicroHaps-pl.sh)
 
-#install DADA2 and pre-requisites using BiocManager
-BiocManager::install("GenomeInfoDb")
-BiocManager::install("GenomicRanges")
-BiocManager::install("Biostrings")
-BiocManager::install("Rsamtools")
-BiocManager::install("SummarizedExperiment")
-BiocManager::install("GenomicAlignments")
-BiocManager::install("ShortRead")
-BiocManager::install("dada2")
-BiocManager::install("limma")
-
-# Quit R and do not save current workspace using 'n'
-q()
-n
-```
-
-Install pre-requisite GitHub repositories; store repositories in the easily accessible "tools" folder for quick maintenance. Remember to keep the conda environment active while running the python setup installation step and for running any parts of the pipeline.
-```
-git clone https://github.com/pathogenseq/fastq2matrix.git
-cd fastq2matrix
-python setup.py install
-
-cd ..
-git clone https://github.com/vivaxgen/MicroHaps
-cd MicroHaps
-python setup.py install
-```
 ## Running the complete MicroHaplotype pipeline on local devices and private servers (not ADA)
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2.
 
@@ -116,7 +75,7 @@ Example Usage:
 ```
 microhap_pipeline_beta.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed --trim --output_file meta_file --pattern_fw "*_R1.trimmed.fastq.gz" --pattern_rv "*_R2.trimmed.fastq.gz" --pr1 ~/Documents/microhaps/microhap_pr_fwd.min_overlap.fasta --pr2 ~/Documents/microhaps/microhap_pr_rv.min_overlap.fasta --ref_post ~/Documents/microhaps/Microhaps_Inserts_wMito.fasta
 ```
-## Running the MicroHaplotype pipeline on ADA
+## Running the MicroHaplotype pipeline on ADA using JSON inputs
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2. Running on ADA using JSON inputs to submit a patch job for processing.
 
 COMING SOON
@@ -148,8 +107,11 @@ Example of usage with your input files stored in a separate directory. The comma
 ```
 microhap_QC.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed
 ```
-
-## Manual Conda environment setup and R package installation
+## OUTDATED Manual Installation using Conda
+First create a tools directory to keep track of all software and repositories used by this pipeline.
+```
+mkdir tools
+```
 Create conda environment to store required packages. Conda channel configuration is shown in instructions for first time users. If your conda is already configured, please skip those steps.
 ```
 conda create -n microhapQC
@@ -163,7 +125,9 @@ conda config --set channel_priority strict
 conda install python=3.8 bwa samtools bcftools freebayes parallel datamash gatk4=4.1.4.1 delly tqdm trimmomatic minimap2 biopython bedtools r-ggplot2 iqtree fastqc mosdepth samclip sambamba multiqc pandas cutadapt muscle r-BiocManager r-RCurl r-argparse r-data.table r-seqinr r-doMC
 
 ```
-Install DADA2 into R Client
+R packages managed by BiocManager are not currently included in the conda environment and require manual installation.
+
+Install DADA2 into the R client while the microhapQC conda environment is active.
 ```
 # Open R in command line
 R
@@ -182,4 +146,17 @@ BiocManager::install("limma")
 # Quit R and do not save current workspace using 'n'
 q()
 n
+```
+
+Install pre-requisite GitHub repositories; store repositories in the easily accessible "tools" folder for quick maintenance. Remember to keep the conda environment active while running the python setup installation step and for running any parts of the pipeline.
+```
+cd tools
+git clone https://github.com/pathogenseq/fastq2matrix.git
+cd fastq2matrix
+python setup.py install
+
+cd ..
+git clone https://github.com/vivaxgen/MicroHaps
+cd MicroHaps
+python setup.py install
 ```
