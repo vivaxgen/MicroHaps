@@ -1,0 +1,239 @@
+#! /usr/bin/env python
+import sys
+import argparse
+import subprocess as sp
+import csv
+import fastq2matrix as fm
+from fastq2matrix import run_cmd
+from collections import defaultdict
+import gzip
+import os
+import shutil
+import threading
+import multiprocessing
+import glob
+import re
+
+def run_cmd(cmd):
+    sys.stderr.write("Running command:\n%s\n\n" % cmd)
+    with open("/dev/null","w") as O:
+        res = sp.call(cmd,shell=True,stderr=O,stdout=O)
+    if res!=0:
+        sys.exit("Error running last command, please check!\n")
+      
+
+def main(args):
+
+    samples = []
+    reader = csv.DictReader(open(args.index_file))
+    if "sample" not in reader.fieldnames:
+        reader = csv.DictReader(open(args.index_file,encoding='utf-8-sig'))
+    for row in reader:
+        if row["sample"]=="": continue
+        samples.append(row["sample"])
+
+    fm.bwa_index(args.ref)
+    fm.create_seq_dict(args.ref)
+    fm.faidx(args.ref)
+    
+    run_cmd("mkdir FASTQC_results")
+    run_cmd("mkdir bam_files")
+    run_cmd("mkdir cov_stats")
+    run_cmd("mkdir untrimmed_fastq")
+    run_cmd("mkdir trimmed_fastq")
+  
+    print("Running QC on raw FASTQ files.")
+    for sample in samples:
+        args.sample = sample
+        run_cmd("fastqc -t 6 %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz -o FASTQC_results" % vars(args))
+      
+        print("Trimming raw FASTQ files prior to running DADA2.")
+
+        if args.trim:
+            run_cmd("trimmomatic PE %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz %(sample)s_R1.trimmed.fastq.gz %(sample)s_R1.untrimmed.fastq.gz %(sample)s_R2.trimmed.fastq.gz %(sample)s_R2.untrimmed.fastq.gz LEADING:3 TRAILING:3 SLIDINGWINDOW:4:%(trim_qv)s MINLEN:20 2> %(sample)s.trimlog" % vars(args))
+            run_cmd("bwa mem -t 6 -R \"@RG\\tID:M00859\\tSM:%(sample)s\\tLB:MicroHap\\tPU:L6WVN:1\\tPL:Illumina\" %(ref)s %(sample)s_R1.trimmed.fastq.gz %(sample)s_R2.trimmed.fastq.gz | samclip --ref %(ref)s --max 50 | samtools sort -o %(sample)s.bam -" % vars(args))
+        else:
+            run_cmd("bwa mem -t 6 -R \"@RG\\tID:M00859\\tSM:%(sample)s\\tLB:MicroHap\\tPU:L6WVN:1\\tPL:Illumina\" %(ref)s %(sample)s_R1.fastq.gz %(sample)s_R2.fastq.gz | samclip --ref %(ref)s --max 50 | samtools sort -o %(sample)s.bam -" % vars(args))
+
+        print("Performing quick read coverage and QC checks.")
+        run_cmd("samtools index %(sample)s.bam" % vars(args))
+        run_cmd("samtools flagstat %(sample)s.bam > %(sample)s.quickstats.txt" % vars(args))
+        run_cmd("bedtools coverage -a %(bed)s -b %(sample)s.bam -mean > %(sample)s_region_coverage.txt" % vars(args))
+        run_cmd("sambamba depth base %(sample)s.bam > %(sample)s.position_coverage.txt" % vars(args))
+
+    run_cmd("multiqc FASTQC_results")
+    run_cmd("mv multiqc_report.html multiqc_data")
+    run_cmd("mv multiqc_data multiqc_data_pre_dada2")
+  
+    print("Sorting files.")
+    destination_directory = 'trimmed_fastq'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".trimmed.fastq.gz") or filename.endswith(".trimlog"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("Trimmed FASTQ files moved successfully.")
+    print("Creating metadata file to run DADA2.")
+
+    run_cmd('create_meta.py --path_to_fq trimmed_fastq --output_file %(output_file)s --pattern_fw "%(pattern_fw)s" --pattern_rv "%(pattern_rv)s"' % vars(args))
+  
+    print("Sorting files.")
+    destination_directory = 'untrimmed_fastq'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".untrimmed.fastq.gz"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("Untrimmed FASTQ files moved successfully.")
+    
+    destination_directory = 'bam_files'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".bam") or filename.endswith(".bam.bai"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("Bam and index files moved successfully.")
+
+    destination_directory = 'cov_stats'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".txt"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("Coverage stats moved successfully.")
+  
+    print("Running amplicon pipeline and DADA2.")
+    # Run Amplicon Pipeline and DADA 2
+    run_cmd('AmpliconPipeline.py --path_to_meta %(output_file)s --pr1 %(pr1)s --pr2 %(pr2)s --Class "%(Class)s" --maxEE "%(maxEE)s" --trimRight "%(trimRight)s" --minLen %(minLen)s --truncQ "%(truncQ)s" --max_consist %(max_consist)s --omegaA %(omegaA)s --justConcatenate %(justConcatenate)s' % vars(args))
+  
+    print("Running QC chekcs on DADA2 output.")
+    # run multiqc on trimmed DADA2 processed reads
+    run_cmd("mkdir run_dada2/filtered/FASTQC_results")
+    for sample in samples:
+        args.sample = sample
+        run_cmd("fastqc -t 6 run_dada2/filtered/%(sample)s_filt_R1.fastq.gz run_dada2/filtered/%(sample)s_filt_R2.fastq.gz -o run_dada2/filtered/FASTQC_results" % vars(args))
+    run_cmd("multiqc run_dada2/filtered/FASTQC_results")
+    run_cmd("mv multiqc_report.html multiqc_data")
+  
+    print("Running mapping and variant calling on DADA2 filtered FASTQ files.")
+    for sample in samples:
+        args.sample = sample
+        run_cmd("bwa mem -t 6 -R \"@RG\\tID:M00859\\tSM:%(sample)s\\tLB:MicroHap\\tPU:L6WVN:1\\tPL:Illumina\" %(ref)s %(sample)s_filt_R1.fastq.gz %(sample)s_filt_R2.fastq.gz | samclip --ref %(ref)s --max 50 | samtools sort -o %(sample)s.bam -" % vars(args))
+      
+        run_cmd("freebayes -f %(ref)s -t %(bed)s %(sample)s.bam --haplotype-length -1> %(sample)s.freebayes.vcf" % vars(args))
+        run_cmd("gatk HaplotypeCaller -R %(ref)s -L %(bed)s  -I %(sample)s.bam -O %(sample)s.gatk.vcf" % vars(args))
+        
+        run_cmd("bcftools view %(sample)s.freebayes.vcf -Oz -o %(sample)s.freebayes.vcf.gz" % vars(args))
+        run_cmd("tabix -f %(sample)s.freebayes.vcf.gz" % vars(args))
+        run_cmd("bcftools view %(sample)s.gatk.vcf -Oz -o %(sample)s.gatk.vcf.gz" % vars(args))
+        run_cmd("tabix -f %(sample)s.gatk.vcf.gz" % vars(args))
+        
+# test concat vs merge to avoid sample ID duplication
+        run_cmd("bcftools concat %(sample)s.freebayes.vcf.gz %(sample)s.gatk.vcf.gz --force-samples -Oz -o %(sample)s.vcf.gz" % vars(args))
+        run_cmd("tabix -f %(sample)s.vcf.gz" % vars(args))
+
+
+      with open("sample_vcf_list.txt","w") as O:
+          for s in samples:
+              O.write("%s.vcf.gz\n" % (s))
+        run_cmd("bcftools merge -l sample_vcf_list.txt -Oz -o combined.vcf.gz" )
+        run_cmd(r"bcftools query -f '%CHROM\t%POS[\t%DP]\n' combined.vcf.gz > tmp.txt")
+        run_cmd("bcftools filter -i 'FMT/DP>5' -S . combined.vcf.gz | bcftools sort -Oz -o tmp.vcf.gz" % vars(args))
+        run_cmd("bcftools view -v snps tmp.vcf.gz | bcftools csq -p a -f %(ref)s -g %(gff)s -Oz -o snps.vcf.gz" % vars(args))
+        run_cmd("tabix -f snps.vcf.gz" % vars(args))
+        run_cmd(r"bcftools query snps.vcf.gz -f '[%SAMPLE\t%CHROM\t%POS\t%REF\t%ALT\t%QUAL\t%GT\t%TGT\t%DP\t%AD\t%TBCSQ\n]' > combined_filtered_translated.snps.txt")
+
+    print("Sorting files.")
+    run_cmd("mkdir post_dada2_bam_files")
+    destination_directory = 'post_dada2_bam_files'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".bam") or filename.endswith(".bam.bai"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("Bam and index files moved successfully.")
+
+    run_cmd("mkdir vcf_files")
+    destination_directory = 'vcf_files'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".vcf.gz"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("VCF files moved successfully.")
+
+    run_cmd("mkdir filtered_variants_by_sample")
+    destination_directory = 'filtered_variants_by_sample'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".snps.txt"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("Translated/filtered SNP files moved successfully.")
+
+    run_cmd("mkdir raw_fastq")
+    destination_directory = 'raw_fastq'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".fastq.gz"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("Raw FASTQ files moved successfully.")
+
+    print("Running DADA2 post-processing.")
+    #run DADA2 post-processing
+    run_cmd('Rscript ~/tools/MicroHaps/scripts/postProc_dada2.R -s run_dada2/seqtab.tsv --strain PvP01 -ref %(ref_post)s -o ASVTable.txt --fasta --parallel' % vars(args))
+    run_cmd('ASV_to_CIGAR.py ASVSeqs.fasta ASVTable.txt run_dada2/seqtab.tsv outputCIGAR.tsv --asv_to_cigar asv_to_cigar --amp_db %(ref_post)s' % vars(args))
+
+# Set up the parser
+parser = argparse.ArgumentParser(description='MicroHaplotype Pipeline',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('--index-file',type=str,help='CSV file containing field "Sample"',required=True)
+parser.add_argument('--ref',type=str,help='Reference fasta',required=True)
+parser.add_argument('--bed',type=str,help='BED file with MicroHaplotype locations',required=True)
+parser.add_argument('--gff',type=str,help='GFF file',required=True)
+parser.add_argument('--trim',action="store_true",help='Perform triming')
+parser.add_argument('--trim-qv',default=5,type=int,help='Quality value to use in the sliding window analysis')
+parser.add_argument('--output_file', type=str, help='Output meta file; to be used in path to meta', required=True)
+parser.add_argument('--pattern_fw', type=str, help='Pattern for forward reads, e.g. "*_R1.fastq.gz"', required=True)
+parser.add_argument('--pattern_rv', type=str, help='Pattern for reverse reads, e.g. "*_R2.fastq.gz"', required=True)
+parser.add_argument('--pr1', help="Path to forward primers FASTA file", required=True)
+parser.add_argument('--pr2', help="Path to reverse primers FASTA file", required=True)
+parser.add_argument('--ref_post',type=str,help='Reference fasta for post processing, following DADA2',required=True)
+parser.add_argument('--Class', default="parasite", help="Specify Analysis class. Accepts one of two: parasite/vector")
+parser.add_argument('--maxEE', default="5,5", help="Maximum Expected errors (dada2 filtering argument)")
+parser.add_argument('--trimRight', default="10,10", help="Hard trim number of bases at 5` end (dada2 filtering argument)")
+parser.add_argument('--minLen', default=30, help="Minimum length filter (dada2 filtering argument)")
+parser.add_argument('--truncQ', default="5,5", help="Soft trim bases based on quality (dada2 filtering argument)")
+parser.add_argument('--max_consist', default=10, help="Number of cycles for consistency in error model (dada2 argument)")
+parser.add_argument('--omegaA', default=1e-120, help="p-value for the partitioning algorithm (dada2 argument)")
+parser.add_argument('--justConcatenate', default=0, help="whether reads should be concatenated with N's during merge (dada2 argument)")
+#parser.add_argument('--saveRdata', help="Optionally save dada2 part of this run as Rdata object")
+parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.set_defaults(func=main)
+
+args = parser.parse_args()
+args.func(args)
