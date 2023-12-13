@@ -11,6 +11,6 @@ export MICROHAPS_BASEDIR=${_mydir}
 ## set everything else here
 
 ## uncomment below if you want to  avoid running "python setup.py install"
-# PATH=${MICROHAPS_BASEDIR}/scripts;${PATH}
+PATH=${MICROHAPS_BASEDIR}/scripts:${PATH}
 
 
