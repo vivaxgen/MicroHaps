@@ -4,7 +4,7 @@ GitHub adaptation of MicroHaplotype pipeline.
 ## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
 COMING SOON
 
-## Installation on local devices and private servers (skip if using ADA)
+## Installation on local devices and private servers
 
 For vivaxGEN MicroHaps sequencing pipeline, install with the following command:
 
@@ -16,7 +16,7 @@ cd /path/to/MicroHaps-pl
 git pull
 python setup.py install
 ```
-## Running the MicroHaplotype pipeline on local devices and private servers (not ADA)
+## Running the MicroHaplotype pipeline on local devices and private servers
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2.
 
 Run the below command to generate a sample file for the pipeline in the sirectory containing your raw FASTQ reads. 
