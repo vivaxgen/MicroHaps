@@ -7,7 +7,7 @@ import multiprocessing
 import sys
 import os
 import subprocess as sp
-from fastq2matrix import run_cmd
+#from fastq2matrix import run_cmd
 
 MICROHAPS_BASEDIR = os.environ['MICROHAPS_BASEDIR']
 
