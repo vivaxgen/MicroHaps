@@ -1,0 +1,76 @@
+
+#
+# --- NGS-Pipeline joint variant calling settings ---
+#
+
+optical_dedup: False
+instrument: generic
+platform: generic
+libprep: generic
+
+min_read_qual: 15
+read_length: 100
+
+refseq_file: refs/PvP01_v1.fasta
+#knownsites_file: refs/pv-known-variants.bed.gz
+knownvariants_dir: refs/known-variants
+
+regions:
+  - PvP01_01_v1
+  - PvP01_02_v1
+  - PvP01_03_v1
+  - PvP01_04_v1
+  - PvP01_05_v1
+  - PvP01_06_v1
+  - PvP01_07_v1
+  - PvP01_08_v1
+  - PvP01_09_v1
+  - PvP01_10_v1
+  - PvP01_11_v1
+  - PvP01_12_v1
+  - PvP01_13_v1
+  - PvP01_14_v1
+  - PvP01_API_v1
+  - PvP01_MIT_v1
+
+# this is amplicon sequencing, so turn off deduplication
+deduplication: False
+
+# set below to True for new samples (for the purpose of submitting to SRA database)
+keep_paired_bam: False
+
+# set below to True for structural variant (SV) analysis such as CNV
+keep_final_bam: True
+
+# filter to apply for deduplicated BAM
+# read_filters: --remove_FR --remove_RF --remove_FF --remove_RR --remove_trans --remove_unmapped --remove_secondary --remove_supplementary
+# for below, we keep FR, RF, FF and RR orientation for future SV analysis
+read_filters: --remove_trans --remove_unmapped --remove_secondary --remove_supplementary
+
+reads_trimmer_wf: trimmer_null.smk
+reads_mapper_wf: mapper_bwa-mem2.smk
+
+
+#
+# --- End of NGS-Pipeline settings ---
+#
+
+#parameters
+
+class: "parasite"
+maxEE: "5,5"
+trim_right: "10,10"
+min_length: 30 
+truncQ: "5,5"
+max_consist: 10
+omegaA: 1e-120
+justconcat: 0
+platform: "PE"
+
+#refs0
+
+fasta: refs/Microhaps_Inserts_wMito.fasta
+primer_fw: refs/microhap_pr_fwd.min_overlap.fasta
+primer_rev: refs/microhap_pr_rv.min_overlap.fasta
+
+# EOF
