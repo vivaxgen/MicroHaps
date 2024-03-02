@@ -4,8 +4,8 @@ muhap_pipeline
 Introduction
 ------------
 
-This pipeline is vivaxGEN NGS-Pipeline, which is a SNP-based variant calling
-pipeline, which has been setup to process P vivax sequence data.
+This pipeline contains a wrapper for vivaxGEN NGS-Pipeline, a SNP-based variant
+calling pipeline, which has been setup to process P vivax sequence data.
 This pipeline will produce ordinary VCF file that can be used for further
 downstream analysis.
 
@@ -48,7 +48,7 @@ It is assumed that the pipeline has been installed.
 
 		ngs-pl run-discovery-variant-caller -o MY_OUTPUT reads/*.fastq.gz
 
-5. When the command finishes, examine the content of ``MY_OUTPUT`` directory.
+5. When the command finishes, examine the content of ``MY_OUTPUT`` directory::
 
 		cd MY_OUTPUT
 		ls
