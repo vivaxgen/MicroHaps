@@ -1,5 +1,14 @@
 # Menzies_MicroHaps
-GitHub adaptation of MicroHaplotype pipeline.
+
+This repository contains 2 pipelines for handling microhaplotype amplicon
+sequencing data:
+
+* GitHub adaptation of MicroHaplotype pipeline.
+
+* SNP-based variant calling which output ordinary VCF file, based on
+  [vivaxGEN NGS-Pipeline](https://github.com/vivaxgen/ngs-pipeline).
+  Consult the [tutorial](docs/tutorial-snp.rst) on how to use this pipeline.
+
 
 ## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
 COMING SOON
@@ -10,13 +19,25 @@ For vivaxGEN MicroHaps sequencing pipeline, install with the following command:
 
 	"${SHELL}" <(curl -L https://raw.githubusercontent.com/vivaxgen/install/main/MicroHaps-pl.sh)
 
+The installation requires ~20 menit as most of R packages need to be recompiled
+during installation.
+
+Once the installation finished, it will show the command to activate the
+pipeline. This activation command has to be executed before all commands of
+the pipeline can be run. When activated, the terminal will show the **(µhaps)**
+prompt.
+
+
 # Updating the MicroHaps Pipeline
-```
-cd /path/to/MicroHaps-pl
-git pull
-python setup.py install
-```
+
+To update the pipeline line, assuming that the environment has been activated,
+run the following command:
+
+  update-pipeline.sh
+
+
 ## Running the MicroHaplotype pipeline
+
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2.
 
 Run the below command to generate a sample file for the pipeline in the sirectory containing your raw FASTQ reads. 
