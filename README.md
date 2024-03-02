@@ -7,7 +7,8 @@ sequencing data:
 
 * SNP-based variant calling which output ordinary VCF file, based on
   [vivaxGEN NGS-Pipeline](https://github.com/vivaxgen/ngs-pipeline).
-  Consult the [tutorial](docs/tutorial-snp.rst) on how to use this pipeline.
+  Consult its separate [documentation](muhaps_pipeline/README.rst) for more
+  information and how to use it.
 
 
 ## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
@@ -33,8 +34,9 @@ prompt.
 To update the pipeline line, assuming that the environment has been activated,
 run the following command:
 
-  update-pipeline.sh
-
+```
+update-pipeline.sh
+```
 
 ## Running the MicroHaplotype pipeline
 
