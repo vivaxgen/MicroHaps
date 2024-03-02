@@ -2,6 +2,8 @@
 #
 # --- NGS-Pipeline joint variant calling settings ---
 #
+# NOTE: at some point some configuration will be kept at configs/PANELNAME.yaml
+# to allow for multiple panels in a single pipeline
 
 optical_dedup: False
 instrument: generic
@@ -11,9 +13,9 @@ libprep: generic
 min_read_qual: 15
 read_length: 100
 
-refseq_file: refs/PvP01_v1.fasta
+refseq_file: refs/Pv/PvP01_v1/PvP01_v1.fasta
 #knownsites_file: refs/pv-known-variants.bed.gz
-knownvariants_dir: refs/known-variants
+knownvariants_dir: refs/Pv/PvP01_v1/known-variants
 
 regions:
   - PvP01_01_v1
