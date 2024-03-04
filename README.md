@@ -38,6 +38,7 @@ update-pipeline.sh
 # Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
 Introduction to DADA2-based MicroHaplotype software
 ------------
+COMING SOON.
 
 This pipeline contains a wrapper for the MIT-Broad team DADA2 software.
 
