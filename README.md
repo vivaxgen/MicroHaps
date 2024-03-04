@@ -108,7 +108,7 @@ The layout of the output directory is::
               joint/
                     vcfs/
 ------------
-# DEPRECIATED MicroHaplotype python-wrapped DADA2 pipeline and SNP variant calling step.
+# DEPRECIATED - MicroHaplotype python-wrapped Quality Control step and DADA2 pipeline.
 
 Bare-bones python-wrapped script for small datasets.
 
