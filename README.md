@@ -114,7 +114,7 @@ Bare-bones python-wrapped script for small datasets.
 
 ------------
 
-## Running only the FASTQ Quality Control step on local devices/private servers (not ADA)
+## Running only the FASTQ Quality Control step on local devices and HPCs
 Create sample list CSV file, using the command below, to run script in the folder containing your FASTQ files. 
 
 Alternatively, you can manually create a CSV sample file with only the samples you require. The CSV needs the sample IDs (which should correspond to your FASTQ file IDs) in a single column with "sample" as the column name. The column name "sample" is case sensitive.
@@ -141,7 +141,7 @@ Example of usage with your input files stored in a separate directory. The comma
 ```
 microhap_QC.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed
 ```
-## Running the complete MicroHaplotype pipeline on local devices and private servers (not ADA)
+## Running the complete MicroHaplotype pipeline on local devices and HPCs
 POSTPROC_DADA2 AND ASV_TO_CIGAR COMING SOON.
 
 Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2.
