@@ -36,7 +36,7 @@ update-pipeline.sh
 ```
 
 # Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
-Introduction to SNP-based variant calling
+Introduction to DADA2-based MicroHaplotype software
 ------------
 
 This pipeline contains a wrapper for the MIT-Broad team DADA2 software.
