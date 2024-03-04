@@ -7,8 +7,6 @@ sequencing data:
 
 * SNP-based variant calling which output ordinary VCF file, based on
   [vivaxGEN NGS-Pipeline](https://github.com/vivaxgen/ngs-pipeline).
-  Consult its separate [documentation](muhaps_pipeline/README.rst) for more
-  information and how to use it.
 
 ## Installation on local devices and HPCs
 
