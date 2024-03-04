@@ -10,10 +10,6 @@ sequencing data:
   Consult its separate [documentation](muhaps_pipeline/README.rst) for more
   information and how to use it.
 
-
-## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
-COMING SOON
-
 ## Installation on local devices and HPCs
 
 For vivaxGEN MicroHaps sequencing pipeline, install with the following command:
@@ -41,154 +37,71 @@ run the following command:
 update-pipeline.sh
 ```
 
-## Running the MicroHaplotype pipeline
+## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
+muhap_pipeline
+==============
 
-Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2.
+Introduction
+------------
 
-Run the below command to generate a sample file for the pipeline in the sirectory containing your raw FASTQ reads. 
+This pipeline contains a wrapper for vivaxGEN NGS-Pipeline, a SNP-based variant
+calling pipeline, which has been setup to process P vivax sequence data.
+This pipeline will produce ordinary VCF file that can be used for further
+downstream analysis.
 
-Alternatively, you can manually create a CSV sample file with only the samples you require. The CSV needs the sample IDs (which should correspond to your FASTQ file IDs) in a single column with "sample" as the column name. The column name "sample" is case sensitive.
-```
-ls *_R1.fastq.gz | sed 's/.fastq.gz//' | sed 's/_R1$//' | (echo "sample" && cat -) | sed 's/ \+/,/g' > sample_file.csv
-```
-Run the pipeline using the sample_file.csv as the INDEX_FILE. You can store the index file elsewhere but the FASTQ files should be located in the directory where you run the pipeline. Remember to create a separate copy of your raw FASTQ files elsewhere. 
+Currently, this pipeline was setup to use multi-step mode of vivaxGEN
+NGS-Pipeline in a single command line with GATK-based workflow to generate VCF
+file
+There is also Freebayes-based workflow, but it requires modification of the
+setting, which will not be covered in this documentation.
 
-DO NOT RUN WITHOUT MAKING A BACKUP COPY OF YOUR RAW FASTQ FILES STORED ELSEWHERE.
-```
-usage: microhap_pipeline_beta.py [-h] --index-file INDEX_FILE --ref REF --bed BED [--trim]
-                                 [--trim-qv TRIM_QV] --output_file OUTPUT_FILE --pattern_fw PATTERN_FW
-                                 --pattern_rv PATTERN_RV --pr1 PR1 --pr2 PR2 --ref_post REF_POST
-                                 [--Class CLASS] [--maxEE MAXEE] [--trimRight TRIMRIGHT]
-                                 [--minLen MINLEN] [--truncQ TRUNCQ] [--max_consist MAX_CONSIST]
-                                 [--omegaA OMEGAA] [--justConcatenate JUSTCONCATENATE] [--version]
+Quick Tutorial
+--------------
 
-MicroHaplotype Pipeline
-  -h, --help            show this help message and exit
+The following instructions show how to run this pipeline.
+It is assumed that the pipeline has been installed.
 
-required arguments:
-  --index-file          INDEX_FILE
-                        CSV file containing field "Sample" (default: None)
-  --ref REF             Reference fasta (default: None)
-  --bed BED             BED file with MicroHaplotype locations (default: None)
-  --trim                Perform triming (default: False)
-  --output_file         OUTPUT_FILE
-                        Output meta file; to be used in path to meta (default: None)
-  --pattern_fw          PATTERN_FW
-                        Pattern for forward reads, e.g. "*_R1.fastq.gz" (default: None)
-  --pattern_rv          PATTERN_RV
-                        Pattern for reverse reads, e.g. "*_R2.fastq.gz" (default: None)
-  --pr1 PR1             Path to forward primers FASTA file (default: None)
-  --pr2 PR2             Path to reverse primers FASTA file (default: None)
- --ref_post             REF_POST
-                        Reference fasta for post processing, following DADA2 (default: None)
+1.  Activate the environment. The terminal will show ``(µhaps)`` prompt.
 
-optional arguments:
-  --trim-qv             TRIM_QV
-                        Quality value to use in the sliding window analysis (default: 5)
-  --Class CLASS         Specify Analysis class. Accepts one of two: parasite/vector (default:
-                        parasite)
-  --maxEE MAXEE         Maximum Expected errors (dada2 filtering argument) (default: 5,5)
-  --trimRight           TRIMRIGHT
-                        Hard trim number of bases at 5` end (dada2 filtering argument) (default:
-                        10,10)
-  --minLen MINLEN       Minimum length filter (dada2 filtering argument) (default: 30)
-  --truncQ TRUNCQ       Soft trim bases based on quality (dada2 filtering argument) (default: 5,5)
-  --max_consist         MAX_CONSIST
-                        Number of cycles for consistency in error model (dada2 argument) (default:
-                        10)
-  --omegaA OMEGAA       p-value for the partitioning algorithm (dada2 argument) (default: 1e-120)
-  --justConcatenate     JUSTCONCATENATE
-                        whether reads should be concatenated with N's during merge (dada2
-                        argument) (default: 0)
-  --version             show program's version number and exit
-```
+2.  Go to the directory that will be used to process and analysis::
 
-Example Usage:
-```
-microhap_pipeline_beta.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed --trim --output_file meta_file --pattern_fw "*_R1.trimmed.fastq.gz" --pattern_rv "*_R2.trimmed.fastq.gz" --pr1 ~/Documents/microhaps/microhap_pr_fwd.min_overlap.fasta --pr2 ~/Documents/microhaps/microhap_pr_rv.min_overlap.fasta --ref_post ~/Documents/microhaps/Microhaps_Inserts_wMito.fasta
-```
-## Running the MicroHaplotype pipeline on ADA using JSON inputs
-Running the MicroHaplotype pipeline carries out both quality control of raw read data, as well as downstream processing, including DADA 2. Running on ADA using JSON inputs to submit a patch job for processing.
+		cd MY_ANALYSIS_DIRECTORY
 
-COMING SOON
+3.  Provide the FASTQ reads from the sequencing result, by either copying the
+    FASTQ files or alternatively generate soft link as necessary.
+    The soft link approach is preferred since it will prevent duplication of
+    the files, if the files are already reside in the local storage.
+    The FASTQ files should be in fastq.gz format (gzip-compressed), and the
+    filenames should reflect the sample name, eg: my-sample-01_R1.fastq.gz.
+    If the FASTQ filenames contains something that are not part of the sample
+    names, there is an option ``--underscore`` in the next step that can be
+    used::
 
-## Running only the FASTQ Quality Control step on local devices/private servers (not ADA)
-Create sample list CSV file, using the command below, to run script in the folder containing your FASTQ files. 
+    	mkdir reads
+    	cp SOME_WHERE/*.fastq.gz
 
-Alternatively, you can manually create a CSV sample file with only the samples you require. The CSV needs the sample IDs (which should correspond to your FASTQ file IDs) in a single column with "sample" as the column name. The column name "sample" is case sensitive.
-```
-ls *_R1.fastq.gz | sed 's/.fastq.gz//' | sed 's/_R1$//' | (echo "sample" && cat -) | sed 's/ \+/,/g' > sample_file.csv
-```
-The MicroHaplotype Quality Control script needs to be run in the same directory as your FASTQ files. Remember to create a separate copy of your raw FASTQ files elsewhere. 
+    or::
 
-DO NOT RUN WITHOUT MAKING A BACKUP COPY OF YOUR RAW FASTQ FILES STORED ELSEWHERE.
-```
-usage: microhap_QC.py [-h] --index-file INDEX_FILE --ref REF --bed BED [--version]
+    	ln -s SOME_SOURCE_DIR reads
 
-MicroHaplotype Quality Control script
+4.  Execute the ``run-discovery-variant-caller`` command with as follow::
 
-arguments:
-  -h, --help            show this help message and exit
-  --index-file          INDEX_FILE CSV file containing field "Sample" (default: None)
-  --ref REF             Reference fasta (default: None)
-  --bed BED             BED file with MicroHaplotype locations (default: None)
-  --version             show program's version number and exit
+		ngs-pl run-discovery-variant-caller -o MY_OUTPUT reads/*.fastq.gz
 
-```
-Example of usage with your input files stored in a separate directory. The command is run in the directory containing copies of the FASTQ files listed in the CSV file.
-```
-microhap_QC.py --index-file ~/Documents/microhaps/sample_file.csv --ref ~/Documents/microhaps/PlasmoDB-51_PvivaxP01_Genome.fasta --bed ~/Documents/microhaps/microhap.bed
-```
-## OUTDATED Manual Installation using Conda
-First create a tools directory to keep track of all software and repositories used by this pipeline.
-```
-mkdir tools
-```
-Create conda environment to store required packages. Conda channel configuration is shown in instructions for first time users. If your conda is already configured, please skip those steps.
-```
-conda create -n microhapQC
-conda activate microhapQC
+5. When the command finishes, examine the content of ``MY_OUTPUT`` directory::
 
-conda config --add channels defaults
-conda config --add channels bioconda
-conda config --add channels conda-forge
-conda config --set channel_priority strict
+		cd MY_OUTPUT
+		ls
 
-conda install python=3.8 bwa samtools bcftools freebayes parallel datamash gatk4=4.1.4.1 delly tqdm trimmomatic minimap2 biopython bedtools r-ggplot2 iqtree fastqc mosdepth samclip sambamba multiqc pandas cutadapt muscle r-BiocManager r-RCurl r-argparse r-data.table r-seqinr r-doMC
+The layout of the output directory is::
 
-```
-R packages managed by BiocManager are not currently included in the conda environment and require manual installation.
+    MY_OUTPUT/
+              metafile/
+                       manifest.tsv
+              analysis/
+                       SAMPLE-1/
+                       SAMPLE-2/
+                       ...
+              joint/
+                    vcfs/
 
-Install DADA2 into the R client while the microhapQC conda environment is active.
-```
-# Open R in command line
-R
-
-#install DADA2 and pre-requisites using BiocManager
-BiocManager::install("GenomeInfoDb")
-BiocManager::install("GenomicRanges")
-BiocManager::install("Biostrings")
-BiocManager::install("Rsamtools")
-BiocManager::install("SummarizedExperiment")
-BiocManager::install("GenomicAlignments")
-BiocManager::install("ShortRead")
-BiocManager::install("dada2")
-BiocManager::install("limma")
-
-# Quit R and do not save current workspace using 'n'
-q()
-n
-```
-
-Install pre-requisite GitHub repositories; store repositories in the easily accessible "tools" folder for quick maintenance. Remember to keep the conda environment active while running the python setup installation step and for running any parts of the pipeline.
-```
-cd tools
-git clone https://github.com/pathogenseq/fastq2matrix.git
-cd fastq2matrix
-python setup.py install
-
-cd ..
-git clone https://github.com/vivaxgen/MicroHaps
-cd MicroHaps
-python setup.py install
-```
