@@ -3,7 +3,7 @@
 This repository contains 2 pipelines for handling microhaplotype amplicon
 sequencing data:
 
-* DADA2-based MicroHaplotype Analysis Pipeline (https://benjjneb.github.io/dada2/).
+* DADA2-based MicroHaplotype Analysis Pipeline; Original software can be found at (https://benjjneb.github.io/dada2/) but is modified for this pipeline. DADA2-based pipeline COMING SOON.
 
 * SNP-based variant calling which output ordinary VCF file, based on
   [vivaxGEN NGS-Pipeline](https://github.com/vivaxgen/ngs-pipeline).
