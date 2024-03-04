@@ -36,7 +36,14 @@ update-pipeline.sh
 ```
 
 # Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
-Introduction
+Introduction to SNP-based variant calling
+------------
+
+This pipeline contains a wrapper for the MIT-Broad team DADA2 software.
+
+------------
+
+Introduction to SNP-based variant calling
 ------------
 
 This pipeline contains a wrapper for vivaxGEN NGS-Pipeline, a SNP-based variant
