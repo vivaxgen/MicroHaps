@@ -40,9 +40,23 @@ It is assumed that the pipeline has been installed.
     	mkdir reads
     	cp SOME_WHERE/*.fastq.gz
 
-    or::
+    or link the whole directory:
 
     	ln -s SOME_SOURCE_DIR reads
+
+    or link individual files:
+
+      ln -s SOME_DIR/SAMPLE_R1.fastq.gz reads
+      ln -s SOME_DIR/SAMPLE_R2.fastq.gz reads
+      ...
+
+    or link individual file using for-loop in bash:
+
+      for fn in SOME_DIR/SAMPLE*.fastq.gz; do ln -s $fn reads; done
+
+    or use the commmand ``generate-link`` as follows:
+
+      ngs-pl generate-links -o reads SOME_SOURCE_DIR/*.fastq.gz
 
 4.  Execute the ``run-discovery-variant-caller`` command with as follow::
 
@@ -53,7 +67,7 @@ It is assumed that the pipeline has been installed.
 		cd MY_OUTPUT
 		ls
 
-The layout of the output directory is::
+The following is the layout of the output directory::
 
     MY_OUTPUT/
               metafile/
@@ -64,4 +78,11 @@ The layout of the output directory is::
                        ...
               joint/
                     vcfs/
+              reports/
+                      depth-base/
+                      maps/
+              failed_samples/
+                             SAMPLE-8/
+                             SAMPLE-9/
+                             ...
 
