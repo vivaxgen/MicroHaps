@@ -73,7 +73,7 @@ It is assumed that the pipeline has been installed.
     used::
 
     	mkdir reads
-    	cp SOME_WHERE/*.fastq.gz
+    	cp /path/to/fastq/files/*.fastq.gz
 
     or::
 
