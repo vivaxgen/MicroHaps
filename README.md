@@ -20,7 +20,10 @@ For vivaxGEN MicroHaps sequencing pipeline, install with the following command:
 
 	"${SHELL}" <(curl -L https://raw.githubusercontent.com/vivaxgen/install/main/MicroHaps-pl.sh)
 
-The installation requires ~20 menit as most of R packages need to be recompiled
+Copy and paste command into the command line in the folder you want the install to be saved to (we recommend you create a specific tools or software folder). 
+When promted for "Pipeline base directory? [./vvg-MicroHaps]" press enter again for the install to proceed.
+
+The installation requires ~20 minutes as most of R packages need to be recompiled
 during installation.
 
 Once the installation finished, it will show the command to activate the
