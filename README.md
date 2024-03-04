@@ -26,7 +26,7 @@ the pipeline can be run. When activated, the terminal will show the **(µhaps)**
 prompt.
 
 
-# Updating the MicroHaps Pipeline
+# Updating the pipeline
 
 To update the pipeline line, assuming that the environment has been activated,
 run the following command:
@@ -36,9 +36,6 @@ update-pipeline.sh
 ```
 
 ## Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
-muhap_pipeline
-==============
-
 Introduction
 ------------
 
