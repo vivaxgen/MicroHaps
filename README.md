@@ -36,13 +36,6 @@ update-pipeline.sh
 ```
 
 # Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
-Introduction to DADA2-based MicroHaplotype software
-------------
-COMING SOON.
-
-This pipeline contains a wrapper for the MIT-Broad team DADA2 software.
-
-------------
 
 Introduction to SNP-based variant calling
 ------------
@@ -108,6 +101,14 @@ The layout of the output directory is::
               joint/
                     vcfs/
 ------------
+Introduction to DADA2-based MicroHaplotype software
+------------
+COMING SOON.
+
+This pipeline contains a wrapper for the MIT-Broad team DADA2 software.
+
+------------
+
 # DEPRECIATED - MicroHaplotype python-wrapped Quality Control step and DADA2 pipeline.
 
 Bare-bones python-wrapped script for small datasets.
