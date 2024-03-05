@@ -119,7 +119,7 @@ def main(args):
     run_cmd("mv multiqc_report.html multiqc_data")
 
     #run DADA2 post-processing
-    run_cmd('Rscript ~/tools/MicroHaps/scripts/postProc_dada2.R -s run_dada2/seqtab.tsv --strain PvP01 -ref %(ref_post)s -o ASVTable.txt --fasta --parallel' % vars(args))
+    run_cmd('Rscript ~/tools/MicroHaps/scripts/postProc_dada2.R -s run_dada2/seqtab.tsv --strain PvP01 -ref %(ref_post)s -o ASVTable.txt --fasta' % vars(args))
     run_cmd('ASV_to_CIGAR.py ASVSeqs.fasta ASVTable.txt run_dada2/seqtab.tsv outputCIGAR.tsv --asv_to_cigar asv_to_cigar --amp_db %(ref_post)s' % vars(args))
 
 # Set up the parser
