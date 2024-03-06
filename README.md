@@ -1,4 +1,4 @@
-# VivanGEN MicroHaplotypes
+# VivaxGEN MicroHaplotypes
 
 This repository contains 2 pipelines for handling microhaplotype amplicon
 sequencing data:
