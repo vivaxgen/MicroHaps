@@ -1,4 +1,4 @@
-# Menzies_MicroHaps
+# VivanGEN MicroHaplotypes
 
 This repository contains 2 pipelines for handling microhaplotype amplicon
 sequencing data:
