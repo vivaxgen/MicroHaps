@@ -9,8 +9,9 @@ import os
 import subprocess as sp
 #from fastq2matrix import run_cmd
 
-MICROHAPS_BASEDIR = os.path.expanduser("~/tools/MicroHaps/scripts")
+#MICROHAPS_BASEDIR = os.path.expanduser("~/tools/MicroHaps/scripts")
 #MICROHAPS_BASEDIR = os.environ['MICROHAPS_BASEDIR']
+MICROHAPS_BASEDIR = "~/tools/MicroHaps/scripts"
 
 def run_cmd(cmd):
     sys.stderr.write("Running command:\n%s\n\n" % cmd)
@@ -120,14 +121,14 @@ def main():
     # Steps after Primer removal
     if not os.path.exists(os.path.join(run_dir, "run_dada2")):
         os.mkdir(os.path.join(run_dir, "run_dada2"))
+        print("A")
     else:
         print("Directory %s already exists.." % (os.path.join(run_dir, "run_dada2")))
         
 
     print("Now running DADA2..")
     dada2_cmd = [
-#    'Rscript', f'runDADA2.R',
-    os.path.join(MICROHAPS_BASEDIR, "runDADA2.R"),
+    'Rscript', f'runDADA2.R',
     '-p', 'prim_meta.txt',
     '-d', os.path.join(run_dir, 'run_dada2'),
     '-o', 'seqtab.tsv',
