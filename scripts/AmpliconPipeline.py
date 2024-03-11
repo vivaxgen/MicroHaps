@@ -122,6 +122,8 @@ def main():
         os.mkdir(os.path.join(run_dir, "run_dada2"))
     else:
         print("Directory %s already exists.." % (os.path.join(run_dir, "run_dada2")))
+        
+    print("Expanded path to runDADA2.R:", os.path.join(MICROHAPS_BASEDIR, "scripts/runDADA2.R"))
 
     print("Now running DADA2..")
     dada2_cmd = [
