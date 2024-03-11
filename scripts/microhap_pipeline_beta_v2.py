@@ -61,10 +61,7 @@ def main(args):
         run_cmd("bcftools view %(sample)s.gatk.vcf -Oz -o %(sample)s.gatk.vcf.gz" % vars(args))
         run_cmd("tabix -f %(sample)s.gatk.vcf.gz" % vars(args))
         
-    if not args.per_sample_only:
-        with open("sample_vcf_list.txt","w") as O:
-            for s in samples:
-                O.write("%s.vcf.gz\n" % (s))
+        run_cmd("ls *.gatk.vcf.gz > sample_vcf_list.txt" )
         run_cmd("bcftools merge -l sample_vcf_list.txt -Oz -o combined.vcf.gz" )
         run_cmd(r"bcftools query -f '%CHROM\t%POS[\t%DP]\n' combined.vcf.gz > tmp.txt")
         run_cmd("bcftools filter -i 'FMT/DP>10' -S . combined.vcf.gz | bcftools sort -Oz -o tmp.vcf.gz" % vars(args))
