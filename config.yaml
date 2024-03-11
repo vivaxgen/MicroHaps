@@ -36,7 +36,7 @@ regions:
   - PvP01_MIT_v1
 
 # this is amplicon sequencing, so turn off deduplication
-deduplication: False
+deduplicate: False
 
 # set below to True for new samples (for the purpose of submitting to SRA database)
 keep_paired_bam: False
