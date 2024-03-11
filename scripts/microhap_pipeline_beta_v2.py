@@ -41,6 +41,7 @@ def main(args):
     run_cmd("mkdir cov_stats")
     run_cmd("mkdir untrimmed_fastq")
     run_cmd("mkdir trimmed_fastq")
+    run_cmd("mkdir gatk_vcf")
   
     for sample in samples:
         args.sample = sample
@@ -59,17 +60,17 @@ def main(args):
         run_cmd("gatk HaplotypeCaller -R %(ref)s -L %(bed)s  -I %(sample)s.bam -O %(sample)s.gatk.vcf" % vars(args))
         run_cmd("bcftools view %(sample)s.gatk.vcf -Oz -o %(sample)s.gatk.vcf.gz" % vars(args))
         run_cmd("tabix -f %(sample)s.gatk.vcf.gz" % vars(args))
-
-    if not args.per_sample_only:
-        with open("sample_vcf_list.txt","w") as O:
-            for s in samples:
-                O.write("%s.vcf.gz\n" % (s))
-        run_cmd("bcftools merge -l sample_vcf_list.txt -Oz -o combined.vcf.gz" )
-        run_cmd(r"bcftools query -f '%CHROM\t%POS[\t%DP]\n' combined.vcf.gz > tmp.txt")
-        run_cmd("bcftools filter -i 'FMT/DP>10' -S . combined.vcf.gz | bcftools sort -Oz -o tmp.vcf.gz" % vars(args))
-        run_cmd("bcftools view -v snps tmp.vcf.gz > snps.vcf" % vars(args))
-        run_cmd("bgzip -c snps.vcf > snps.vcf.gz" % vars(args))
-        run_cmd("tabix -f snps.vcf.gz" % vars(args))      
+        
+        if not args.per_sample_only:
+            with open("sample_vcf_list.txt","w") as O:
+                for s in samples:
+                    O.write("%s.vcf.gz\n" % (s))
+            run_cmd("bcftools merge -l sample_vcf_list.txt -Oz -o combined.vcf.gz" )
+            run_cmd(r"bcftools query -f '%CHROM\t%POS[\t%DP]\n' combined.vcf.gz > tmp.txt")
+            run_cmd("bcftools filter -i 'FMT/DP>10' -S . combined.vcf.gz | bcftools sort -Oz -o tmp.vcf.gz" % vars(args))
+            run_cmd("bcftools view -v snps tmp.vcf.gz > snps.vcf" % vars(args))
+            run_cmd("bgzip -c snps.vcf > snps.vcf.gz" % vars(args))
+            run_cmd("tabix -f snps.vcf.gz" % vars(args))      
 
     run_cmd("multiqc FASTQC_results")
     run_cmd("mv multiqc_report.html multiqc_data")
@@ -110,6 +111,28 @@ def main(args):
             shutil.move(source_path, destination_path)
     print("Bam and index files moved successfully.")
 
+    destination_directory = 'gatk_vcf'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".gatk.vcf") or filename.endswith(".gatk.vcf.gz"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("VCF files moved successfully.")
+
+    destination_directory = 'gatk_vcf'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".gatk.vcf.idx") or filename.endswith(".gatk.vcf.gz.tbi"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("VCF files moved successfully.")
+    
     destination_directory = 'cov_stats'
     os.makedirs(destination_directory, exist_ok=True)
     for filename in os.listdir(os.getcwd()):
