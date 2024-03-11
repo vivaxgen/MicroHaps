@@ -10,6 +10,7 @@ import subprocess as sp
 #from fastq2matrix import run_cmd
 
 MICROHAPS_BASEDIR = os.path.expanduser("~/tools/MicroHaps/scripts")
+RUN_DADA2_PATH = os.path.join(MICROHAPS_BASEDIR, "runDADA2.R")
 #MICROHAPS_BASEDIR = os.environ['MICROHAPS_BASEDIR']
 
 def run_cmd(cmd):
@@ -123,11 +124,12 @@ def main():
     else:
         print("Directory %s already exists.." % (os.path.join(run_dir, "run_dada2")))
         
-    print("Expanded path to runDADA2.R:", os.path.join(MICROHAPS_BASEDIR, "scripts/runDADA2.R"))
+    print("Expanded path to runDADA2.R:", RUN_DADA2_PATH)
 
     print("Now running DADA2..")
     dada2_cmd = [
-    'Rscript', f'runDADA2.R',
+#    'Rscript', f'runDADA2.R',
+    'Rscript', RUN_DADA2_PATH,
     '-p', 'prim_meta.txt',
     '-d', os.path.join(run_dir, 'run_dada2'),
     '-o', 'seqtab.tsv',
