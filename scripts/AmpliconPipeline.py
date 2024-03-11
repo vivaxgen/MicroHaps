@@ -9,7 +9,7 @@ import os
 import subprocess as sp
 #from fastq2matrix import run_cmd
 
-MICROHAPS_BASEDIR = "~/tools/MicroHaps"
+MICROHAPS_BASEDIR = "~/tools/MicroHaps/scripts"
 #MICROHAPS_BASEDIR = os.environ['MICROHAPS_BASEDIR']
 
 def run_cmd(cmd):
@@ -125,7 +125,7 @@ def main():
 
     print("Now running DADA2..")
     dada2_cmd = [
-    'Rscript', f'~/tools/MicroHaps/scripts/runDADA2.R',
+    'Rscript', f'runDADA2.R',
     '-p', 'prim_meta.txt',
     '-d', os.path.join(run_dir, 'run_dada2'),
     '-o', 'seqtab.tsv',
