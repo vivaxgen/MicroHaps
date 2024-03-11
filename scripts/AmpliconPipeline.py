@@ -123,7 +123,6 @@ def main():
     else:
         print("Directory %s already exists.." % (os.path.join(run_dir, "run_dada2")))
         
-    print("Expanded path to runDADA2.R:", RUN_DADA2_PATH)
 
     print("Now running DADA2..")
     dada2_cmd = [
