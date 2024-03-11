@@ -72,6 +72,28 @@ def main(args):
     run_cmd("multiqc FASTQC_results")
     run_cmd("mv multiqc_report.html multiqc_data")
     run_cmd("mv multiqc_data multiqc_data_pre_dada2")
+
+    destination_directory = 'gatk_vcf'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".gatk.vcf") or filename.endswith(".gatk.vcf.gz"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("VCF files moved successfully.")
+
+    destination_directory = 'gatk_vcf'
+    os.makedirs(destination_directory, exist_ok=True)
+    for filename in os.listdir(os.getcwd()):
+        if filename.endswith(".gatk.vcf.idx") or filename.endswith(".gatk.vcf.gz.tbi"):
+            source_path = os.path.join(os.getcwd(), filename)
+            destination_path = os.path.join(destination_directory, filename)
+
+            # Move the file
+            shutil.move(source_path, destination_path)
+    print("VCF files moved successfully.")
     
     destination_directory = 'trimmed_fastq'
     os.makedirs(destination_directory, exist_ok=True)
@@ -107,28 +129,6 @@ def main(args):
             # Move the file
             shutil.move(source_path, destination_path)
     print("Bam and index files moved successfully.")
-
-    destination_directory = 'gatk_vcf'
-    os.makedirs(destination_directory, exist_ok=True)
-    for filename in os.listdir(os.getcwd()):
-        if filename.endswith(".gatk.vcf") or filename.endswith(".gatk.vcf.gz"):
-            source_path = os.path.join(os.getcwd(), filename)
-            destination_path = os.path.join(destination_directory, filename)
-
-            # Move the file
-            shutil.move(source_path, destination_path)
-    print("VCF files moved successfully.")
-
-    destination_directory = 'gatk_vcf'
-    os.makedirs(destination_directory, exist_ok=True)
-    for filename in os.listdir(os.getcwd()):
-        if filename.endswith(".gatk.vcf.idx") or filename.endswith(".gatk.vcf.gz.tbi"):
-            source_path = os.path.join(os.getcwd(), filename)
-            destination_path = os.path.join(destination_directory, filename)
-
-            # Move the file
-            shutil.move(source_path, destination_path)
-    print("VCF files moved successfully.")
     
     destination_directory = 'cov_stats'
     os.makedirs(destination_directory, exist_ok=True)
