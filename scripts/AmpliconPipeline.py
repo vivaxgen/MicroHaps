@@ -128,7 +128,7 @@ def main():
 
     print("Now running DADA2..")
     dada2_cmd = [
-    'Rscript', f'runDADA2.R',
+    'Rscript', f'~/tools/MicroHaps/scripts/runDADA2.R',
     '-p', 'prim_meta.txt',
     '-d', os.path.join(run_dir, 'run_dada2'),
     '-o', 'seqtab.tsv',
