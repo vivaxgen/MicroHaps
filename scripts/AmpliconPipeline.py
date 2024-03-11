@@ -9,7 +9,7 @@ import os
 import subprocess as sp
 #from fastq2matrix import run_cmd
 
-MICROHAPS_BASEDIR = "~/tools/MicroHaps/scripts"
+MICROHAPS_BASEDIR = "~/tools/MicroHaps"
 #MICROHAPS_BASEDIR = os.environ['MICROHAPS_BASEDIR']
 
 def run_cmd(cmd):
