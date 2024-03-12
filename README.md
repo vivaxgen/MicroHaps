@@ -29,6 +29,9 @@ pipeline. This activation command has to be executed before all commands of
 the pipeline can be run. When activated, the terminal will show the **(µhaps)**
 prompt.
 
+Before running, the reference files need to be indexed using the command:
+
+	ngs-pl initialize --target wgs
 
 ## Updating the pipeline
 
