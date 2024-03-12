@@ -33,6 +33,10 @@ Before running, the reference files need to be indexed using the command:
 
 	ngs-pl initialize --target wgs
 
+ To test your install, and read about programme specifications / options:
+
+ 	ngs-pl run-discovery-variant-caller --help
+
 ## Updating the pipeline
 
 To update the pipeline line, assuming that the environment has been activated,
