@@ -93,7 +93,14 @@ It is assumed that the pipeline has been installed.
 
 		ngs-pl run-discovery-variant-caller -o MY_OUTPUT reads/*.fastq.gz
 
-6. When the command finishes, examine the content of ``MY_OUTPUT`` directory::
+	example for paired-end (Illumina) reads::
+
+  		ngs-pl run-discovery-variant-caller -o output_dir -u 4 --paired  reads/*.fastq.gz
+
+ 	The "-u 4" prompt changes depending on how your files are named as it counts the number of underscores "_" in a file name. For a sample called "sample4_date_batch_info_R1.fastq.gz",
+	the "-u 4" argument will use result in "sample4" as the ID. For a sample called "sample_4_date_batch_pool_country_R1.fastq.gz", the argument "-u 5" will result in "sample_4" as the ID.
+
+7. When the command finishes, examine the content of ``MY_OUTPUT`` directory::
 
 		cd MY_OUTPUT
 		ls
