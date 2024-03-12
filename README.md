@@ -14,6 +14,10 @@ For vivaxGEN MicroHaps sequencing pipeline, install with the following command:
 
 	"${SHELL}" <(curl -L https://raw.githubusercontent.com/vivaxgen/install/main/MicroHaps-pl.sh)
 
+Be sure you are not in a conda environemt or in the (base) conda environment prior to installing. To deactivate your conda environment or (base) environment, enter:
+
+	conda deactivate
+
 Copy and paste command into the command line in the folder you want the install to be saved to (we recommend you create a specific tools or software folder). 
 When promted for "Pipeline base directory? [./vvg-MicroHaps]" press enter again for the install to proceed.
 
