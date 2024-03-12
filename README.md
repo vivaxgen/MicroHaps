@@ -66,11 +66,13 @@ It is assumed that the pipeline has been installed.
 
 1.  Activate the environment. The terminal will show ``(µhaps)`` prompt.
 
-2.  Go to the directory that will be used to process and analysis::
+		source /path/to/vvg-MicroHaps/bin/activate
+
+3.  Go to the directory that will be used to process and analysis::
 
 		cd MY_ANALYSIS_DIRECTORY
 
-3.  Provide the FASTQ reads from the sequencing result, by either copying the
+4.  Provide the FASTQ reads from the sequencing result, by either copying the
     FASTQ files or alternatively generate soft link as necessary.
     The soft link approach is preferred since it will prevent duplication of
     the files, if the files are already reside in the local storage.
@@ -87,11 +89,11 @@ It is assumed that the pipeline has been installed.
 
     	ln -s SOME_SOURCE_DIR reads
 
-4.  Execute the ``run-discovery-variant-caller`` command with as follow::
+5.  Execute the ``run-discovery-variant-caller`` command with as follow::
 
 		ngs-pl run-discovery-variant-caller -o MY_OUTPUT reads/*.fastq.gz
 
-5. When the command finishes, examine the content of ``MY_OUTPUT`` directory::
+6. When the command finishes, examine the content of ``MY_OUTPUT`` directory::
 
 		cd MY_OUTPUT
 		ls
