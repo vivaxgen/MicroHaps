@@ -99,8 +99,11 @@ It is assumed that the pipeline has been installed.
 
 	example for paired-end (Illumina) reads::
 
-  		ngs-pl run-discovery-variant-caller -o output_dir -u 4 --paired  reads/*.fastq.gz
+  		ngs-pl run-discovery-variant-caller -j 1 -o output_dir -u 4 --paired  reads/*.fastq.gz
 
+	LAPTOP USERS - It is essential that you specify "-j 1" as this limits the number of jobs running at one time. Without this argument, the pipeline will utilise too much system memory and crash.
+	We are working on improving this issue.
+	
  	The "-u 4" prompt changes depending on how your files are named as it counts the number of underscores "_" in a file name. For a sample called "sample4_date_batch_info_R1.fastq.gz",
 	the "-u 4" argument will use result in "sample4" as the ID. For a sample called "sample_4_date_batch_pool_country_R1.fastq.gz", the argument "-u 5" will result in "sample_4" as the ID.
 
