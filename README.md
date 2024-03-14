@@ -9,7 +9,7 @@ sequencing data:
   [vivaxGEN NGS-Pipeline](https://github.com/vivaxgen/ngs-pipeline).
 
 ## Installation on local devices and HPCs
-Be sure you are not in a conda environemt or in the (base) conda environment prior to installing. 
+Be sure you are not in a conda environment or in the (base) conda environment prior to installing. 
 To deactivate your conda environment or (base) environment, enter:
 
 	conda deactivate
