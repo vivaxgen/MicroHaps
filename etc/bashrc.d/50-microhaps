@@ -1,0 +1,25 @@
+# MicroHaps-specific source file
+
+# find our own path
+_script="$(readlink -f ${BASH_SOURCE[0]})"
+
+# get our base directory 
+_mydir="$(dirname $_script)"
+_basedir = "$(dirname $(dirname $_mydir))"
+
+export MICROHAPS_BASEDIR=${_basedir}
+export NGSENV_BASEDIR=${_basedir}
+
+PATH=${NGSENV_BASEDIR}/bin:${PATH}
+PYTHONPATH=${NGSENV_BASEDIR}:${PYTHONPATH}
+
+## variable for vivaxGEN NGS-Pipeline
+export NGS_PIPELINE_CMD_MODS=muhaps_pipeline.cmds:microhaps_pipeline.cmds:${NGS_PIPELINE_CMD_MODS}
+export NGS_PIPELINE_FORCE=1
+export NGS_PIPELINE_NO_CONFIG_CASCADE=1
+
+## uncomment below if you want to  avoid running "python setup.py install"
+PATH=${MICROHAPS_BASEDIR}/scripts:${PATH}
+
+# EOF
+
