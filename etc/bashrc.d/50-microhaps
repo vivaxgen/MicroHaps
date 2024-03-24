@@ -21,5 +21,8 @@ export NGS_PIPELINE_NO_CONFIG_CASCADE=1
 ## uncomment below if you want to  avoid running "python setup.py install"
 PATH=${MICROHAPS_BASEDIR}/scripts:${PATH}
 
+## set prompt
+PS1=$'(\xc2\xb5haps) [\\u@\\h \\W]$ '
+
 # EOF
 
