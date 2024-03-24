@@ -5,7 +5,7 @@ _script="$(readlink -f ${BASH_SOURCE[0]})"
 
 # get our base directory 
 _mydir="$(dirname $_script)"
-_basedir = "$(dirname $(dirname $_mydir))"
+_basedir="$(dirname $(dirname $_mydir))"
 
 export MICROHAPS_BASEDIR=${_basedir}
 export NGSENV_BASEDIR=${_basedir}
