@@ -9,6 +9,10 @@ sequencing data:
   [vivaxGEN NGS-Pipeline](https://github.com/vivaxgen/ngs-pipeline).
 
 ## Installation on local devices and HPCs
+Be sure you are not in a conda environment or in the (base) conda environment prior to installing. 
+To deactivate your conda environment or (base) environment, enter:
+
+	conda deactivate
 
 For vivaxGEN MicroHaps sequencing pipeline, install with the following command:
 
@@ -25,6 +29,13 @@ pipeline. This activation command has to be executed before all commands of
 the pipeline can be run. When activated, the terminal will show the **(µhaps)**
 prompt.
 
+Before running, the reference files need to be indexed using the command:
+
+	ngs-pl initialize --target wgs
+
+ To test your install, and read about programme specifications / options:
+
+ 	ngs-pl run-discovery-variant-caller --help
 
 ## Updating the pipeline
 
@@ -59,11 +70,13 @@ It is assumed that the pipeline has been installed.
 
 1.  Activate the environment. The terminal will show ``(µhaps)`` prompt.
 
-2.  Go to the directory that will be used to process and analysis::
+		source /path/to/vvg-MicroHaps/bin/activate
+
+3.  Go to the directory that will be used to process and analysis::
 
 		cd MY_ANALYSIS_DIRECTORY
 
-3.  Provide the FASTQ reads from the sequencing result, by either copying the
+4.  Provide the FASTQ reads from the sequencing result, by either copying the
     FASTQ files or alternatively generate soft link as necessary.
     The soft link approach is preferred since it will prevent duplication of
     the files, if the files are already reside in the local storage.
@@ -80,11 +93,21 @@ It is assumed that the pipeline has been installed.
 
     	ln -s SOME_SOURCE_DIR reads
 
-4.  Execute the ``run-discovery-variant-caller`` command with as follow::
+5.  Execute the ``run-discovery-variant-caller`` command with as follow::
 
 		ngs-pl run-discovery-variant-caller -o MY_OUTPUT reads/*.fastq.gz
 
-5. When the command finishes, examine the content of ``MY_OUTPUT`` directory::
+	example for paired-end (Illumina) reads::
+
+  		ngs-pl run-discovery-variant-caller -j 1 -o output_dir -u 4 --paired  reads/*.fastq.gz
+
+	LAPTOP USERS - It is essential that you specify "-j 1" as this limits the number of jobs running at one time. Without this argument, the pipeline will utilise too much system memory and crash.
+	We are working on improving this issue.
+	
+ 	The "-u 4" prompt changes depending on how your files are named as it counts the number of underscores "_" in a file name. For a sample called "sample4_date_batch_info_R1.fastq.gz",
+	the "-u 4" argument will use result in "sample4" as the ID. For a sample called "sample_4_date_batch_pool_country_R1.fastq.gz", the argument "-u 5" will result in "sample_4" as the ID.
+
+7. When the command finishes, examine the content of ``MY_OUTPUT`` directory::
 
 		cd MY_OUTPUT
 		ls
