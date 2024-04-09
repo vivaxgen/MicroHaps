@@ -52,6 +52,11 @@ read_filters: --remove_trans --remove_unmapped --remove_secondary --remove_suppl
 reads_trimmer_wf: trimmer_null.smk
 reads_mapper_wf: mapper_bwa-mem2.smk
 
+# multistep-variant-caller parameters
+prepare_sample_directory_flags: --force
+sample_variant_caller_flags: --force --no-config-cascade
+joint_variant_caller_flags: --force --no-config-cascade
+
 
 #
 # --- End of NGS-Pipeline settings ---
