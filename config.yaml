@@ -59,6 +59,7 @@ reads_mapper_wf: mapper_bwa-mem2.smk
 
 #parameters
 
+
 class: "parasite"
 maxEE: "5,5"
 trim_right: "10,10"
@@ -68,6 +69,8 @@ max_consist: 10
 omegaA: 1e-120
 justconcat: 0
 platform: "PE"
+trimqv: 15
+
 
 #refs0
 
