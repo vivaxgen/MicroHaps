@@ -265,6 +265,7 @@ if(args$bimera) {
     quote=FALSE, sep="\t", row.names=FALSE)
 } else {
   print("skipping Bimera identification..")
+  seqtab.nochim <- seqtab
 }
 
 # Track reads through the pipeline
