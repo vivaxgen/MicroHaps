@@ -8,7 +8,9 @@ sequencing data:
 * SNP-based variant calling which output ordinary VCF file, based on
   [vivaxGEN NGS-Pipeline](https://github.com/vivaxgen/ngs-pipeline).
 
+
 ## Installation on local devices and HPCs
+
 Be sure you are not in a conda environment or in the (base) conda environment prior to installing. 
 To deactivate your conda environment or (base) environment, enter:
 
@@ -16,20 +18,26 @@ To deactivate your conda environment or (base) environment, enter:
 
 For vivaxGEN MicroHaps sequencing pipeline, install with the following command:
 
-	"${SHELL}" <(curl -L https://raw.githubusercontent.com/vivaxgen/install/main/MicroHaps-pl.sh)
+	"${SHELL}" <(curl -L https://raw.githubusercontent.com/vivaxgen/MicroHaps/main/install.sh)
 
 Copy and paste command into the command line in the folder you want the install to be saved to (we recommend you create a specific tools or software folder). 
-When promted for "Pipeline base directory? [./vvg-MicroHaps]" press enter again for the install to proceed.
+When prompted for "Pipeline base directory? [./vvg-MicroHaps]" press enter again for the install to proceed.
 
-The installation requires ~20 minutes as most of R packages need to be recompiled
+The installation requires ~ 20-45 minutes as most of R packages need to be recompiled
 during installation.
 
 Once the installation finished, it will show the command to activate the
-pipeline. This activation command has to be executed before all commands of
-the pipeline can be run. When activated, the terminal will show the **(µhaps)**
-prompt.
+pipeline, as such:
 
-Before running, the reference files need to be indexed using the command:
+	/path/to/vvg-MicroHaps/bin/activate
+
+This activation command has to be executed before all commands of the pipeline
+can be run.
+When activated, the terminal will show the **(µhaps)** prompt.
+
+The installation process also performs indexing of the reference files.
+However, in case that the indexing fails, please perform manual indexeing
+using the command:
 
 	ngs-pl initialize --target wgs
 
@@ -37,14 +45,14 @@ Before running, the reference files need to be indexed using the command:
 
  	ngs-pl run-discovery-variant-caller --help
 
+
 ## Updating the pipeline
 
 To update the pipeline line, assuming that the environment has been activated,
 run the following command:
 
-```
-update-pipeline.sh
-```
+	$VVGBIN/update-pipeline.sh
+
 
 # Tutorial: How does the Menzies MicroHap pipeline work and what is it doing?
 
@@ -70,13 +78,13 @@ It is assumed that the pipeline has been installed.
 
 1.  Activate the environment. The terminal will show ``(µhaps)`` prompt.
 
-		source /path/to/vvg-MicroHaps/bin/activate
+	/path/to/vvg-MicroHaps/bin/activate
 
-3.  Go to the directory that will be used to process and analysis::
+1.  Go to the directory that will be used to process and analysis::
 
-		cd MY_ANALYSIS_DIRECTORY
+	cd MY_ANALYSIS_DIRECTORY
 
-4.  Provide the FASTQ reads from the sequencing result, by either copying the
+1.  Provide the FASTQ reads from the sequencing result, by either copying the
     FASTQ files or alternatively generate soft link as necessary.
     The soft link approach is preferred since it will prevent duplication of
     the files, if the files are already reside in the local storage.
@@ -87,13 +95,13 @@ It is assumed that the pipeline has been installed.
     used::
 
     	mkdir reads
-    	cp /path/to/fastq/files/*.fastq.gz
+    	cp /path/to/fastq/files/*.fastq.gz .
 
     or::
 
     	ln -s SOME_SOURCE_DIR reads
 
-5.  Execute the ``run-discovery-variant-caller`` command with as follow::
+1.  Execute the ``run-discovery-variant-caller`` command with as follow::
 
 		ngs-pl run-discovery-variant-caller -o MY_OUTPUT reads/*.fastq.gz
 
@@ -107,7 +115,7 @@ It is assumed that the pipeline has been installed.
  	The "-u 4" prompt changes depending on how your files are named as it counts the number of underscores "_" in a file name. For a sample called "sample4_date_batch_info_R1.fastq.gz",
 	the "-u 4" argument will use result in "sample4" as the ID. For a sample called "sample_4_date_batch_pool_country_R1.fastq.gz", the argument "-u 5" will result in "sample_4" as the ID.
 
-7. When the command finishes, examine the content of ``MY_OUTPUT`` directory::
+1. When the command finishes, examine the content of ``MY_OUTPUT`` directory::
 
 		cd MY_OUTPUT
 		ls

@@ -24,5 +24,8 @@ PATH=${MICROHAPS_BASEDIR}/scripts:${PATH}
 ## set prompt
 PS1=$'(\xc2\xb5haps) [\\u@\\h \\W]$ '
 
+## set history extension
+export HIST_EXT=muhaps
+
 # EOF
 
