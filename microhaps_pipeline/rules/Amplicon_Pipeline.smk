@@ -98,7 +98,6 @@ rule create_meta:
 
 
 rule run_dada2R:
-    localrule: True
     input:
         meta = f"{out_dir}/malamp/meta",
     output:
