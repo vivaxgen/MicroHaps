@@ -31,7 +31,10 @@ rule all:
         f"{out_dir}/malamp/dada2/seqtab.tsv",
         #"ASVTable.txt",
         #"outputCIGAR.tsv",
-        expand(f'{out_dir}/trimmed/{{sample}}-0_R1.trimmed.fastq.gz', sample=IDs)
+        expand(f'{out_dir}/trimmed/{{sample}}-0_R1.trimmed.fastq.gz', sample=IDs),
+        f"{out_dir}/malamp/ASVTable.txt",
+        f"{out_dir}/malamp/ASVSeqs.fasta",
+        f"{out_dir}/malamp/outputCIGAR.tsv"
  
 
 #create input file list
@@ -40,7 +43,7 @@ rule all:
 #    input:
 #        f"{in_dir}",
 #    output:
-#        f"{out_dir}/mal_amp/samples_file.csv",
+#        f"{out_dir}/malamp/samples_file.csv",
 #    run:
 #        import pathlib
 #        import pandas as pd
@@ -128,4 +131,34 @@ rule run_dada2R:
             --max_consist {params.max_consist} \
             --omega_a {params.omega_a} \
             --justConcatenate {params.justConcatenate} \
+        """
+
+rule post_process:
+    input:
+        f"{out_dir}/malamp/dada2/seqtab.tsv"
+    output:
+        Table = f"{out_dir}/malamp/ASVTable.txt",
+        Seqs = f"{out_dir}/malamp/ASVSeqs.fasta"
+    shell:
+        """
+        Rscript /usr/local/malaria-amplicon-pipeline-main/postProc_dada2.R \
+            -s {input} \
+            --strain PvP01 \
+            -ref {microhaps_basedir}/microhaps_pipeline/refs/Microhaps_Inserts_wMito.fasta \
+            -o {output.Table} \
+            --fasta \
+            --parallel \
+        """
+rule asv_to_cigar:
+    input:
+        Table = f"{out_dir}/malamp/ASVTable.txt",
+        Seqs = f"{out_dir}/malamp/ASVSeqs.fasta",
+        seqtab = f"{out_dir}/malamp/dada2/seqtab.tsv"
+    output:
+        cigar = f"{out_dir}/malamp/outputCIGAR.tsv",
+        asv_to = f"{out_dir}/malamp/asv_to_cigar"
+    shell:
+        """
+        python /usr/local/malaria-amplicon-pipeline-main/ASV_to_CIGAR.py {input.Seqs} {input.Table} {input.seqtab} {output.cigar} --asv_to_cigar {output.asv_to} \
+        --amp_db {microhaps_basedir}/microhaps_pipeline/refs/Microhaps_Inserts_wMito.fasta \
         """
