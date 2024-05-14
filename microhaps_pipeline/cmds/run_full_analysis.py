@@ -23,7 +23,7 @@ def run_full_analysis(args):
 
     import microhaps_pipeline
 
-    args.snakefile = get_snakefile_path('Amplicon_Pipeline.smk', from_module=microhaps_pipeline).as_posix()
+    args.snakefile = get_snakefile_path('Amplicon_Pipeline.smk', from_module=microhaps_pipeline)
     args.no_config_cascade = True
     args.force = True
 
