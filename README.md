@@ -101,7 +101,7 @@ It is assumed that the pipeline has been installed.
 
     	ln -s SOME_SOURCE_DIR reads
 
-1.  Execute the ``run-discovery-variant-caller`` command with as follow::
+v
 
 		ngs-pl run-discovery-variant-caller -o MY_OUTPUT reads/*.fastq.gz
 
@@ -134,9 +134,26 @@ The layout of the output directory is::
 ------------
 Introduction to DADA2-based MicroHaplotype software
 ------------
+Introduction to Microhaplotype based analysis
 COMING SOON.
+This pipeline contains a wrapper for the MIT-Broad team DADA2 software. (https://github.com/broadinstitute/malaria-amplicon-pipeline) 
 
-This pipeline contains a wrapper for the MIT-Broad team DADA2 software.
+Quick Tutorial
+--------------
+
+Prepare pipeline install, analysis directory and raw data as above. 
+
+1.  Execute the ``ngs-pl run-full-analysis`` command with as follow::
+
+	ngs-pl run-full-analysis -o outdir test-data/*.fastq.gz
+
+
+Output: 
+
+COMING SOON
+
+
+
 
 ------------
 
