@@ -11,9 +11,9 @@ from ngs_pipeline import cerr, fileutils
 
 microhaps_basedir = os.environ['MICROHAPS_BASEDIR']
 
-fasta = microhaps_basedir + '/microhaps_pipeline/' + config['fasta']
-primer_fw = microhaps_basedir + '/microhaps_pipeline/' + config['primer_fw']
-primer_rev = microhaps_basedir + '/microhaps_pipeline/' + config['primer_rev']
+fasta = microhaps_basedir + config['fasta']
+primer_fw = microhaps_basedir + config['primer_fw']
+primer_rev = microhaps_basedir + config['primer_rev']
 
 
 # define all output files 
@@ -67,7 +67,6 @@ rule trim:
         "trimmomatic {params.platform} {input.R1} {input.R2} {output.R1} {output.R2} LEADING:3 TRAILING:3 SLIDINGWINDOW:4:%(trim_qv)s MINLEN:20 2> %(sample)s.trimlog"
 
 rule trim_1:
-    localrule: True
     input:
         lambda w: read_files.get_read_file(w),
         prim_fw = primer_fw,
@@ -141,7 +140,7 @@ rule post_process:
         Seqs = f"{out_dir}/malamp/ASVSeqs.fasta"
     shell:
         """
-        Rscript /usr/local/malaria-amplicon-pipeline-main/postProc_dada2.R \
+        Rscript {microhaps_basedir}/scripts/postProc_dada2.R \
             -s {input} \
             --strain PvP01 \
             -ref {microhaps_basedir}/microhaps_pipeline/refs/Microhaps_Inserts_wMito.fasta \
@@ -159,6 +158,6 @@ rule asv_to_cigar:
         asv_to = f"{out_dir}/malamp/asv_to_cigar"
     shell:
         """
-        python /usr/local/malaria-amplicon-pipeline-main/ASV_to_CIGAR.py {input.Seqs} {input.Table} {input.seqtab} {output.cigar} --asv_to_cigar {output.asv_to} \
-        --amp_db {microhaps_basedir}/microhaps_pipeline/refs/Microhaps_Inserts_wMito.fasta \
+        python {microhaps_basedir}/scripts/ASV_to_CIGAR.py {input.Seqs} {input.Table} {input.seqtab} {output.cigar} --asv_to_cigar {output.asv_to} \
+        --amp_db {microhaps_basedir}/refs/Microhaps_Inserts_wMito.fasta \
         """
