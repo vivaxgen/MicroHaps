@@ -11,9 +11,9 @@ from ngs_pipeline import cerr, fileutils
 
 microhaps_basedir = os.environ['MICROHAPS_BASEDIR']
 
-fasta = microhaps_basedir + config['fasta']
-primer_fw = microhaps_basedir + config['primer_fw']
-primer_rev = microhaps_basedir + config['primer_rev']
+fasta = microhaps_basedir + '/' + config['fasta']
+primer_fw = microhaps_basedir + '/' + config['primer_fw']
+primer_rev = microhaps_basedir + '/' + config['primer_rev']
 
 
 # define all output files 
