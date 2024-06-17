@@ -11,6 +11,7 @@ sequencing data:
 
 ## Installation on local devices and HPCs
 
+Note for Conda-based users!
 Be sure you are not in a conda environment or in the (base) conda environment prior to installing. 
 To deactivate your conda environment or (base) environment, enter:
 
