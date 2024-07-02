@@ -10,6 +10,13 @@ def init_argparser():
 
     p = snakeutils.init_argparser('run microhaps full analysis')
 
+
+    m = p.add_mutually_exclusive_group()
+    m.add_argument('--single', default=False, action='store_true',
+                   help='fastq files are single (non-paired) such as ONT reads')
+    m.add_argument('--paired', default=False, action='store_true',
+                   help='fastq files are paired such as Illumina paired-end reads')
+
     p.add_argument('-u', '--underscore', default=0, type=int,
                    help='number of undercore character to be stripped, counted in reverse')
     
@@ -29,6 +36,8 @@ def run_full_analysis(args):
 
     config = dict(
         infiles=args.infiles,
+        singleton=args.single,
+        paired_end=args.paired,
         underscore=args.underscore,
         outdir=args.outdir
     )
@@ -44,3 +53,4 @@ def main(args):
 
 
 # EOF
+

@@ -22,7 +22,19 @@ out_dir = config['outdir']
 #in_dir = config['indir']
 in_dir=''
 
-read_files = fileutils.ReadFileDict(config['infiles'], config['underscore'])
+# set read mode
+singleton = config.get('singleton', None)
+paired = config.get('paired', None)
+if singleton:
+    read_mode = fileutils.ReadMode.SINGLETON
+elif paired:
+    read_mode = fileutils.ReadMode.PAIRED_END
+else:
+    read_mode = None
+
+read_files = fileutils.ReadFileDict(config['infiles'],
+                                    underscore=config['underscore'],
+                                    mode=read_mode)
 IDs = read_files.keys()
 
 rule all:
@@ -161,3 +173,6 @@ rule asv_to_cigar:
         python {microhaps_basedir}/scripts/ASV_to_CIGAR.py {input.Seqs} {input.Table} {input.seqtab} {output.cigar} --asv_to_cigar {output.asv_to} \
         --amp_db {microhaps_basedir}/refs/Microhaps_Inserts_wMito.fasta \
         """
+
+# EOF
+
