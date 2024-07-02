@@ -57,6 +57,8 @@ prepare_sample_directory_flags: --force
 sample_variant_caller_flags: --force --no-config-cascade
 joint_variant_caller_flags: --force --no-config-cascade
 
+haplotypecaller_flags: --max-reads-per-alignment-start 0 --kmer-size 10 --kmer-size 25 --kmer-size 40 --dont-use-soft-clipped-bases
+
 
 #
 # --- End of NGS-Pipeline settings ---
