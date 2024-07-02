@@ -78,14 +78,14 @@ The following instructions show how to run this pipeline.
 It is assumed that the pipeline has been installed.
 
 1.  Activate the environment. The terminal will show ``(µhaps)`` prompt.
-
+```
 	/path/to/vvg-MicroHaps/bin/activate
-
-1.  Go to the directory that will be used to process and analysis::
-
+```
+2.  Go to the directory that will be used to process and analysis::
+```
 	cd MY_ANALYSIS_DIRECTORY
-
-1.  Provide the FASTQ reads from the sequencing result, by either copying the
+```
+3.  Provide the FASTQ reads from the sequencing result, by either copying the
     FASTQ files or alternatively generate soft link as necessary.
     The soft link approach is preferred since it will prevent duplication of
     the files, if the files are already reside in the local storage.
@@ -102,25 +102,25 @@ It is assumed that the pipeline has been installed.
 
     	ln -s SOME_SOURCE_DIR reads
 
-v
+Run command:
+```
+	ngs-pl run-discovery-variant-caller -o MY_OUTPUT reads/*.fastq.gz
+```
+example for paired-end (Illumina) reads::
+```
+	ngs-pl run-discovery-variant-caller -j 1 -o output_dir -u 4 --paired  reads/*.fastq.gz
+```
+LAPTOP USERS - It is essential that you specify "-j 1" as this limits the number of jobs running at one time. Without this argument, 
+the pipeline will utilise too much system memory and crash. We are working on improving this issue.
 
-		ngs-pl run-discovery-variant-caller -o MY_OUTPUT reads/*.fastq.gz
+The "-u 4" prompt changes depending on how your files are named as it counts the number of underscores "_" in a file name. For a sample called "sample4_date_batch_info_R1.fastq.gz",
+the "-u 4" argument will use result in "sample4" as the ID. For a sample called "sample_4_date_batch_pool_country_R1.fastq.gz", the argument "-u 5" will result in "sample_4" as the ID.
 
-	example for paired-end (Illumina) reads::
-
-  		ngs-pl run-discovery-variant-caller -j 1 -o output_dir -u 4 --paired  reads/*.fastq.gz
-
-	LAPTOP USERS - It is essential that you specify "-j 1" as this limits the number of jobs running at one time. Without this argument, the pipeline will utilise too much system memory and crash.
-	We are working on improving this issue.
-	
- 	The "-u 4" prompt changes depending on how your files are named as it counts the number of underscores "_" in a file name. For a sample called "sample4_date_batch_info_R1.fastq.gz",
-	the "-u 4" argument will use result in "sample4" as the ID. For a sample called "sample_4_date_batch_pool_country_R1.fastq.gz", the argument "-u 5" will result in "sample_4" as the ID.
-
-1. When the command finishes, examine the content of ``MY_OUTPUT`` directory::
-
-		cd MY_OUTPUT
-		ls
-
+4. When the command finishes, examine the content of ``MY_OUTPUT`` directory::
+```
+	cd MY_OUTPUT
+	ls
+```
 The layout of the output directory is::
 
     MY_OUTPUT/
@@ -132,6 +132,7 @@ The layout of the output directory is::
                        ...
               joint/
                     vcfs/
+
 ------------
 Introduction to DADA2-based MicroHaplotype software
 ------------
@@ -145,15 +146,13 @@ Quick Tutorial
 Prepare pipeline install, analysis directory and raw data as above. 
 
 1.  Execute the ``ngs-pl run-full-analysis`` command with as follow::
-
+```
 	ngs-pl run-full-analysis -o outdir test-data/*.fastq.gz
-
+```
 
 Output: 
 
 COMING SOON
-
-
 
 
 ------------
