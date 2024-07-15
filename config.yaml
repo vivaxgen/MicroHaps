@@ -85,4 +85,8 @@ fasta: refs/Microhaps_Inserts_wMito.fasta
 primer_fw: refs/microhap_pr_fwd.min_overlap.fasta
 primer_rev: refs/microhap_pr_rv.min_overlap.fasta
 
+mit_reference: refs/MIT/mit_synthetic_genome.fasta
+mit_bedfile: refs/MIT/mit_synthetic_genome.bed
+mit_ref_spec: refs/MIT/mit_spec2.fasta
+
 # EOF
