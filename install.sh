@@ -57,6 +57,9 @@ micromamba -y install "muscle=3.8.1551" -c conda-forge -c bioconda -c defaults
 echo "Installing required R packages"
 micromamba -y install r-ggplot2 r-BiocManager r-RCurl r-argparse r-data.table r-seqinr r-doMC -c conda-forge -c bioconda -c defaults
 
+echo "Installing ivar"
+micromamba -y install ivar -c bioconda
+
 # Install additional R packages
 R --no-save << EOF
 BiocManager::install("GenomeInfoDb")
