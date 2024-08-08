@@ -34,6 +34,8 @@ def run_full_analysis(args):
     args.no_config_cascade = True
     args.force = True
 
+    args.paired = True if not args.single else False
+
     config = dict(
         infiles=args.infiles,
         singleton=args.single,

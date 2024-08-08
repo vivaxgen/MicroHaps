@@ -17,6 +17,7 @@ def init_argparser():
 
 
 def run_discovery_variant_caller(args):
+    args.paired = True if not args.single else False
     run_multistep_variant_caller.run_multistep_variant_caller(args)
 
 
