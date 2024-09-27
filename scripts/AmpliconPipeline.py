@@ -11,7 +11,7 @@ import subprocess as sp
 
 #MICROHAPS_BASEDIR = os.path.expanduser("~/tools/MicroHaps/scripts")
 #MICROHAPS_BASEDIR = os.environ['MICROHAPS_BASEDIR']
-MICROHAPS_BASEDIR = "~/tools/MicroHaps/scripts"
+MICROHAPS_BASEDIR = os.environ['MICROHAPS_BASEDIR']
 
 def run_cmd(cmd):
     sys.stderr.write("Running command:\n%s\n\n" % cmd)
