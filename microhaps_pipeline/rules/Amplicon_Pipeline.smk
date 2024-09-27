@@ -155,7 +155,7 @@ rule post_process:
         Rscript {microhaps_basedir}/scripts/postProc_dada2.R \
             -s {input} \
             --strain PvP01 \
-            -ref {microhaps_basedir}/microhaps_pipeline/refs/Microhaps_Inserts_wMito.fasta \
+            -ref {microhaps_basedir}/refs/Microhaps_Inserts_wMito.fasta \
             -o {output.Table} \
             --fasta \
             --parallel \
