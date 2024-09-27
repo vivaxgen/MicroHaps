@@ -17,6 +17,12 @@ refseq_file: refs/Pv/PvP01_v2/PvP01_v2.fasta
 #knownsites_file: refs/pv-known-variants.bed.gz
 knownvariants_dir: refs/Pv/PvP01_v2/known-variants
 
+# perform variant calling on all chromosomes as single workflow
+complete_region: PvP01_all_v2
+
+# perform targeted variant calling
+targetregion_file: refs/Microhaps_inserts.bed
+
 regions:
   - PvP01_01_v2
   - PvP01_02_v2
