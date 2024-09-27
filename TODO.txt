@@ -1,0 +1,4 @@
+
+- install bioconductor-dada2 from micromamba instead of compiling it
+
+
