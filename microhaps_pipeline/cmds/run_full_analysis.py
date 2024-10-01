@@ -39,7 +39,7 @@ def run_full_analysis(args):
     config = dict(
         infiles=args.infiles,
         singleton=args.single,
-        paired_end=args.paired,
+        paired=args.paired,
         underscore=args.underscore,
         outdir=args.outdir
     )
