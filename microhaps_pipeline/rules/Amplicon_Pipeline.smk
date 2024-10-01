@@ -32,10 +32,12 @@ elif paired:
 else:
     read_mode = None
 
+
 read_files = fileutils.ReadFileDict(config['infiles'],
                                     underscore=config['underscore'],
                                     mode=read_mode)
 IDs = read_files.keys()
+
 
 rule all:
     input:
@@ -80,7 +82,7 @@ rule trim:
 
 rule trim_1:
     input:
-        lambda w: read_files.get_read_file(w),
+        unpack(read_files.get_read_file_as_dict),
         prim_fw = primer_fw,
         prim_rv = primer_rev
     output:
@@ -92,7 +94,7 @@ rule trim_1:
         platform = config['platform'],
         trim_qv = config['trimqv']
     shell: 
-        "cutadapt -g file:{input.prim_fw} -G file:{input.prim_rv} -o {output.R1} -p {output.R2} --pair-adapters --discard-untrimmed --action=trim {input[0]} {input[1]}"
+        "cutadapt -g file:{input.prim_fw} -G file:{input.prim_rv} -o {output.R1} -p {output.R2} --pair-adapters --discard-untrimmed --action=trim {input.read1} {input.read2}"
 
 #run inividual preprocessing for dada2 in R TO DO
 
@@ -107,7 +109,7 @@ rule create_meta:
     shell: 
         """
         mkdir -p {out_dir}/malamp
-        python {microhaps_basedir}/scripts/create_meta.py --path_to_fq {out_dir}/trimmed/ --output_file {output} --pattern_fw *R1.trimmed.fastq.gz --pattern_rv *R2.trimmed.fastq.gz 1> {log} 2> {log}
+        python {microhaps_basedir}/scripts/create_meta.py --path_to_fq {out_dir}/trimmed/ --output_file {output} --pattern_fw *-0_R1.trimmed.fastq.gz --pattern_rv *-0_R2.trimmed.fastq.gz 1> {log} 2> {log}
         """
 
 
@@ -144,6 +146,7 @@ rule run_dada2R:
             --justConcatenate {params.justConcatenate} \
         """
 
+
 rule post_process:
     input:
         f"{out_dir}/malamp/dada2/seqtab.tsv"
@@ -160,6 +163,8 @@ rule post_process:
             --fasta \
             --parallel \
         """
+
+
 rule asv_to_cigar:
     input:
         Table = f"{out_dir}/malamp/ASVTable.txt",
@@ -171,7 +176,7 @@ rule asv_to_cigar:
     shell:
         """
         python {microhaps_basedir}/scripts/ASV_to_CIGAR.py {input.Seqs} {input.Table} {input.seqtab} {output.cigar} --asv_to_cigar {output.asv_to} \
-        --amp_db {microhaps_basedir}/refs/Microhaps_Inserts_wMito.fasta \
+        -a {out_dir}/alignments  --amp_db {microhaps_basedir}/refs/Microhaps_Inserts_wMito.fasta \
         """
 
 # EOF
