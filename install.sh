@@ -60,18 +60,8 @@ micromamba -y install r-ggplot2 r-BiocManager r-RCurl r-argparse r-data.table r-
 echo "Installing ivar"
 micromamba -y install ivar -c bioconda
 
-# Install additional R packages
-R --no-save << EOF
-BiocManager::install("GenomeInfoDb")
-BiocManager::install("GenomicRanges")
-BiocManager::install("Biostrings")
-BiocManager::install("Rsamtools")
-BiocManager::install("SummarizedExperiment")
-BiocManager::install("GenomicAlignments")
-BiocManager::install("ShortRead")
-BiocManager::install("dada2")
-BiocManager::install("limma")
-EOF
+echo "Installing dada2 amd limma"
+micromamba -y install bioconductor-dada2 bioconductor-limma -c conda-forge -c bioconda
 
 echo "installing required Python modules"
 
