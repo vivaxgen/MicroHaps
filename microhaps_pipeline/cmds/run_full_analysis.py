@@ -1,14 +1,14 @@
 
 import os
 import pathlib
-from ngs_pipeline import cerr, cexit, get_snakefile_path, snakeutils
+from ngs_pipeline import cerr, cexit, get_snakefile_path
 from ngs_pipeline.cmds import run_snakefile
 
 # this is a wrapper to run initialize.smk
 
 def init_argparser():
 
-    p = snakeutils.init_argparser('run microhaps full analysis')
+    p = run_snakefile.init_argparser('run microhaps full analysis')
 
 
     m = p.add_mutually_exclusive_group()
@@ -44,7 +44,7 @@ def run_full_analysis(args):
         outdir=args.outdir
     )
 
-    status, elapsed_time = snakeutils.run_snakefile(args, config=config)
+    status, elapsed_time = run_snakefile.run_snakefile(args, config=config, show_status=False)
 
     if not status:
         cerr('[WARNING: run-full-analysis did not successfully complete]')
