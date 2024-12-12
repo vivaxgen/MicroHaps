@@ -66,6 +66,7 @@ def run_full_analysis(args):
         paired=args.paired,
         underscore=args.underscore,
         outdir=args.outdir,
+        skip_list=args.skip if not args.no_skip else [],
     )
 
     status, elapsed_time = run_snakefile.run_snakefile(
