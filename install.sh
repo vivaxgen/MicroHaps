@@ -36,51 +36,15 @@ OMIT="${OMIT:-}"
 uMAMBA_ENVNAME='muhaps'
 source <(curl -L https://raw.githubusercontent.com/vivaxgen/ngs-pipeline/main/install.sh)
 
-echo "Installing latest bedtools"
-micromamba -y install bedtools -c conda-forge -c bioconda -c defaults
-
-echo "Installing datamash"
-micromamba -y install datamash -c conda-forge -c bioconda -c defaults
-
-echo "Installing trimmomatic"
-micromamba -y install trimmomatic -c conda-forge -c bioconda -c defaults
-
-echo "Installing mosdepth"
-micromamba -y install mosdepth -c conda-forge -c bioconda -c defaults
-
-echo "Installing samclip"
-micromamba -y install samclip -c conda-forge -c bioconda -c defaults
-
-echo "Installing muscle version v3.8.1551"
-micromamba -y install "muscle=3.8.1551" -c conda-forge -c bioconda -c defaults
-
-echo "Installing required R packages"
-micromamba -y install r-ggplot2 r-BiocManager r-RCurl r-argparse r-data.table r-seqinr r-doMC -c conda-forge -c bioconda -c defaults
-
-echo "Installing ivar"
-micromamba -y install ivar -c bioconda
-
-echo "Installing dada2 amd limma"
-micromamba -y install bioconductor-dada2 bioconductor-limma -c conda-forge -c bioconda
-
-echo "installing required Python modules"
-
-# to use latest of all python-related stuff, uncomment below and remove the conda parts
-pip3 install biopython
-pip3 install cutadapt
-pip3 install tqdm
-
 # prepare MicroHaps pipeline environment
 
 echo Cloning vivaxGEN MicroHaps pipeline
 git clone https://github.com/vivaxgen/MicroHaps.git ${ENVS_DIR}/MicroHaps
 ln -sr ${ENVS_DIR}/MicroHaps/etc/bashrc.d/50-microhaps ${BASHRC_DIR}/
 
-echo "Reloading profiles"
-reload_vvg_profiles
+source ${ENVS_DIR}/Microhaps/etc/inst-scripts/inst-deps.sh
 
-echo "Initialize enviroment"
-ngs-pl initialize --target wgs
+echo "Microhaps" >> ${ETC_DIR}/installed-repo.txt
 
 echo ""
 echo "vivaxGEN MicroHaps pipeline has been successfully installed."
