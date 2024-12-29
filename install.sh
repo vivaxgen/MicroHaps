@@ -42,9 +42,9 @@ echo Cloning vivaxGEN MicroHaps pipeline
 git clone --depth 1  https://github.com/vivaxgen/MicroHaps.git ${ENVS_DIR}/MicroHaps
 ln -sr ${ENVS_DIR}/MicroHaps/etc/bashrc.d/50-microhaps ${BASHRC_DIR}/
 
-source ${ENVS_DIR}/Microhaps/etc/inst-scripts/inst-deps.sh
+source ${ENVS_DIR}/MicroHaps/etc/inst-scripts/inst-deps.sh
 
-echo "Microhaps" >> ${ETC_DIR}/installed-repo.txt
+echo "MicroHaps" >> ${ETC_DIR}/installed-repo.txt
 
 echo ""
 echo "vivaxGEN MicroHaps pipeline has been successfully installed."
