@@ -38,7 +38,7 @@ def run_full_analysis(args):
         outdir=args.outdir
     )
 
-    status, elapsed_time = snakeutils.run_snakefile(args, config=config)
+    status, elapsed_time = run_snakefile.run_snakefile(args, config=config)
 
     if not status:
         cerr('[WARNING: run-mito-speciation did not successfully complete]')

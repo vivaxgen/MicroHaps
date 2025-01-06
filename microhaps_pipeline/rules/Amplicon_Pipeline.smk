@@ -1,7 +1,7 @@
 # Snakefile: Amplicon_Pipeline.smk
 #
 # (C) 2023 Mariana Barnes, Ashley Osborne, Hidayat Trimarsanto
-#
+# (C) 2024 Ludwig Hoon 
 #this is the snakefile for a dada2 based analysis of microhap fastq data. This is based on the broads institute's malaria amplicon pipeline: https://github.com/broadinstitute/malaria-amplicon-pipeline/blob/main/inputs.json
 
 
@@ -14,6 +14,10 @@ microhaps_basedir = os.environ['MICROHAPS_BASEDIR']
 fasta = microhaps_basedir + '/' + config['fasta']
 primer_fw = microhaps_basedir + '/' + config['primer_fw']
 primer_rev = microhaps_basedir + '/' + config['primer_rev']
+
+
+def is_nextseq_or_novaseq():
+    return config['instrument'].lower().startswith('nextseq') or config['instrument'].lower().startswith('novaseq')
 
 
 # define all output files 
@@ -92,9 +96,10 @@ rule trim_1:
         R2 = f"{out_dir}/trimmed/{{sample}}-{{idx}}_R2.trimmed.fastq.gz",
     params:
         platform = config['platform'],
-        trim_qv = config['trimqv']
+        trim_qv = config['trimqv'],
+        additional_params = f"--nextseq-trim={config.get('trimqv', 20)}" if is_nextseq_or_novaseq() else ""
     shell: 
-        "cutadapt -g file:{input.prim_fw} -G file:{input.prim_rv} -o {output.R1} -p {output.R2} --pair-adapters --discard-untrimmed --action=trim {input.read1} {input.read2}"
+        "cutadapt -g file:{input.prim_fw} -G file:{input.prim_rv} -o {output.R1} -p {output.R2} --pair-adapters --discard-untrimmed {params.additional_params} --action=trim {input.read1} {input.read2}"
 
 #run inividual preprocessing for dada2 in R TO DO
 
