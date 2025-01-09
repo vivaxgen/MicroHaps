@@ -149,11 +149,30 @@ Prepare pipeline install, analysis directory and raw data as above.
 ```
 	ngs-pl run-full-analysis -o outdir test-data/*.fastq.gz
 ```
+2. When the command finishes, examine the content of ``outdir`` directory
+```
+    outdir/
+            alignments/
+                marker_1.fasta
+                marker_1.msa
+                marker_2.fasta
+                marker_2.msa
+                ...
+            trimmed/
+                sample_1_R1.trimmed.fastq.gz
+                sample_1_R2.trimmed.fastq.gz
+                ...
+            malamp/
+                dada2/
+                    ...
+                ASVSeqs.fasta
+                ASVTable.txt
+                asv_to_cigar
+                outputCIGAR.tsv
+                meta
+```
 
-Output: 
-
-COMING SOON
-
+The primary output file of interest is the `outputCIGAR.tsv` which contains the haplotype and their frequencies across the samples.
 
 ------------
 
