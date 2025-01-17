@@ -26,6 +26,9 @@ micromamba -y install ivar -c bioconda
 echo "Installing dada2 amd limma"
 micromamba -y install bioconductor-dada2 bioconductor-limma -c conda-forge -c bioconda
 
+echo "Installing bbtools"
+micromamba -y install bbmap -c conda-forge -c bioconda -c defaults
+
 echo "installing required Python modules"
 
 # to use latest of all python-related stuff, uncomment below and remove the conda parts
