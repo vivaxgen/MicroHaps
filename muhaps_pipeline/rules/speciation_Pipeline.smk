@@ -14,7 +14,7 @@ out_dir = config['outdir']
 
 in_dir = ''
 singleton = config.get('singleton', None)
-paired = config.get('paired', None)
+paired = config.get('paired_end', None)
 if singleton:
     read_mode = fileutils.ReadMode.SINGLETON
 elif paired:
@@ -158,7 +158,7 @@ rule join_bedcov_mean:
     output:
         bedstats = f"{out_dir}/bedstats.txt"
     shell:
-        "printf 'sample\tchrom\tstart\tend\tdepth\trlen\tqlen\tcov\n' > {output.bedstats} &&"
+        "printf 'sample\tchrom\tstart\tend\tamplicon_name\tdepth\trlen\tqlen\tcov\n' > {output.bedstats} &&"
         "cat {input} >> {output.bedstats}"
 
 rule update_consensus_sample_name:
