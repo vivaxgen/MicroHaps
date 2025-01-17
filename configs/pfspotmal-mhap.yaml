@@ -1,0 +1,23 @@
+# Pf SpotMalaria barcodes configuration
+
+#parameters
+
+
+class: "parasite"
+maxEE: "5,5"
+trim_right: "10,10"
+min_length: 30 
+truncQ: "5,5"
+max_consist: 10
+omegaA: 1e-120
+justconcat: 0
+platform: "PE"
+trimqv: 15
+
+
+#refs0
+
+fasta: configs/refs/pf-spotmal/Microhaps_Inserts_wMito.fasta
+primer_fw: configs/refs/pf-spotmal/microhap_pr_fwd.min_overlap.fasta
+primer_rev: configs/refs/pf-spotmal/microhap_pr_rv.min_overlap.fasta
+
