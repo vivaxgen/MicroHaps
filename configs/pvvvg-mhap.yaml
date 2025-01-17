@@ -1,0 +1,101 @@
+
+#
+# --- NGS-Pipeline joint variant calling settings ---
+#
+# NOTE: at some point some configuration will be kept at configs/PANELNAME.yaml
+# to allow for multiple panels in a single pipeline
+
+optical_dedup: False
+instrument: generic
+platform: generic
+libprep: generic
+
+min_read_qual: 15
+read_length: 100
+
+refseq_file: refs/Pv/PvP01_v2/PvP01_v2.fasta
+#knownsites_file: refs/pv-known-variants.bed.gz
+knownvariants_dir: refs/Pv/PvP01_v2/known-variants
+
+# perform variant calling on all chromosomes as single workflow
+complete_region: PvP01_all_v2
+
+# perform targeted variant calling
+targetregion_file: refs/Microhaps_inserts.bed
+
+regions:
+  - PvP01_01_v2
+  - PvP01_02_v2
+  - PvP01_03_v2
+  - PvP01_04_v2
+  - PvP01_05_v2
+  - PvP01_06_v2
+  - PvP01_07_v2
+  - PvP01_08_v2
+  - PvP01_09_v2
+  - PvP01_10_v2
+  - PvP01_11_v2
+  - PvP01_12_v2
+  - PvP01_13_v2
+  - PvP01_14_v2
+  - PvP01_API_v2
+  - PvP01_MIT_v2
+
+# this is amplicon sequencing, so turn off deduplication
+deduplicate: False
+
+# set below to True for new samples (for the purpose of submitting to SRA database)
+keep_paired_bam: False
+
+# set below to True for structural variant (SV) analysis such as CNV
+keep_final_bam: True
+
+# filter to apply for deduplicated BAM
+# read_filters: --remove_FR --remove_RF --remove_FF --remove_RR --remove_trans --remove_unmapped --remove_secondary --remove_supplementary
+# for below, we keep FR, RF, FF and RR orientation for future SV analysis
+read_filters: --remove_trans --remove_unmapped --remove_secondary --remove_supplementary
+
+reads_trimmer_wf: trimmer_null.smk
+reads_mapper_wf: mapper_bwa-mem2.smk
+
+# multistep-variant-caller parameters
+prepare_sample_directory_flags: --force
+sample_variant_caller_flags: --force --no-config-cascade
+joint_variant_caller_flags: --force --no-config-cascade
+
+variant_caller_wf: ssf_varcall_gatk_drag.smk
+
+gatk_calibrate_str: False
+haplotypecaller_flags: --max-reads-per-alignment-start 0 --do-not-run-physical-phasing --pileup-detection --dont-use-soft-clipped-bases
+
+
+#
+# --- End of NGS-Pipeline settings ---
+#
+
+#parameters
+
+
+class: "parasite"
+maxEE: "5,5"
+trim_right: "10,10"
+min_length: 30 
+truncQ: "5,5"
+max_consist: 10
+omegaA: 1e-120
+justconcat: 0
+platform: "PE"
+trimqv: 15
+
+
+#refs0
+
+fasta: refs/Microhaps_Inserts_wMito.fasta
+primer_fw: refs/microhap_pr_fwd.min_overlap.fasta
+primer_rev: refs/microhap_pr_rv.min_overlap.fasta
+
+mit_reference: refs/MIT/mit_synthetic_genome.fasta
+mit_bedfile: refs/MIT/mit_synthetic_genome.bed
+mit_ref_spec: refs/MIT/mit_spec2.fasta
+
+# EOF
