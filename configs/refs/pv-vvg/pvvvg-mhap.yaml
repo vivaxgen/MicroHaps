@@ -13,15 +13,15 @@ libprep: generic
 min_read_qual: 15
 read_length: 100
 
-refseq_file: refs/Pv/PvP01_v2/PvP01_v2.fasta
+refseq_file: configs/refs/Pv/PvP01_v2/PvP01_v2.fasta
 #knownsites_file: refs/pv-known-variants.bed.gz
-knownvariants_dir: refs/Pv/PvP01_v2/known-variants
+knownvariants_dir: configs/refs/Pv/PvP01_v2/known-variants
 
 # perform variant calling on all chromosomes as single workflow
 complete_region: PvP01_all_v2
 
 # perform targeted variant calling
-targetregion_file: refs/Microhaps_inserts.bed
+targetregion_file: configs/refs/pv-vvg/Microhaps_inserts.bed
 
 regions:
   - PvP01_01_v2
@@ -88,14 +88,14 @@ platform: "PE"
 trimqv: 15
 
 
-#refs0
+#refs
 
-fasta: refs/Microhaps_Inserts_wMito.fasta
-primer_fw: refs/microhap_pr_fwd.min_overlap.fasta
-primer_rev: refs/microhap_pr_rv.min_overlap.fasta
+insertseq: configs/refs/pv-vvg/Microhaps_Inserts_wMito.fasta
+primer_fw: configs/refs/pv-vvg/microhap_pr_fwd.min_overlap.fasta
+primer_rev: configs/refs/pv-vvg/microhap_pr_rv.min_overlap.fasta
 
-mit_reference: refs/MIT/mit_synthetic_genome.fasta
-mit_bedfile: refs/MIT/mit_synthetic_genome.bed
-mit_ref_spec: refs/MIT/mit_spec2.fasta
+mit_reference: configs/refs/MIT/mit_synthetic_genome.fasta
+mit_bedfile: config/refs/MIT/mit_synthetic_genome.bed
+mit_ref_spec: configs/refs/MIT/mit_spec2.fasta
 
 # EOF
