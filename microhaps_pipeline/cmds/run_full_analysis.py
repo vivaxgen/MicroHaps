@@ -43,6 +43,9 @@ def init_argparser():
         "--no-skip", default=False, action="store_true", help="do not skip any samples"
     )
 
+    # set the default panel
+    p.arg_dict["panel"].default = "pvvvg-mhap"
+
     p.add_argument("-o", "--outdir", help="outdir")
     p.add_argument("infiles", nargs="+")
     return p
