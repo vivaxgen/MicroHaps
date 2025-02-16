@@ -9,59 +9,27 @@ import os
 import pathlib
 from ngs_pipeline import cerr, fileutils
 
-microhaps_basedir = os.environ['MICROHAPS_BASEDIR']
-
-fasta = microhaps_basedir + '/' + config['fasta']
-primer_fw = microhaps_basedir + '/' + config['primer_fw']
-primer_rev = microhaps_basedir + '/' + config['primer_rev']
-
-
-def is_nextseq_or_novaseq():
-    return config['instrument'].lower().startswith('nextseq') or config['instrument'].lower().startswith('novaseq')
-
-
-# define all output files 
-
-out_dir = config['outdir']
-#in_dir = config['indir']
-in_dir=''
-
-# set read mode
-singleton = config.get('singleton', None)
-paired = config.get('paired', None)
-if singleton:
-    read_mode = fileutils.ReadMode.SINGLETON
-elif paired:
-    read_mode = fileutils.ReadMode.PAIRED_END
-else:
-    read_mode = None
-
-
-read_files = fileutils.ReadFileDict(config['infiles'],
-                                    underscore=config['underscore'],
-                                    mode=read_mode)
-IDs = read_files.keys()
-
+include: "params_mhap.smk"
 
 rule all:
     input:
-        f"{out_dir}/malamp/meta",
-        f"{out_dir}/malamp/dada2/seqtab.tsv",
+        f"{outdir}/malamp/meta",
+        f"{outdir}/malamp/dada2/seqtab.tsv",
         #"ASVTable.txt",
         #"outputCIGAR.tsv",
-        expand(f'{out_dir}/trimmed/{{sample}}-0_R1.trimmed.fastq.gz', sample=IDs),
-        f"{out_dir}/malamp/ASVTable.txt",
-        f"{out_dir}/malamp/ASVSeqs.fasta",
-        f"{out_dir}/malamp/outputCIGAR.tsv"
+        expand(f'{outdir}/trimmed/{{sample}}-0_R1.trimmed.fastq.gz', sample=IDs),
+        f"{outdir}/malamp/ASVTable.txt",
+        f"{outdir}/malamp/ASVSeqs.fasta",
+        f"{outdir}/malamp/outputCIGAR.tsv"
  
 
 #create input file list
 #rule create_input:
 #    localrule: True
 #    input:
-#        f"{in_dir}",
+#        f"{indir}",
 #    output:
-#        f"{out_dir}/malamp/samples_file.csv",
+#        f"{outdir}/malamp/samples_file.csv",
 #    run:
 #        import pathlib
 #        import pandas as pd
@@ -74,11 +42,11 @@ rule all:
 
 rule trim:
     input:
-        R1 = f"{in_dir}/{{sample}}_R1.fastq.gz",
-        R2 = f"{in_dir}/{{sample}}_R2.fastq.gz"
+        R1 = f"{indir}/{{sample}}_R1.fastq.gz",
+        R2 = f"{indir}/{{sample}}_R2.fastq.gz"
     output:
-        R1 = f"{out_dir}/trimmed/{{sample}}_R1.trimmed.fastq.gza",
-        R2 = f"{out_dir}/trimmed/{{sample}}_R2.trimmed.fastq.gza"
+        R1 = f"{outdir}/trimmed/{{sample}}_R1.trimmed.fastq.gza",
+        R2 = f"{outdir}/trimmed/{{sample}}_R2.trimmed.fastq.gza"
     params:
         platform = config['platform'],
     shell: 
@@ -87,13 +55,13 @@ rule trim:
 rule trim_1:
     input:
         unpack(read_files.get_read_file_as_dict),
-        prim_fw = primer_fw,
-        prim_rv = primer_rev
+        prim_fw = primer_fw_file,
+        prim_rv = primer_rev_file,
     output:
         #f"{outdir}/{{sample}}/reads/raw-{{idx}}_R1.fastq.gz",
         #f"{outdir}/{{sample}}/reads/raw-{{idx}}_R2.fastq.gz"
-        R1 = f"{out_dir}/trimmed/{{sample}}-{{idx}}_R1.trimmed.fastq.gz",
-        R2 = f"{out_dir}/trimmed/{{sample}}-{{idx}}_R2.trimmed.fastq.gz",
+        R1 = f"{outdir}/trimmed/{{sample}}-{{idx}}_R1.trimmed.fastq.gz",
+        R2 = f"{outdir}/trimmed/{{sample}}-{{idx}}_R2.trimmed.fastq.gz",
     params:
         platform = config['platform'],
         trim_qv = config['trimqv'],
@@ -106,25 +74,26 @@ rule trim_1:
 rule create_meta:
     localrule: True
     input:
-        expand(f'{out_dir}/trimmed/{{sample}}-0_R1.trimmed.fastq.gz', sample=IDs)
+        expand(f'{outdir}/trimmed/{{sample}}-0_R1.trimmed.fastq.gz', sample=IDs)
     output:
-        f"{out_dir}/malamp/meta"
+        f"{outdir}/malamp/meta"
     log:
-        f"{out_dir}/mylog.txt"
+        f"{outdir}/mylog.txt"
     shell: 
         """
-        mkdir -p {out_dir}/malamp
-        python {microhaps_basedir}/scripts/create_meta.py --path_to_fq {out_dir}/trimmed/ --output_file {output} --pattern_fw *-0_R1.trimmed.fastq.gz --pattern_rv *-0_R2.trimmed.fastq.gz 1> {log} 2> {log}
+        mkdir -p {outdir}/malamp
+        python {microhaps_basedir}/scripts/create_meta.py --path_to_fq {outdir}/trimmed/ --output_file {output} --pattern_fw *-0_R1.trimmed.fastq.gz --pattern_rv *-0_R2.trimmed.fastq.gz 1> {log} 2> {log}
         """
 
 
 rule run_dada2R:
+    threads: 16
     input:
-        meta = f"{out_dir}/malamp/meta",
+        meta = f"{outdir}/malamp/meta",
     output:
-        f"{out_dir}/malamp/dada2/seqtab.tsv"
+        f"{outdir}/malamp/dada2/seqtab.tsv"
     params:
-        dir = f"{out_dir}/malamp/dada2",
+        dir = f"{outdir}/malamp/dada2",
         output_filename = "seqtab.tsv",
         maxEE = config['maxEE'],
         trimRight = config['trim_right'],
@@ -154,16 +123,16 @@ rule run_dada2R:
 
 rule post_process:
     input:
-        f"{out_dir}/malamp/dada2/seqtab.tsv"
+        f"{outdir}/malamp/dada2/seqtab.tsv"
     output:
-        Table = f"{out_dir}/malamp/ASVTable.txt",
-        Seqs = f"{out_dir}/malamp/ASVSeqs.fasta"
+        Table = f"{outdir}/malamp/ASVTable.txt",
+        Seqs = f"{outdir}/malamp/ASVSeqs.fasta"
     shell:
         """
         Rscript {microhaps_basedir}/scripts/postProc_dada2.R \
             -s {input} \
             --strain PvP01 \
-            -ref {microhaps_basedir}/refs/Microhaps_Inserts_wMito.fasta \
+            -ref {insertseq_file} \
             -o {output.Table} \
             --fasta \
             --parallel \
@@ -172,16 +141,16 @@ rule post_process:
 
 rule asv_to_cigar:
     input:
-        Table = f"{out_dir}/malamp/ASVTable.txt",
-        Seqs = f"{out_dir}/malamp/ASVSeqs.fasta",
-        seqtab = f"{out_dir}/malamp/dada2/seqtab.tsv"
+        Table = f"{outdir}/malamp/ASVTable.txt",
+        Seqs = f"{outdir}/malamp/ASVSeqs.fasta",
+        seqtab = f"{outdir}/malamp/dada2/seqtab.tsv"
     output:
-        cigar = f"{out_dir}/malamp/outputCIGAR.tsv",
-        asv_to = f"{out_dir}/malamp/asv_to_cigar"
+        cigar = f"{outdir}/malamp/outputCIGAR.tsv",
+        asv_to = f"{outdir}/malamp/asv_to_cigar"
     shell:
         """
         python {microhaps_basedir}/scripts/ASV_to_CIGAR.py {input.Seqs} {input.Table} {input.seqtab} {output.cigar} --asv_to_cigar {output.asv_to} \
-        -a {out_dir}/alignments  --amp_db {microhaps_basedir}/refs/Microhaps_Inserts_wMito.fasta \
+        -a {outdir}/alignments  --amp_db {insertseq_file} \
         """
 
 # EOF
