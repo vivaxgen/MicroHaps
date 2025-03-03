@@ -9,6 +9,7 @@ __license__ = "MIT"
 # functions that require the respective heavy modules
 
 
+from ngs_pipeline import cexit
 from ngs_pipeline.cmds import run_multistep_variant_caller
 
 
@@ -17,11 +18,14 @@ def init_argparser():
 
 
 def run_discovery_variant_caller(args):
+    if not args.panel:
+        cexit("Please provide a panel to use using --panel argument")
     args.paired = True if not args.single else False
     run_multistep_variant_caller.run_multistep_variant_caller(args)
 
 
 def main(args):
     run_discovery_variant_caller(args)
+
 
 # EOF

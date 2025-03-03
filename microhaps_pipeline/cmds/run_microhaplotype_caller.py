@@ -20,8 +20,6 @@ from ngs_pipeline.cmds import run_snakefile
 def init_argparser():
     p = run_snakefile.init_argparser("run microhaplotype caller per sample")
 
-    p.arg_dict["panel"].default = "pvvvg-mhap"
-
     m = p.add_mutually_exclusive_group()
     m.add_argument(
         "--single",
@@ -41,7 +39,7 @@ def init_argparser():
         "--underscore",
         default=0,
         type=int,
-        help="number of undercore character to be stripped, counted in reverse",
+        help="number of underscore character to be stripped, counted in reverse (see docs)",
     )
 
     p.add_argument(
@@ -59,7 +57,7 @@ def init_argparser():
         "--illumina-2-dye",
         default=False,
         action="store_true",
-        help="data is from Illumina 2 dye instrument: NovaSeq, NextSeq, MiniSeq",
+        help="data is from Illumina 2 dye instruments: NovaSeq, NextSeq, MiniSeq",
     )
     p.add_argument("-o", "--outdir", default="output-dir", help="outdir")
     p.add_argument("infiles", nargs="+")
@@ -68,6 +66,10 @@ def init_argparser():
 
 
 def run_microhaps_caller(args):
+
+    # check panel
+    if not args.panel:
+        cexit("Please provide a panel to use using --panel argument")
 
     # check multiplexer
     check_multiplexer(args)
