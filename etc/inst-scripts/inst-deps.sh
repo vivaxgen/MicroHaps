@@ -35,11 +35,13 @@ echo "installing required Python modules"
 pip3 install biopython
 pip3 install cutadapt
 pip3 install tqdm
+pip3 install seaborn
 
 echo "Reloading profiles"
 reload_vvg_profiles
 
 echo "Initialize enviroment"
-ngs-pl initialize --target wgs
+ngs-pl initialize --panel pvvvg-mhap --target wgs
+ngs-pl initialize --panel pfspotmal-mhap --target wgs
 
 # EOF
