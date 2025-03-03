@@ -115,4 +115,18 @@ rule asv_to_cigar:
         " -a {outdir}/alignments"
         " --amp_db {insertseq_file}"
 
+
+rule qc_outputCIGAR:
+    localrule: True
+    input:
+        tab = f"{outdir}/malamp/outputCIGAR.tsv"
+    output:
+        depths = f"{outdir}/malamp/depths.tsv"
+    params:
+        mindepth = 10,
+        outdir = lambda w, output: output.depths.rsplit('/', 1)[0]
+    shell:
+        "ngs-pl tab-to-QC -d {params.mindepth} --outdir {params.outdir} {input}"
+
+
 # EOF

@@ -50,6 +50,7 @@ rule all:
         f"{outdir}/stats.tsv",
         f"{outdir}/malamp/dada2/seqtab.tsv",
         f"{outdir}/malamp/outputCIGAR.tsv",
+        f"{outdir}/malamp/depths.tsv"
 
 rule seqtab:
     input:
