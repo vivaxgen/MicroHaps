@@ -118,6 +118,7 @@ rule run_dada2R:
             --max_consist {params.max_consist} \
             --omega_a {params.omega_a} \
             --justConcatenate {params.justConcatenate} \
+            --threads {threads} 
         """
 
 

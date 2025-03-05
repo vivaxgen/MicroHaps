@@ -30,6 +30,7 @@ parser$add_argument("-wA", "--omega_a", type="double",
 parser$add_argument("-jC", "--justConcatenate", type="integer",
                     help="Specify whether ASVs need to be concatinated with Ns instead of merging")
 parser$add_argument("--bimera", action='store_true', help="Optionally output list of sequences identified as bimeras")
+parser$add_argument("--threads", type="integer", default=1, help="Number of threads to use for parallel processing")
 args <- parser$parse_args()
 
 # Universal parameters
@@ -194,13 +195,13 @@ if (filter == TRUE) {
 	print("filtering samples...")
 	out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs,
             maxN=0, maxEE=maxEE, trimRight=trimRight, truncQ=truncQ, minLen=minLen,
-            rm.phix=TRUE, compress=TRUE, multithread=TRUE, verbose=TRUE,
+            rm.phix=TRUE, compress=TRUE, multithread=args$threads, verbose=TRUE,
             matchIDs=matchIDs)
 	print("filtering done!")
 } else {
 	print("skipping filter except mandatory removal of N's... ")
 	out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncQ=c(0,0), maxN=0, rm.phix=TRUE,
-            compress=TRUE, multithread=TRUE, verbose=TRUE, matchIDs=matchIDs)
+            compress=TRUE, multithread=args$threads, verbose=TRUE, matchIDs=matchIDs)
 }
 
 # Report and Correct for samples with zero reads after filter
@@ -215,9 +216,9 @@ out <- out[(out[,2] != 0),]
 
 #Compute the error model
 print("starting error model learning for forward reads...")
-errF <- learnErrors(filtFs, multithread=TRUE, verbose=2, randomize=randomize, MAX_CONSIST=max_consist)
+errF <- learnErrors(filtFs, multithread=args$threads, verbose=2, randomize=randomize, MAX_CONSIST=max_consist)
 print("starting error model learning for reverse reads...")
-errR <- learnErrors(filtRs, multithread=TRUE, verbose=2, randomize=randomize, MAX_CONSIST=max_consist)
+errR <- learnErrors(filtRs, multithread=args$threads, verbose=2, randomize=randomize, MAX_CONSIST=max_consist)
 
 #Plot the Errors
 png(paste0(work_dir,"/errF.png"), height = 800, width = 700)
@@ -236,9 +237,9 @@ names(derepRs) <- sample.names
 
 #Run core DADA2 algorithm
 print("starting dada2 for forward reads...")
-dadaFs <- dada(derepFs, err=errF, selfConsist=selfConsist, multithread=TRUE, verbose=TRUE, OMEGA_A=omega_a)
+dadaFs <- dada(derepFs, err=errF, selfConsist=selfConsist, multithread=args$threads, verbose=TRUE, OMEGA_A=omega_a)
 print("starting dada2 for reverse reads...")
-dadaRs <- dada(derepRs, err=errR, selfConsist=selfConsist, multithread=TRUE, verbose=TRUE, OMEGA_A=omega_a)
+dadaRs <- dada(derepRs, err=errR, selfConsist=selfConsist, multithread=args$threads, verbose=TRUE, OMEGA_A=omega_a)
 
 # Merge reads
 print("merging paird ends...")
@@ -255,7 +256,7 @@ print(table(nchar(getSequences(seqtab))))
 #Remove Chimeras
 if(args$bimera) {
   print("identifying bimeric sequences...")
-  seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
+  seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=args$threads, verbose=TRUE)
   print("Number of non-bimeric sequences:")
   print(dim(seqtab.nochim)[2])
   print("Percentage of reads which are non-bimeric:")
