@@ -48,6 +48,8 @@ include: "msf_trim_merge_denoise_dada2.smk"
 rule all:
     input:
         f"{outdir}/stats.tsv",
+        f"{outdir}/final.depths.tsv",
+        f"{outdir}/final.coverages.tsv",
         f"{outdir}/malamp/dada2/seqtab.tsv",
         f"{outdir}/malamp/outputCIGAR.tsv",
         f"{outdir}/malamp/depths.tsv"

@@ -72,7 +72,6 @@ def tab_to_QC(args):
     )
     marker_missingness["F_MISS"] = marker_missingness["MISS"] / len(df["sample"])
 
-    tab_df.to_csv(outdir / "depths.tsv", sep="\t", index=False)
     sample_missingness.to_csv(outdir / "sample_missingness.tsv", sep="\t", index=False)
     marker_missingness.to_csv(outdir / "marker_missingness.tsv", sep="\t", index=False)
 
@@ -89,6 +88,24 @@ def tab_to_QC(args):
         "Marker Index",
         outdir / "marker_missingness.png",
     )
+    markers = tab_df.columns[1:]
+    chrom = [m.split(":")[0] for m in markers]
+    start = [m.split(":")[1].split("-")[0] for m in markers]
+    end = [m.split(":")[1].split("-")[1] for m in markers]
+    amplicon = [m.split(":")[2] for m in markers]
+    new_df = pd.DataFrame(
+        {
+            "Chr": chrom,
+            "Start": start,
+            "End": end,
+            "Amplicon_name": amplicon,
+        }
+    )
+    new_df = pd.concat([new_df, pd.DataFrame(tab_df.T.values[1:,:], columns=tab_df.T.values[0,:])], axis = 1)
+    new_df["temp"] = new_df["Chr"].str.split("_").str[1]
+    new_df = new_df.sort_values(by=["temp", "Start"])
+    new_df = new_df.drop(columns=["temp"])
+    new_df.to_csv(outdir / "depths.tsv", sep="\t", index=False)
 
 
 def main(args):
