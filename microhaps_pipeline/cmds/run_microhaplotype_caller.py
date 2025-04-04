@@ -88,6 +88,7 @@ def run_microhaps_caller(args):
     # check multiplexer
     check_multiplexer(args)
 
+    os.environ['NGS_IGNORE_TERM_MULTIPLEXER_CHECK'] = "1"
     # check input files
     for infile in args.infiles:
         if not os.path.exists(infile):
