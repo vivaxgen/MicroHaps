@@ -108,7 +108,7 @@ def run_muscle(bins, outdir="ASVs"):
             print(f"ERROR: Could not find {fasta}", file=sys.stderr)
             continue
         msa = os.path.join(outdir, f"{amplicon}.msa")
-        subprocess.run(["muscle", "-in", fasta, "-out", msa], capture_output=True)
+        subprocess.run(["muscle", "-align", fasta, "-output", msa], capture_output=True)
 
 
 # get coords of homopolymer runs

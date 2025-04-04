@@ -15,7 +15,11 @@ import os
 import pathlib
 from ngs_pipeline import cerr, cexit, check_multiplexer
 from ngs_pipeline.cmds import run_snakefile
+from glob import glob
 
+basedir = os.environ.get("MICROHAPS_BASEDIR", None)
+avail_panels = [os.path.basename(panel).replace(".yaml","") for panel in
+                    glob(pathlib.posixpath.join(basedir, "configs", "*.yaml"))]
 
 def init_argparser():
     p = run_snakefile.init_argparser("run microhaplotype caller per sample")
@@ -52,6 +56,16 @@ def init_argparser():
     p.add_argument(
         "--no-skip", default=False, action="store_true", help="do not skip any samples"
     )
+
+    p.arg_dict["panel"].help = f"the panel for this run. Available panels: {', '.join(avail_panels)}"
+
+    p.add_argument(
+        "--run-discovery",
+        default=False,
+        action="store_true",
+        help="run discovery mode (default: False)",
+    )
+
 
     p.add_argument(
         "--illumina-2-dye",
@@ -96,10 +110,14 @@ def run_microhaps_caller(args):
         singleton=args.single,
         paired=args.paired,
         underscore=args.underscore,
-        outdir=args.outdir,
+        outdir=pathlib.Path(args.outdir).absolute().as_posix(),
         skip_list=args.skip if not args.no_skip else [],
         # use generic 2-dye instrument
         instrument="nextseq" if args.illumina_2_dye else "generic",
+        # run discovery mode
+        joint_discovery=args.run_discovery,
+        gatk_drag_haplotypecaller="gatk_drag_haplotypecaller",
+        sample_variant_caller_target="all_no_qc",
     )
 
     status, elapsed_time = run_snakefile.run_snakefile(
