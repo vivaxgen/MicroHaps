@@ -120,10 +120,11 @@ def run_microhaps_caller(args):
         sample_variant_caller_target="all_no_qc",
     )
 
+    args.target = "all_microhaps"
     status, elapsed_time = run_snakefile.run_snakefile(
         args, config=config, show_status=False
     )
-
+    
     if not status:
         cerr("[WARNING: run-full-analysis did not successfully complete]")
     cerr(f"[Finish run-full-analysis (time: {elapsed_time})]")
