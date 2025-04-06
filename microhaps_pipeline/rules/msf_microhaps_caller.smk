@@ -31,6 +31,8 @@ include: ngs_pipeline.rules.path("msf_merge_map.smk")
 # 3 - include all statistics utitlities
 include: ngs_pipeline.rules.path("msf_stats.smk")
 
+include: ngs_pipeline.rules.path("utilities.smk")
+
 include: "msf_final_bam_to_fastq.smk"
 
 
@@ -46,14 +48,17 @@ include: "msf_trim_merge_denoise_dada2.smk"
 
 # 7 - generate ASV table
 
-rule all:
+include: "msf_discovery_calling.smk"
+
+rule all_microhaps:
     input:
         f"{outdir}/stats.tsv",
         f"{outdir}/final.depths.tsv",
         f"{outdir}/final.coverages.tsv",
         f"{outdir}/malamp/dada2/seqtab.tsv",
         f"{outdir}/malamp/outputCIGAR.tsv",
-        f"{outdir}/malamp/depths.tsv"
+        f"{outdir}/malamp/depths.tsv",
+        f"{outdir}/.__discovery__"
 
 rule seqtab:
     input:

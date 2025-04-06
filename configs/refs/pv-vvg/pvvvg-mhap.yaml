@@ -55,6 +55,7 @@ keep_final_bam: True
 # for below, we keep FR, RF, FF and RR orientation for future SV analysis
 read_filters: --remove_trans --remove_unmapped --remove_secondary --remove_supplementary
 
+
 reads_trimmer_wf: trimmer_null.smk
 reads_mapper_wf: mapper_bwa-mem2.smk
 

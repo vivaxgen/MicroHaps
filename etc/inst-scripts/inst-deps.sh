@@ -14,8 +14,8 @@ micromamba -y install mosdepth -c conda-forge -c bioconda -c defaults
 echo "Installing samclip"
 micromamba -y install samclip -c conda-forge -c bioconda -c defaults
 
-echo "Installing muscle version v3.8.1551"
-micromamba -y install "muscle=3.8.1551" -c conda-forge -c bioconda -c defaults
+echo "Installing muscle version v5.3"
+micromamba -y install "muscle>=5.3,<5.4" -c conda-forge -c bioconda -c defaults
 
 echo "Installing required R packages"
 micromamba -y install r-ggplot2 r-BiocManager r-RCurl r-argparse r-data.table r-seqinr r-doMC -c conda-forge -c bioconda -c defaults
