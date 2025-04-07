@@ -17,6 +17,8 @@ rule final_bam_depth_coverage_per_inserts:
         insertseq_file = targetregion_file,
     output:
         depth_coverage = "{pfx}/samples/{sample}/logs/final.depth_coverage.tsv",
+    params:
+        prefix_to_remove = "{pfx}/samples/",
     run:
         import pandas as pd
         from io import StringIO
@@ -25,7 +27,7 @@ rule final_bam_depth_coverage_per_inserts:
         markers["region"] = markers["Chr"] + ":" + markers["Start"].astype(str) + "-" + markers["End"].astype(str)
         for marker in markers["region"]:
             temp = pd.read_table(StringIO(shell(f"samtools coverage -H -r {marker} {input.bam}", read= True)), header=None, names = ["rname", "startpos", "endpos", "numreads", "covbases", "coverage", "meandepth", "meanbaseq", "meanmapq"])
-            temp["sample"] = input.bam.split("/")[2]
+            temp["sample"] = input.bam.replace(params.prefix_to_remove, "").replace("/maps/final.bam", "")
             temp["region"] = marker
             all_results.append(temp)
         all_results = pd.concat(all_results)
