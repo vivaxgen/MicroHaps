@@ -1,9 +1,8 @@
+#
+# pvvvg-mhap.yaml - configuration file for the Menzies vivax microhaps panel
+#
 
-#
-# --- NGS-Pipeline joint variant calling settings ---
-#
-# NOTE: at some point some configuration will be kept at configs/PANELNAME.yaml
-# to allow for multiple panels in a single pipeline
+# --- NGS-Pipeline settings ---
 
 optical_dedup: False
 instrument: generic
@@ -14,7 +13,6 @@ min_read_qual: 15
 read_length: 100
 
 refseq_file: configs/refs/Pv/PvP01_v2/PvP01_v2.fasta
-#knownsites_file: refs/pv-known-variants.bed.gz
 knownvariants_dir: configs/refs/Pv/PvP01_v2/known-variants
 
 # perform variant calling on all chromosomes as single workflow
@@ -69,13 +67,9 @@ variant_caller_wf: ssf_varcall_gatk_drag.smk
 gatk_calibrate_str: False
 haplotypecaller_flags: --max-reads-per-alignment-start 0 --do-not-run-physical-phasing --pileup-detection --dont-use-soft-clipped-bases
 
+# --- end of NGS-Pipeline settings ---
 
-#
-# --- End of NGS-Pipeline settings ---
-#
-
-#parameters
-
+# --- parameters for Microhaplotype settings ---
 
 class: "parasite"
 maxEE: "5,5"
@@ -87,7 +81,6 @@ omegaA: 1e-120
 justconcat: 0
 platform: "PE"
 trimqv: 15
-
 
 #refs
 
