@@ -24,9 +24,10 @@ For example, if the sample name is ``sample_1`` and the fastq file is named ``sa
 
 The ``--panel`` option is used to specify the panel that will be used for the analysis.
 The available panels are:
-    * ``pvvvg-mhap``: *P. Vivax* panel
-    * ``pfspotmal-drug``: SpotMalaria (*P. falciparum*) drugs-resistance panel
-    * ``pfspotmal-mhap``: SpotMalaria (*P. falciparum*) microhaplotype panel
+* ``pvvvg-mhap``: *P. Vivax* panel
+* ``pfspotmal-drug``: SpotMalaria (*P. falciparum*) drugs-resistance panel
+* ``pfspotmal-mhap``: SpotMalaria (*P. falciparum*) microhaplotype panel
+
 Additional panels can be added, for more details please refer to the :doc:`developer's documentation <../develdocs/implementation>`.
 
 The ``-o`` option is used to specify the output directory. 

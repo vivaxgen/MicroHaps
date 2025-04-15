@@ -26,6 +26,7 @@ Quick Start
 The layout of the output directory is:
 
 .. code-block:: console
+
     $ tree output_dir
     output_dir/
         metafile/
