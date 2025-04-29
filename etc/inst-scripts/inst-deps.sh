@@ -44,5 +44,5 @@ echo "Initialize enviroment"
 ngs-pl initialize --panel pvvvg-mhap --target wgs
 ngs-pl initialize --panel pfspotmal-mhap --target wgs
 
-Rscript -e 'install.packages("dcifer", repos = "https://cloud.r-project.org");install.packages("moire", repos = c("https://eppicenter.r-universe.dev", "https://cloud.r-project.org"))'
+Rscript -e 'if (!require("dcifer", quietly = TRUE)){ install.packages("dcifer", repos = "https://cloud.r-project.org")}; if (!require("moire", quietly = TRUE)){install.packages("moire", repos = c("https://eppicenter.r-universe.dev", "https://cloud.r-project.org"))}'
 # EOF
