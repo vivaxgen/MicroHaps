@@ -14,6 +14,8 @@ It offers two distinct sub-pipelines:
 * **SNP-based Variant Calling:** Leveraging the
   `vivaxGEN NGS-Pipeline <https://github.com/vivaxgen/ngs-pipeline>`_,
   this sub-pipeline generates standard VCF files for SNP analysis.
+  The main documentation for vivaxGEN NGS-Pipeline is
+  `here <https://vivaxgen-ngs-pipeline.readthedocs.io/en/latest/>`_.
 
 
 .. toctree::
