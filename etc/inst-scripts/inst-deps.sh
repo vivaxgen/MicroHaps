@@ -1,18 +1,18 @@
 
-echo "Installing latest bedtools"
-micromamba -y install bedtools -c conda-forge -c bioconda -c defaults
+#echo "Installing latest bedtools"
+#micromamba -y install bedtools -c conda-forge -c bioconda -c defaults
 
-echo "Installing datamash"
-micromamba -y install datamash -c conda-forge -c bioconda -c defaults
+#echo "Installing datamash"
+#micromamba -y install datamash -c conda-forge -c bioconda -c defaults
 
-echo "Installing trimmomatic"
-micromamba -y install trimmomatic -c conda-forge -c bioconda -c defaults
+#echo "Installing trimmomatic"
+#micromamba -y install trimmomatic -c conda-forge -c bioconda -c defaults
 
-echo "Installing mosdepth"
-micromamba -y install mosdepth -c conda-forge -c bioconda -c defaults
+#echo "Installing mosdepth"
+#micromamba -y install mosdepth -c conda-forge -c bioconda -c defaults
 
-echo "Installing samclip"
-micromamba -y install samclip -c conda-forge -c bioconda -c defaults
+#echo "Installing samclip"
+#micromamba -y install samclip -c conda-forge -c bioconda -c defaults
 
 echo "Installing muscle version v5.3"
 micromamba -y install "muscle>=5.3,<5.4" -c conda-forge -c bioconda -c defaults
