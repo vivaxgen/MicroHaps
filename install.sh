@@ -34,7 +34,7 @@ BASEDIR="${BASEDIR:-./vvg-MicroHaps}"
 
 OMIT="${OMIT:-}"
 uMAMBA_ENVNAME='muhaps'
-source <(curl -L https://raw.githubusercontent.com/vivaxgen/ngs-pipeline/main/install.sh)
+source <(curl -L https://raw.githubusercontent.com/vivaxgen/ngs-pipeline/refs/heads/dev/install.sh)
 
 # prepare MicroHaps pipeline environment
 
