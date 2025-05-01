@@ -39,7 +39,7 @@ source <(curl -L https://raw.githubusercontent.com/vivaxgen/ngs-pipeline/refs/he
 # prepare MicroHaps pipeline environment
 
 echo Cloning vivaxGEN MicroHaps pipeline
-git clone --branch dev --depth 1  https://github.com/vivaxgen/MicroHaps.git ${ENVS_DIR}/MicroHaps
+git clone --depth 1  https://github.com/vivaxgen/MicroHaps.git ${ENVS_DIR}/MicroHaps
 ln -sr ${ENVS_DIR}/MicroHaps/etc/bashrc.d/50-microhaps ${BASHRC_DIR}/
 
 source ${ENVS_DIR}/MicroHaps/etc/inst-scripts/inst-deps.sh
