@@ -10,10 +10,10 @@ This repository hosts vivaxGEN-Microhaps, an open-source pipeline designed for p
 
 ## Documentation
 
-The main documentation, which cover complete installation and tutorials, is [here](https://vivaxgen-microhaps.readthedocs.io/en/latest/)
+The main documentation, which cover complete installation and tutorials, is [here](https://vivaxgen-microhaps.readthedocs.io/en/latest/).
 
 
-## Quick nistallation on local devices and HPCs
+## Quick installation on local devices and HPCs
 
 Note for Conda-based users!
 Be sure you are not in a conda environment or in the (base) conda environment prior to installing. 
