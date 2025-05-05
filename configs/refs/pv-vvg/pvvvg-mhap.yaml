@@ -13,6 +13,7 @@ min_read_qual: 15
 read_length: 100
 
 refseq_file: configs/refs/Pv/PvP01_v2/PvP01_v2.fasta
+strtable_file: configs/refs/Pv/PvP01_v2/PvP01_v2.str_table.zip
 knownvariants_dir: configs/refs/Pv/PvP01_v2/known-variants
 
 # perform variant calling on all chromosomes as single workflow
