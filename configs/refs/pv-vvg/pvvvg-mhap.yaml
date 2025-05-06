@@ -65,7 +65,7 @@ joint_variant_caller_flags: --force --no-config-cascade
 
 variant_caller_wf: ssf_varcall_gatk_drag.smk
 
-gatk_calibrate_str: False
+gatk_calibrate_str: True
 haplotypecaller_flags: --max-reads-per-alignment-start 0 --do-not-run-physical-phasing --pileup-detection --dont-use-soft-clipped-bases
 
 # --- end of NGS-Pipeline settings ---
