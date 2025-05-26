@@ -18,8 +18,11 @@ from ngs_pipeline.cmds import run_snakefile
 from glob import glob
 
 basedir = os.environ.get("MICROHAPS_BASEDIR", None)
-avail_panels = [os.path.basename(panel).replace(".yaml","") for panel in
-                    glob(pathlib.posixpath.join(basedir, "configs", "*.yaml"))]
+avail_panels = [
+    os.path.basename(panel).replace(".yaml", "")
+    for panel in glob(pathlib.posixpath.join(basedir, "configs", "*.yaml"))
+]
+
 
 def init_argparser():
     p = run_snakefile.init_argparser("run microhaplotype caller per sample")
@@ -57,7 +60,9 @@ def init_argparser():
         "--no-skip", default=False, action="store_true", help="do not skip any samples"
     )
 
-    p.arg_dict["panel"].help = f"the panel for this run. Available panels: {', '.join(avail_panels)}"
+    p.arg_dict["panel"].help = (
+        f"the panel for this run. Available panels: {', '.join(avail_panels)}"
+    )
 
     p.add_argument(
         "--run-discovery",
@@ -65,7 +70,6 @@ def init_argparser():
         action="store_true",
         help="run discovery mode (default: False)",
     )
-
 
     p.add_argument(
         "--illumina-2-dye",
@@ -88,7 +92,7 @@ def run_microhaps_caller(args):
     # check multiplexer
     check_multiplexer(args)
 
-    os.environ['NGS_IGNORE_TERM_MULTIPLEXER_CHECK'] = "1"
+    os.environ["NGS_IGNORE_TERM_MULTIPLEXER_CHECK"] = "1"
     # check input files
     for infile in args.infiles:
         if not os.path.exists(infile):
@@ -125,10 +129,10 @@ def run_microhaps_caller(args):
     status, elapsed_time = run_snakefile.run_snakefile(
         args, config=config, show_status=False
     )
-    
+
     if not status:
-        cerr("[WARNING: run-full-analysis did not successfully complete]")
-    cerr(f"[Finish run-full-analysis (time: {elapsed_time})]")
+        cerr("[WARNING: run-microhaplotype-caller did not successfully complete]")
+    cerr(f"[Finish run-microhaplotype-caller (time: {elapsed_time})]")
 
 
 def main(args):
