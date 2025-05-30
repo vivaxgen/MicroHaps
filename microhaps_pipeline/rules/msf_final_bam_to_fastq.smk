@@ -1,4 +1,5 @@
 
+
 rule bam_to_fastq:
     threads: 4
     input:
@@ -10,13 +11,14 @@ rule bam_to_fastq:
         "samtools collate -u -O {input.bam}"
         " | samtools fastq --thread 2 -1 {output.R1} -2 {output.R2} -0 /dev/null -s /dev/null -n"
 
+
 rule final_bam_depth_coverage_per_inserts:
     input:
         bam = "{pfx}/samples/{sample}/maps/final.bam",
         bai = "{pfx}/samples/{sample}/maps/final.bam.bai",
         insertseq_file = targetregion_file,
     output:
-        depth_coverage = "{pfx}/samples/{sample}/logs/final.depth_coverage.tsv",
+        depth_coverage = "{pfx}/samples/{sample}/logs/depth_coverage-mapped.tsv",
     params:
         prefix_to_remove = "{pfx}/samples/",
     run:
@@ -34,13 +36,14 @@ rule final_bam_depth_coverage_per_inserts:
         full_result = markers.merge(all_results, left_on="region", right_on="region", how="outer").drop("region", axis=1)
         full_result.to_csv(output.depth_coverage, sep="\t", index=False)
 
+
 rule aggregate_depth_coverage:
     input:
-        per_inserts_depth_coverage = expand("{{pfx}}/samples/{sample}/logs/final.depth_coverage.tsv", sample=IDs),
+        per_inserts_depth_coverage = expand("{{pfx}}/samples/{sample}/logs/depth_coverage-mapped.tsv", sample=IDs),
         insertseq_file = targetregion_file,
     output:
-        depth = "{pfx}/final.depths.tsv",
-        coverage = "{pfx}/final.coverages.tsv"
+        depth = "{pfx}/depths-mapped.tsv",
+        coverage = "{pfx}/coverages-mapped.tsv"
     run:
         import pandas as pd
         from io import StringIO
@@ -59,4 +62,17 @@ rule aggregate_depth_coverage:
         full_result3 = full_result.pivot_table(index=["Chr", "Start", "End", "Amplicon_name"], columns="sample", values="coverage", fill_value=0).reset_index()
         full_result3[full_result3.columns[4:]] = full_result3[full_result3.columns[4:]].astype(int)
         full_result3.to_csv(output.coverage, sep="\t", index=False)
+
+
+rule depth_heatmap:
+    input:
+        depth = "{pfx}/depths-mapped.tsv",
+    output:
+        depth = "{pfx}/depths-mapped.png",
+        marker = "{pfx}/markers-mapped.png",
+    shell:
+        "ngs-pl tab-to-plots --index-column Amplicon_name --additional-title 'Reads'"
+        "  --outheatmap {output.depth} --outmarker {output.marker} {input.depth}"
+
+
 # EOF
