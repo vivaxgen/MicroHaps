@@ -1,0 +1,9 @@
+
+correction: False
+deduplicate: False
+
+# reference sequence, reference map, known variants for base recalibration, etc
+refseq_file: REFSEQ-FILE-NOT-DEFINED
+refmap_file: REFMAP-FILE-NOT-DEFINED
+
+

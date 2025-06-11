@@ -53,11 +53,12 @@ include: "msf_discovery_calling.smk"
 rule all_microhaps:
     input:
         f"{outdir}/stats.tsv",
-        f"{outdir}/final.depths.tsv",
-        f"{outdir}/final.coverages.tsv",
+        f"{outdir}/depths-mapped.png",
+        f"{outdir}/coverages-mapped.tsv",
         f"{outdir}/malamp/dada2/seqtab.tsv",
         f"{outdir}/malamp/outputCIGAR.tsv",
-        f"{outdir}/malamp/depths.tsv",
+        f"{outdir}/malamp/depths-microhaps.png",
+        f"{outdir}/malamp/depth-ratio-markers.png",
         f"{outdir}/.__discovery__"
 
 rule seqtab:
