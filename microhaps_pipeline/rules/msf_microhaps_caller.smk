@@ -56,7 +56,7 @@ rule all_microhaps:
         f"{outdir}/depths-mapped.png",
         f"{outdir}/coverages-mapped.tsv",
         f"{outdir}/malamp/dada2/seqtab.tsv",
-        f"{outdir}/malamp/outputCIGAR.tsv",
+        f"{outdir}/malamp/outputHaplotypes.tsv",
         f"{outdir}/malamp/depths-microhaps.png",
         f"{outdir}/malamp/depth-ratio-markers.png",
         f"{outdir}/.__discovery__"

@@ -1,25 +1,37 @@
-
-# trim primers from reads per index sample
-rule trim:
-    input:
-        #unpack(read_files.get_read_file_as_dict),
-        R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R1.fastq.gz",
-        R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R2.fastq.gz",
-        prim_fw = primer_fw_file,
-        prim_rv = primer_rev_file,
-    output:
-        #f"{outdir}/{{sample}}/reads/raw-{{idx}}_R1.fastq.gz",
-        #f"{outdir}/{{sample}}/reads/raw-{{idx}}_R2.fastq.gz"
-        R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R1.fastq.gz",
-        R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R2.fastq.gz",
-    params:
-        platform = config['platform'],
-        trim_qv = config['trimqv'],
-        additional_params = f"--nextseq-trim={config.get('trimqv', 20)}" if is_nextseq_or_novaseq() else ""
-    shell: 
-        "cutadapt -g file:{input.prim_fw} -G file:{input.prim_rv} -o {output.R1} -p {output.R2}"
-        " --pair-adapters --discard-untrimmed {params.additional_params} --action=trim {input.R1} {input.R2}"
-
+primers_trimmed = config.get("primers_trimmed", False)
+if not primers_trimmed:
+    # trim primers from reads per index sample
+    rule trim:
+        input:
+            #unpack(read_files.get_read_file_as_dict),
+            R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R1.fastq.gz",
+            R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R2.fastq.gz",
+            prim_fw = primer_fw_file,
+            prim_rv = primer_rev_file,
+        output:
+            #f"{outdir}/{{sample}}/reads/raw-{{idx}}_R1.fastq.gz",
+            #f"{outdir}/{{sample}}/reads/raw-{{idx}}_R2.fastq.gz"
+            R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R1.fastq.gz",
+            R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R2.fastq.gz",
+        log:
+            f"{outdir}/samples/{{sample}}/logs/trim_before_dada2.log",
+        params:
+            platform = config['platform'],
+            trim_qv = config['trimqv'],
+            additional_params = f"--nextseq-trim={config.get('trimqv', 20)}" if is_nextseq_or_novaseq() else ""
+        shell: 
+            "cutadapt -g file:{input.prim_fw} -G file:{input.prim_rv} -o {output.R1} -p {output.R2}"
+            " --pair-adapters --discard-untrimmed {params.additional_params} --action=trim {input.R1} {input.R2} > {log} 2>&1"
+    else
+        rule trim:
+            input:
+                R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R1.fastq.gz",
+                R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R2.fastq.gz",
+            output:
+                R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R1.fastq.gz",
+                R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R2.fastq.gz",
+            shell:
+                "ln -s {input.R1} {output.R1} && ln -s {input.R2} {output.R2}"
 
 rule create_meta:
     # create a list
@@ -83,44 +95,77 @@ rule run_dada2R:
             --threads {threads} 
         """
 
-
-rule post_process:
-    threads: 4
+rule extract_sequences_from_dada2_seqtab:
     input:
         f"{outdir}/malamp/dada2/seqtab.tsv"
     output:
-        Table = f"{outdir}/malamp/ASVTable.txt",
-        Seqs = f"{outdir}/malamp/ASVSeqs.fasta"
+        fasta = f"{outdir}/malamp/haplotypes.fasta",
     shell:
-        "Rscript {microhaps_basedir}/scripts/postProc_dada2.R"
-        " -s {input}"
-        " --strain PvP01"
-        " -ref {insertseq_file}"
-        " -o {output.Table}"
-        " --fasta --parallel"
+        "python {microhaps_basedir}/scripts/seqtab_to_fasta.py --table {input[0]} --output_fasta {output.fasta}"
 
-
-rule asv_to_cigar:
-    threads: 4
+rule align_haplotypes_to_reference:
+    threads: 3
     input:
-        Table = f"{outdir}/malamp/ASVTable.txt",
-        Seqs = f"{outdir}/malamp/ASVSeqs.fasta",
-        seqtab = f"{outdir}/malamp/dada2/seqtab.tsv"
+        fasta = f"{outdir}/malamp/haplotypes.fasta",
     output:
-        cigar = f"{outdir}/malamp/outputCIGAR.tsv",
-        asv_to = f"{outdir}/malamp/asv_to_cigar"
+        paf = f"{outdir}/malamp/haplotypes.paf",
+    params:
+        reference = insertseq_file,
     shell:
-        "python {microhaps_basedir}/scripts/ASV_to_CIGAR.py"
-        " {input.Seqs} {input.Table} {input.seqtab} {output.cigar}"
-        " --asv_to_cigar {output.asv_to}"
-        " -a {outdir}/alignments"
-        " --amp_db {insertseq_file}"
+        "minimap2 -x sr -t {threads} --secondary=no --cs=long {params.reference} {input.fasta} --paf-no-hit  -o {output.paf}"
+
+rule post_process_dada2:
+    threads: 1
+    input:
+        fasta = f"{outdir}/malamp/haplotypes.fasta",
+        paf = f"{outdir}/malamp/haplotypes.paf",
+        seqtab = f"{outdir}/malamp/dada2/seqtab.tsv",
+    output:
+        output_table = f"{outdir}/malamp/outputHaplotypes.tsv",
+    shell:
+        "python {microhaps_basedir}/scripts/post_process_dada2.py"
+        " --paf {input.paf}"
+        " --fasta {input.fasta}"
+        " --seqtab {input.seqtab}"
+        " --output {output.output_table}"
+
+# rule post_process:
+#     threads: 4
+#     input:
+#         f"{outdir}/malamp/dada2/seqtab.tsv"
+#     output:
+#         Table = f"{outdir}/malamp/ASVTable.txt",
+#         Seqs = f"{outdir}/malamp/ASVSeqs.fasta"
+#     shell:
+#         "Rscript {microhaps_basedir}/scripts/postProc_dada2.R"
+#         " -s {input}"
+#         " --strain PvP01"
+#         " -ref {insertseq_file}"
+#         " -o {output.Table}"
+#         " --fasta --parallel"
+
+
+# rule asv_to_cigar:
+#     threads: 4
+#     input:
+#         Table = f"{outdir}/malamp/ASVTable.txt",
+#         Seqs = f"{outdir}/malamp/ASVSeqs.fasta",
+#         seqtab = f"{outdir}/malamp/dada2/seqtab.tsv"
+#     output:
+#         cigar = f"{outdir}/malamp/outputCIGAR.tsv",
+#         asv_to = f"{outdir}/malamp/asv_to_cigar"
+#     shell:
+#         "python {microhaps_basedir}/scripts/ASV_to_CIGAR.py"
+#         " {input.Seqs} {input.Table} {input.seqtab} {output.cigar}"
+#         " --asv_to_cigar {output.asv_to}"
+#         " -a {outdir}/alignments"
+#         " --amp_db {insertseq_file}"
 
 
 rule qc_outputCIGAR:
     localrule: True
     input:
-        tab = f"{outdir}/malamp/outputCIGAR.tsv"
+        tab = f"{outdir}/malamp/outputHaplotypes.tsv"
     output:
         depths = f"{outdir}/malamp/depths.tsv"
     params:
