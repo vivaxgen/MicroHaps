@@ -1,3 +1,4 @@
+new_postprocess = config.get('post_process', "old")
 primers_trimmed = config.get("primers_trimmed", False)
 if not primers_trimmed:
     # trim primers from reads per index sample
@@ -111,8 +112,9 @@ rule align_haplotypes_to_reference:
         paf = f"{outdir}/malamp/haplotypes.paf",
     params:
         reference = insertseq_file,
+        cs_style = "long" if new_postprocess == "cs_long" else "short"
     shell:
-        "minimap2 -x sr -t {threads} --secondary=no --cs=long {params.reference} {input.fasta} --paf-no-hit  -o {output.paf}"
+        "minimap2 -x sr -t {threads} --secondary=no --cs={params.cs_style} {params.reference} {input.fasta} --paf-no-hit  -o {output.paf}"
 
 rule post_process_dada2:
     threads: 1
@@ -129,43 +131,42 @@ rule post_process_dada2:
         " --seqtab {input.seqtab}"
         " --output {output.output_table}"
 
-# rule post_process:
-#     threads: 4
-#     input:
-#         f"{outdir}/malamp/dada2/seqtab.tsv"
-#     output:
-#         Table = f"{outdir}/malamp/ASVTable.txt",
-#         Seqs = f"{outdir}/malamp/ASVSeqs.fasta"
-#     shell:
-#         "Rscript {microhaps_basedir}/scripts/postProc_dada2.R"
-#         " -s {input}"
-#         " --strain PvP01"
-#         " -ref {insertseq_file}"
-#         " -o {output.Table}"
-#         " --fasta --parallel"
+rule post_process:
+    threads: 4
+    input:
+        f"{outdir}/malamp/dada2/seqtab.tsv"
+    output:
+        Table = f"{outdir}/malamp/ASVTable.txt",
+        Seqs = f"{outdir}/malamp/ASVSeqs.fasta"
+    shell:
+        "Rscript {microhaps_basedir}/scripts/postProc_dada2.R"
+        " -s {input}"
+        " --strain PvP01"
+        " -ref {insertseq_file}"
+        " -o {output.Table}"
+        " --fasta --parallel"
 
 
-# rule asv_to_cigar:
-#     threads: 4
-#     input:
-#         Table = f"{outdir}/malamp/ASVTable.txt",
-#         Seqs = f"{outdir}/malamp/ASVSeqs.fasta",
-#         seqtab = f"{outdir}/malamp/dada2/seqtab.tsv"
-#     output:
-#         cigar = f"{outdir}/malamp/outputCIGAR.tsv",
-#         asv_to = f"{outdir}/malamp/asv_to_cigar"
-#     shell:
-#         "python {microhaps_basedir}/scripts/ASV_to_CIGAR.py"
-#         " {input.Seqs} {input.Table} {input.seqtab} {output.cigar}"
-#         " --asv_to_cigar {output.asv_to}"
-#         " -a {outdir}/alignments"
-#         " --amp_db {insertseq_file}"
-
+rule asv_to_cigar:
+    threads: 4
+    input:
+        Table = f"{outdir}/malamp/ASVTable.txt",
+        Seqs = f"{outdir}/malamp/ASVSeqs.fasta",
+        seqtab = f"{outdir}/malamp/dada2/seqtab.tsv"
+    output:
+        cigar = f"{outdir}/malamp/outputCIGAR.tsv",
+        asv_to = f"{outdir}/malamp/asv_to_cigar"
+    shell:
+        "python {microhaps_basedir}/scripts/ASV_to_CIGAR.py"
+        " {input.Seqs} {input.Table} {input.seqtab} {output.cigar}"
+        " --asv_to_cigar {output.asv_to}"
+        " -a {outdir}/alignments"
+        " --amp_db {insertseq_file}"
 
 rule qc_outputCIGAR:
     localrule: True
     input:
-        tab = f"{outdir}/malamp/outputHaplotypes.tsv"
+        tab = f"{outdir}/malamp/outputHaplotypes.tsv" if new_postprocess != "old" else f"{outdir}/malamp/outputCIGAR.tsv",
     output:
         depths = f"{outdir}/malamp/depths.tsv"
     params:

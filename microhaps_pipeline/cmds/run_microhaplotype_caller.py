@@ -82,6 +82,10 @@ def init_argparser():
     p.add_argument(
         "--primers-trimmed", default=False, action="store_true", help="indicate if primers have been trimmed"
     )
+    p.add_argument("--post_process", default="old", type=str, 
+        choices=["old", "cs_short", "cs_long"],
+        help="indicate if post-processing should be done (choices: old [cigar], cs_short, cs_long)"
+    )
     return p
 
 
@@ -126,6 +130,7 @@ def run_microhaps_caller(args):
         gatk_drag_haplotypecaller="gatk_drag_haplotypecaller",
         sample_variant_caller_target="all_no_qc",
         primers_trimmed=args.primers_trimmed,
+        post_process=args.post_process,
     )
 
     args.target = "all_microhaps"
