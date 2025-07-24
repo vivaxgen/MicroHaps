@@ -1,17 +1,15 @@
 new_postprocess = config.get('post_process', "old")
 primers_trimmed = config.get("primers_trimmed", False)
+
 if not primers_trimmed:
     # trim primers from reads per index sample
     rule trim:
         input:
-            #unpack(read_files.get_read_file_as_dict),
             R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R1.fastq.gz",
             R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R2.fastq.gz",
             prim_fw = primer_fw_file,
             prim_rv = primer_rev_file,
         output:
-            #f"{outdir}/{{sample}}/reads/raw-{{idx}}_R1.fastq.gz",
-            #f"{outdir}/{{sample}}/reads/raw-{{idx}}_R2.fastq.gz"
             R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R1.fastq.gz",
             R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R2.fastq.gz",
         log:
@@ -23,16 +21,16 @@ if not primers_trimmed:
         shell: 
             "cutadapt -g file:{input.prim_fw} -G file:{input.prim_rv} -o {output.R1} -p {output.R2}"
             " --pair-adapters --discard-untrimmed {params.additional_params} --action=trim {input.R1} {input.R2} > {log} 2>&1"
-    else
-        rule trim:
-            input:
-                R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R1.fastq.gz",
-                R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R2.fastq.gz",
-            output:
-                R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R1.fastq.gz",
-                R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R2.fastq.gz",
-            shell:
-                "ln -s {input.R1} {output.R1} && ln -s {input.R2} {output.R2}"
+else:
+    rule trim:
+        input:
+            R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R1.fastq.gz",
+            R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R2.fastq.gz",
+        output:
+            R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R1.fastq.gz",
+            R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R2.fastq.gz",
+        shell:
+            "ln -s {input.R1} {output.R1} && ln -s {input.R2} {output.R2}"
 
 rule create_meta:
     # create a list
