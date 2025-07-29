@@ -86,6 +86,10 @@ def init_argparser():
         choices=["old", "cs_short", "cs_long"],
         help="indicate if post-processing should be done (choices: old [cigar], cs_short, cs_long)"
     )
+    p.add_argument("--merge_map", default="dada2", type=str, 
+        choices=["dada2", "bbmap_merge", "bbmerge"],
+        help="indicate if post-processing should be done (choices: dada2 [default], bbmap_merge, bbmerge)"
+    )
     return p
 
 
@@ -131,6 +135,7 @@ def run_microhaps_caller(args):
         sample_variant_caller_target="all_no_qc",
         primers_trimmed=args.primers_trimmed,
         post_process=args.post_process,
+        merge_map=args.merge_map,
     )
 
     args.target = "all_microhaps"
