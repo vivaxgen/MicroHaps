@@ -81,7 +81,6 @@ rule all_microhaps:
         f"{outdir}/malamp/outputHaplotypes.tsv" if new_postprocess != "old" else f"{outdir}/malamp/outputCIGAR.tsv",
         f"{outdir}/malamp/depths-microhaps.png",
         f"{outdir}/malamp/depth-ratio-markers.png",
-        f"{outdir}/malamp/{bbmap_or_bbmerge}/dereplicated_counted.fasta"
 
 rule seqtab:
     input:
