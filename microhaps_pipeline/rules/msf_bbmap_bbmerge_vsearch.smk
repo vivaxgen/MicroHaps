@@ -14,7 +14,7 @@ rule bbmap_to_fq:
     threads: config.get('bbmap_merge_threads', 4)
     input:
         R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R1.fastq.gz",
-        R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R1.fastq.gz",
+        R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R2.fastq.gz",
         ref = f"{outdir}/ref",
     output:
         mapped = f"{outdir}/samples/{{sample}}/bbmap_merge/bbmapped.fastq.gz",
@@ -44,7 +44,7 @@ rule bbmerge_to_fq:
     threads: config.get('bbmap_merge_threads', 4)
     input:
         R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R1.fastq.gz",
-        R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R1.fastq.gz",
+        R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R2.fastq.gz",
     output:
         merged = f"{outdir}/samples/{{sample}}/bbmerge/final_merged.fastq.gz",
     log:
