@@ -38,28 +38,49 @@ include: "msf_final_bam_to_fastq.smk"
 
 # 3 - perform microhaps calling
 
-include: "msf_trim_merge_denoise_dada2.smk"
-
 # 4 - hard-trim primers from each of merged reads
+include: "msf_trim.smk"
 
 # 5 - generate a FASTQ file from the trimmmed reads
 
 # 6 - call dada2 for denoising FASTQ reads
+if config.get("merge_map") == "dada2":
+    include: "msf_merge_denoise_dada2.smk"
+elif config.get("merge_map") == "bbmap_merge" or config.get("merge_map") == "bbmerge":
+    include: "msf_bbmap_bbmerge_vsearch.smk"
+else:
+    raise ValueError(f"Unknown merge_map option: {config.get('merge_map')}")
 
-# 7 - generate ASV table
+
+# 7 - generate Haplotype table
+include: "msf_post_process_merged.smk"
+
+# 8 - qc Haplotypes
+include: "msf_qc_haplotype.smk"
 
 include: "msf_discovery_calling.smk"
+
+new_postprocess = config.get('post_process', "old")
+
+dada2_output = f"{outdir}/malamp/dada2/seqtab.tsv" # default
+bbmap_merge_output = f"{outdir}/malamp/bbmap_merge/seqtab.tsv"
+bbmerge_output = f"{outdir}/malamp/bbmerge/seqtab.tsv"
+
+match config.get("merge_map", "dada2"):
+    case "dada2": merging_output = dada2_output
+    case "bbmap_merge": merging_output = bbmap_merge_output
+    case "bbmerge": merging_output = bbmerge_output
 
 rule all_microhaps:
     input:
         f"{outdir}/stats.tsv",
         f"{outdir}/depths-mapped.png",
         f"{outdir}/coverages-mapped.tsv",
-        f"{outdir}/malamp/dada2/seqtab.tsv",
-        f"{outdir}/malamp/outputCIGAR.tsv",
+        f"{outdir}/.__discovery__",
+        merging_output,
+        f"{outdir}/malamp/outputHaplotypes.tsv" if new_postprocess != "old" else f"{outdir}/malamp/outputCIGAR.tsv",
         f"{outdir}/malamp/depths-microhaps.png",
         f"{outdir}/malamp/depth-ratio-markers.png",
-        f"{outdir}/.__discovery__"
 
 rule seqtab:
     input:

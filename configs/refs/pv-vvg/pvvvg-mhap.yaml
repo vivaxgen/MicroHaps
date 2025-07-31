@@ -83,6 +83,14 @@ justconcat: 0
 platform: "PE"
 trimqv: 15
 
+# BBmap / BBmerge parameters
+
+bbmap_parameters: "-Xmx5g"
+bbmerge_parameters: "-Xmx5g maxq=41 maxexpectederrors=1" 
+bbmap_merge_threads: 4
+vsearch_threads: 4
+# maxquality score of merged pair = 41; max EE = 1
+
 #refs
 
 insertseq: configs/refs/pv-vvg/Microhaps_Inserts_wMito.fasta

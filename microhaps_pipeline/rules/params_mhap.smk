@@ -38,6 +38,7 @@ targetregion_file = get_abspath(fn if (fn := config.get('targetregion_file')) el
 insertseq_file = get_abspath(config['insertseq'], microhaps_basedir)
 primer_fw_file = get_abspath(config['primer_fw'], microhaps_basedir)
 primer_rev_file = get_abspath(config['primer_rev'], microhaps_basedir)
+refseq_file = get_abspath(config['refseq_file'], microhaps_basedir)
 
 # define all output files 
 
