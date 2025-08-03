@@ -34,6 +34,7 @@ rule post_process_dada2:
         " --fasta {input.fasta}"
         " --seqtab {input.seqtab}"
         " --output {output.output_table}"
+        " --insert {insertseq_file}"
 
 rule post_process:
     threads: 4

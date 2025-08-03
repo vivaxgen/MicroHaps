@@ -10,6 +10,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--paf", help="Path to the PAF mapping the haplotypes to reference.", required=True)
     parser.add_argument("-s", "--seqtab", help="Path to the seqtab.tsv file from DADA2.", required=True)
     parser.add_argument("-f", "--fasta", help="Path to the haplotype FASTA file.", required=True)
+    parser.add_argument("-i", "--insert", help="Path to the insert sequence FASTA file.", required=True)
     parser.add_argument("-o", "--output", help="Path to save the output TSV file.", required=True)
 
     args = parser.parse_args()
@@ -18,6 +19,7 @@ if __name__ == "__main__":
     seqtab_df = pd.read_table(args.seqtab, index_col=0) # seqtab files constraint: first column is index
     paf_df = parse_paf_file(args.paf)
     fasta_seqs = read_fasta(args.fasta)
+    insert_seqs = read_fasta(args.insert)
 
     assert 'cs' in paf_df.columns, "PAF file must contain 'cs' column"
     
@@ -45,19 +47,26 @@ if __name__ == "__main__":
 
     def add_unmapped_qseq_to_cs(row, get: Literal["start", "end"]):
         if row['orientation'] == '-':
+            rel_t_seq = reverse_complement(insert_seqs[row['tname']])
             rel_q_seq = reverse_complement(fasta_seqs[row['qname']])
         else:
+            rel_t_seq = insert_seqs[row['tname']]
             rel_q_seq = fasta_seqs[row['qname']]
         if get == "start":
-            if row['qstart'] > 0:
-                return f"+{rel_q_seq[:row['qstart']]}"
-            else:
-                return ""
+            start_s = ""
+            if row['qstart'] > 0: # there are bases before the mapped region
+                start_s += f"+{rel_q_seq[:row['qstart']]}"
+            if row['qstart'] < row['tstart']: # there are bases before the mapped region in the inserts but not in the query
+                start_s += f"-{rel_t_seq[row['qstart']:row['tstart']]}"
+            return start_s
         if get == "end":
-            if row['qend'] < row['qlen']:
-                return f"+{rel_q_seq[row['qend']:]}"
-            else:
-                return ""
+            end_s = ""
+            if row['qend'] < row['qlen']: # there are bases after the mapped region
+                end_s += f"+{rel_q_seq[row['qend']:]}"
+            if row['qend'] < row['tend']: # there are bases after the mapped region in the inserts but not in the query
+                end_s += f"-{rel_t_seq[row['qend']:row['tend']]}"
+            return end_s
+
 
     # add start to final representation
     paf_df["non_mapped_start"] = paf_df.apply(
@@ -71,7 +80,9 @@ if __name__ == "__main__":
 
     paf_df["cs"] = paf_df["non_mapped_start"] + paf_df["cs"] + paf_df["non_mapped_end"]
 
-    paf_df.loc[:, "final_representation"] = paf_df.loc[:, "tname"] + "," + paf_df.loc[:, "cs"]
+    paf_df.loc[:, "start_s"] = paf_df.apply(lambda row: "s" if row["qstart"] == row["tstart"] else f'{row["qstart"]}:{row["tstart"]}', axis=1)
+    paf_df.loc[:, "end_s"] = paf_df.apply(lambda row: "e" if row["qend"] == row["qlen"] == row["tend"] else f'{row["qend"]}:{row["tend"]}', axis=1)
+    paf_df.loc[:, "final_representation"] = paf_df.loc[:, "tname"] + "," + paf_df.loc[:, "cs"] + "_" + paf_df.loc[:, "start_s"].astype(str) + "-" + paf_df.loc[:, "end_s"].astype(str)
 
     assert paf_df.query("orientation == '+'")['final_representation'].is_unique, "Final representation for the same orientation must be unique"
     assert paf_df.query("orientation == '-'")['final_representation'].is_unique, "Final representation for the same orientation must be unique"
