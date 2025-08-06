@@ -31,7 +31,6 @@ include: ngs_pipeline.rules.path("msf_merge_map.smk")
 # 3 - include all statistics utitlities
 include: ngs_pipeline.rules.path("msf_stats.smk")
 
-include: ngs_pipeline.rules.path("utilities.smk")
 
 include: "msf_final_bam_to_fastq.smk"
 
@@ -46,7 +45,7 @@ include: "msf_trim.smk"
 # 6 - call dada2 for denoising FASTQ reads
 if config.get("merge_map") == "dada2":
     include: "msf_merge_denoise_dada2.smk"
-elif config.get("merge_map") == "bbmap_merge" or config.get("merge_map") == "bbmerge":
+elif config.get("merge_map") == "bbmap_merge" or config.get("merge_map") == "bbmerge" or config.get("merge_map") == "fastq_merge" or config.get("merge_map") == "ngmerge":
     include: "msf_bbmap_bbmerge_vsearch.smk"
 else:
     raise ValueError(f"Unknown merge_map option: {config.get('merge_map')}")
@@ -65,11 +64,15 @@ new_postprocess = config.get('post_process', "old")
 dada2_output = f"{outdir}/malamp/dada2/seqtab.tsv" # default
 bbmap_merge_output = f"{outdir}/malamp/bbmap_merge/seqtab.tsv"
 bbmerge_output = f"{outdir}/malamp/bbmerge/seqtab.tsv"
+fastq_merge_output = f"{outdir}/malamp/fastq_merge/seqtab.tsv"
+ngmerge_output = f"{outdir}/malamp/ngmerge/seqtab.tsv"
 
 match config.get("merge_map", "dada2"):
     case "dada2": merging_output = dada2_output
     case "bbmap_merge": merging_output = bbmap_merge_output
     case "bbmerge": merging_output = bbmerge_output
+    case "fastq_merge": merging_output = fastq_merge_output
+    case "ngmerge": merging_output = ngmerge_output
 
 rule all_microhaps:
     input:

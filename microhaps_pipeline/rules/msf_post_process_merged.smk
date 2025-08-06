@@ -16,9 +16,10 @@ rule align_haplotypes_to_reference:
         paf = f"{outdir}/malamp/haplotypes.paf",
     params:
         reference = insertseq_file,
+        minimap_params = config.get('minimap2_params', ''),
         cs_style = "long" if new_postprocess == "cs_long" else "short"
     shell:
-        "minimap2 -x sr -t {threads} --secondary=no --cs={params.cs_style} {params.reference} {input.fasta} --paf-no-hit  -o {output.paf}"
+        "minimap2 -x sr -t {threads} {params.minimap_params} --secondary=no --cs={params.cs_style} {params.reference} {input.fasta} --paf-no-hit  -o {output.paf}"
 
 rule post_process_dada2:
     threads: 1

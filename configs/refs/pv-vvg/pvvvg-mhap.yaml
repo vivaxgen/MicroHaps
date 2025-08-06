@@ -84,12 +84,23 @@ platform: "PE"
 trimqv: 15
 
 # BBmap / BBmerge parameters
-
-bbmap_parameters: "-Xmx5g"
-bbmerge_parameters: "-Xmx5g maxq=41 maxexpectederrors=1" 
-bbmap_merge_threads: 4
-vsearch_threads: 4
+bbmap_parameters: "-Xmx5g local"
+bbmerge_parameters: "-Xmx5g maxq=41 maxexpectederrors=1 rem k=62 extend2=50 ecct " 
+bbmap_merge_threads: 2
+vsearch_threads: 2
+fastq_merge_parameters: "--fastq_qmaxout 41 --fastq_maxee 1"
 # maxquality score of merged pair = 41; max EE = 1
+ngmerge_parameters: "-s -g" 
+# -g Use 'fastq-join' method for merged qual scores
+# -s Option to produce shortest stitched read
+unoise_minsize: 4
+unoise_alpha: 2
+
+# per https://github.com/lh3/minimap2/issues/521
+# If minimap2 is not sensitive enough, reduce -k (def: 15) and -w (def: 10) at the cost of mapping speed.
+# 1 gap = -6, 2 gaps = -7, .... 
+# 1 mismatch = -4, 2 mismatches = -8 ..
+minimap2_params: "-k 10 -w 5 -A2 -B4 -O5 -E1"
 
 #refs
 

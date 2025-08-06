@@ -56,15 +56,16 @@ if __name__ == "__main__":
             start_s = ""
             if row['qstart'] > 0: # there are bases before the mapped region
                 start_s += f"+{rel_q_seq[:row['qstart']]}"
-            if row['qstart'] < row['tstart']: # there are bases before the mapped region in the inserts but not in the query
-                start_s += f"-{rel_t_seq[row['qstart']:row['tstart']]}"
+            if row['tstart'] > 0: # there are bases before the mapped region in the inserts but not in the query
+                start_s += f"-{rel_t_seq[:row['tstart']]}"
             return start_s
         if get == "end":
             end_s = ""
             if row['qend'] < row['qlen']: # there are bases after the mapped region
                 end_s += f"+{rel_q_seq[row['qend']:]}"
-            if row['qend'] < row['tend']: # there are bases after the mapped region in the inserts but not in the query
-                end_s += f"-{rel_t_seq[row['qend']:row['tend']]}"
+            # At this stage, all the query sequences are used up
+            if row['tend'] < row['tlen']: # there are bases after the mapped region in the inserts but not in the query
+                end_s += f"-{rel_t_seq[row['tend']:]}"
             return end_s
 
 
@@ -80,8 +81,17 @@ if __name__ == "__main__":
 
     paf_df["cs"] = paf_df["non_mapped_start"] + paf_df["cs"] + paf_df["non_mapped_end"]
 
-    paf_df.loc[:, "start_s"] = paf_df.apply(lambda row: "s" if row["qstart"] == row["tstart"] else f'{row["qstart"]}:{row["tstart"]}', axis=1)
-    paf_df.loc[:, "end_s"] = paf_df.apply(lambda row: "e" if row["qend"] == row["qlen"] == row["tend"] else f'{row["qend"]}:{row["tend"]}', axis=1)
+    # 0 == tstart because the query is mapped to the start of the target sequence
+    # if already mapped to the start of target, the deletion/insertion is actual
+    # if not, deletion/insertion is the "artifact"
+    paf_df.loc[:, "start_s"] = paf_df.apply(lambda row: "s" if 0 == row["tstart"] else f'{row["qstart"]}:{row["tstart"]}', axis=1)
+    
+    # tlen == tend because if the whole query sequence is mapped to the end
+    # any extra sequence will be actual insertion
+    # if less, then deletion/insertion is the "artifact"
+    paf_df.loc[:, "end_s"] = paf_df.apply(lambda row: "e" if (row["tlen"] == row["tend"]) else f'{row["qend"]}:{row["tend"]}', axis=1)
+
+
     paf_df.loc[:, "final_representation"] = paf_df.loc[:, "tname"] + "," + paf_df.loc[:, "cs"] + "_" + paf_df.loc[:, "start_s"].astype(str) + "-" + paf_df.loc[:, "end_s"].astype(str)
 
     assert paf_df.query("orientation == '+'")['final_representation'].is_unique, "Final representation for the same orientation must be unique"

@@ -49,6 +49,46 @@ def read_fasta(fasta_file, ordered = False):
         seqs = {group[0]: group[1].replace("\n", "") for group in ref_groups }
     return(seqs)
 
+def write_fasta(seqs, fasta_file):
+    with open(fasta_file, 'w') as f:
+        if isinstance(seqs, dict):
+            for name, seq in seqs.items():
+                f.write(f">{name}\n{seq}\n")
+        else:
+            # list of tuples
+            for name, seq in seqs:
+                f.write(f">{name}\n{seq}\n")
+
+def read_uc_table(uc_file):
+    import pandas as pd
+
+    column_names = [
+    'record_type', 
+    'target_id', 
+    'seqlen', 
+    'similarity', 
+    'orientation', 
+    'unused1', 
+    'unused2', 
+    'alignment', 
+    'label_query', 
+    'label_target'
+    ]
+    dtype_spec = {
+    'record_type': str,
+    'target_id': str,
+    'seqlen': str,
+    'similarity': str, 
+    'orientation': str,
+    'unused1': str,
+    'unused2': str,
+    'alignment': str,
+    'label_query': str,
+    'label_target': str
+    }
+    data = pd.read_table(uc_file, header=None, names=column_names, dtype=dtype_spec)
+    return data
+
 def reverse_complement(seq):
     complement = str.maketrans("ACGT", "TGCA")
     return seq.translate(complement)[::-1]

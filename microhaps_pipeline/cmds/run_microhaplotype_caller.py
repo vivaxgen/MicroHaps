@@ -87,8 +87,8 @@ def init_argparser():
         help="indicate if post-processing should be done (choices: old [cigar], cs_short, cs_long)"
     )
     p.add_argument("--merge_map", default="dada2", type=str, 
-        choices=["dada2", "bbmap_merge", "bbmerge"],
-        help="indicate if post-processing should be done (choices: dada2 [default], bbmap_merge, bbmerge)"
+        choices=["dada2", "bbmap_merge", "bbmerge", "fastq_merge", "ngmerge"],
+        help="indicate if post-processing should be done (choices: dada2 [default], bbmap_merge, bbmerge, fastq_merge, ngmerge)"
     )
     return p
 
