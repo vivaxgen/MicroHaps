@@ -183,6 +183,8 @@ rule cluster_fasta:
     output:
         fasta = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/denoise/{{marker}}-split-denoised.fa",
         uc = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/denoise/{{marker}}-split-denoised.uc",
+    resources:
+        runtime = "1h",
     group: "cluster_chimera_removal"
     log:
        f"{outdir}/samples/{{sample}}/logs/vsearch_cluster-{{marker}}.log",
@@ -201,6 +203,8 @@ rule chimera_filtering:
         kept = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/denoise/{{marker}}-split-denoised-no_chimera.fa",
         discarded = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/denoise/{{marker}}-split-denoised-chimera.fa",
     group: "cluster_chimera_removal"
+    resources:
+        runtime = "1h",
     log:
         f"{outdir}/samples/{{sample}}/logs/vsearch_chimera-{{marker}}.log",
     shell:
