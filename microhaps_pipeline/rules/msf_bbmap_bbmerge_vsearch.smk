@@ -17,12 +17,26 @@ rule trim_R:
         R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R1.fastq.gz",
         R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R2.fastq.gz",
     output:
-        R1 = temp(f"{outdir}/samples/{{sample}}/mhaps-reads/TR-primer-trimmed_R1.fastq.gz"),
-        R2 = temp(f"{outdir}/samples/{{sample}}/mhaps-reads/TR-primer-trimmed_R2.fastq.gz"),
+        R1 = temp(f"{outdir}/samples/{{sample}}/mhaps-reads/R-primer-trimmed_R1.fastq.gz"),
+        R2 = temp(f"{outdir}/samples/{{sample}}/mhaps-reads/R-primer-trimmed_R2.fastq.gz"),
     shell:
         """
         vsearch --fastx_filter {input.R1} --reverse {input.R2} --fastqout >(gzip -c  > {output.R1}) \
         --fastqout_rev >(gzip -c > {output.R2}) --fastq_stripright 10 --fastq_maxee 1
+        """
+
+rule optical_dedup:
+    input:
+        R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/R-primer-trimmed_R1.fastq.gz",
+        R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/R-primer-trimmed_R2.fastq.gz",
+    output:
+        R1 = temp(f"{outdir}/samples/{{sample}}/mhaps-reads/TR-primer-trimmed_R1.fastq.gz"),
+        R2 = temp(f"{outdir}/samples/{{sample}}/mhaps-reads/TR-primer-trimmed_R2.fastq.gz"),
+    params:
+        instrument_specific = "spany adjacent" if config.get("instrument", "generic") == "nextseq" else "",
+    shell:
+        """
+        clumpify.sh in1={input.R1} in2={input.R2} out1={output.R1} out2={output.R2} dedupe optical {params.instrument_specific}
         """
 
 # reference: https://www.seqanswers.com/forum/bioinformatics/bioinformatics-aa/40046-non-overlapping-read-assembly?t=45477
