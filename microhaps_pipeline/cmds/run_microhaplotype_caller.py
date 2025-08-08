@@ -13,9 +13,11 @@ __license__ = "MIT"
 import sys
 import os
 import pathlib
-from ngs_pipeline import cerr, cexit, check_multiplexer
+from ngs_pipeline import cerr, cexit, check_multiplexer, prepare_command_log
 from ngs_pipeline.cmds import run_snakefile
+from ngs_pipeline.subcommands import SubCommands
 from glob import glob
+import json
 
 basedir = os.environ.get("MICROHAPS_BASEDIR", None)
 avail_panels = [
@@ -137,6 +139,12 @@ def run_microhaps_caller(args):
         post_process=args.post_process,
         merge_map=args.merge_map,
     )
+
+    sc = SubCommands()
+    invocation = prepare_command_log()
+    invocation["version"] = sc.list_repo_hashes(to_dict=True)
+    with open(args.outdir + "/runinfo.json", "a+") as f:
+        json.dump(invocation, f, indent=4)
 
     args.target = "all_microhaps"
     status, elapsed_time = run_snakefile.run_snakefile(
