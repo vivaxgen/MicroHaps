@@ -11,7 +11,7 @@ rule bam_to_fastq:
     log:
         filter_stats = "{pfx}/samples/{sample}/logs/bam_to_fastq_filter_stats.log"
     shell:
-        "ngs-pl filter-reads-orientation --remove_FF --remove_RR --remove_RF --remove_trans --remove_unmapped --remove_secondary --remove_supplementary -o {output.tempbam} --outstat {log.filter_stats} {input.bam}  "
+        "ngs-pl filter-reads-orientation --remove_FF --remove_RR --remove_RF --remove_trans --remove_unmapped --remove_secondary --remove_supplementary --max-insert-length 350 -o {output.tempbam} --outstat {log.filter_stats} {input.bam}  "
         " && samtools collate -u -O {output.tempbam} "
         " | samtools fastq --thread 2 -1 {output.R1} -2 {output.R2} -0 /dev/null -s /dev/null -n"
 
