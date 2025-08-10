@@ -139,53 +139,77 @@ rule dereplicated_fa_to_uc:
 rule split_dereplicated_fa_uc_to_marker_fa:
     threads: 4
     input:
-        uc = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/dereplicated_counted.uc",
-        fasta = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/final_merged.fasta",
+        uc = expand(f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/dereplicated_counted.uc", sample=IDs),
+        fasta = expand(f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/final_merged.fasta", sample=IDs),
         insertseq = insertseq_file,
     output:
-        output_dir = directory(f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/denoise"),
-        indv_merged_denoised = temp(f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/merged-denoised-no_chimera.fa")
+        sample_output_dir = directory(expand(f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/denoise", sample=IDs)),
+        output_dir = directory(f"{outdir}/malamp/{bbmap_or_bbmerge_fastq_merge}/denoise"),
+        indv_merged_denoised = f"{outdir}/malamp/{bbmap_or_bbmerge_fastq_merge}/dereplicated_counted_no_chimeras-unique.fa",
+        temp_indv_merged_denoised = temp(f"{outdir}/malamp/{bbmap_or_bbmerge_fastq_merge}/dereplicated_counted_no_chimeras-unique.fa.temp"),
     params:
         minsize = config.get("unoise_minsize", 4),  # minimum size of clusters to be kept
         unoise_alpha = config.get("unoise_alpha", 2),  # alpha parameter for unoise algorithm
-        log_dir = f"{outdir}/samples/{{sample}}/logs",
+        log_dir = f"{outdir}/logs",
     run:
-        shell(f"mkdir -p {output.output_dir}")
-        shell(f"python {microhaps_basedir}/scripts/split_dereplicated.py \
-         -u {input.uc} \
-         -f {input.fasta} \
-         -i {input.insertseq} \
-         -o {output.output_dir}")
-
         from concurrent.futures import ThreadPoolExecutor
         from glob import glob
         import re
 
-        fastas = glob(f"{output.output_dir}/*-split.fa")
+        def demux_per_sample(uc, fasta, sample_outdir):
+            print(uc, fasta, sample_outdir)
+            shell(f"mkdir -p {sample_outdir}")
+            # Split the amplicon sequences from each samples
+            shell(f"python {microhaps_basedir}/scripts/split_dereplicated.py \
+            -u {uc} \
+            -f {fasta} \
+            -i {input.insertseq} \
+            -o {sample_outdir}")
+
+
+        with ThreadPoolExecutor(max_workers=threads) as executor:
+            demux_result = executor.map(demux_per_sample, input.uc, input.fasta, output.sample_output_dir)
+
+
+        # Join the sequences from multiple samples into a single fasta for each marker
+        shell(f"mkdir -p {output.output_dir}")
+
+        fastas = sum([glob(f"{sample_output_dir}/*-split.fa") for sample_output_dir in output.sample_output_dir], [])
         markers = [re.search(r".*/(.*?)-split.fa", f).group(1) for f in fastas]
-        
+        u_markers = list(set(markers))
+
+        for marker in u_markers:
+            index = [i for i, m in enumerate(markers) if m == marker]
+            fasta_marker = [fastas[i] for i in index]
+            sublist_fastas = " ".join(fasta_marker)
+            shell(f"cat {sublist_fastas} > {output.output_dir}/{marker}-split-non_unique.fa")
+            shell(f"vsearch --fastx_uniques {output.output_dir}/{marker}-split-non_unique.fa --fastaout {output.output_dir}/{marker}-split.fa --fasta_width 0 --sizein --sizeout --relabel_sha1 ")
+
         def run_vsearch_denoise_uchime(fasta, marker):
             cmd = f"""vsearch --cluster_unoise {fasta} --centroids {fasta.replace('-split.fa', '-split-denoised.fa')} \
                 --fasta_width 0 \
                 --minsize {params.minsize} --unoise_alpha {params.unoise_alpha} \
-                > {params.log_dir}/vsearch_denoise-{marker}.log"""
+                """
+                # > {params.log_dir}/vsearch_denoise-{marker}.log
             shell(cmd)
             cmd2 = f"""vsearch --uchime3_denovo {fasta.replace('-split.fa', '-split-denoised.fa')} \
                 --nonchimeras {fasta.replace('-split.fa', '-split-denoised-no_chimera.fa')} \
                 --chimeras {fasta.replace('-split.fa', '-split-denoised-chimera.fa')} \
                 --fasta_width 0 --threads {threads} \
-                > {params.log_dir}/vsearch_chimera-{marker}.log"""
+                """
+                #> {params.log_dir}/vsearch_chimera-{marker}.log
             shell(cmd2)
-            
+
+        final_fasta = [f"{output.output_dir}/{marker}-split.fa" for marker in u_markers]
         with ThreadPoolExecutor(max_workers=threads) as executor:
-            print("Denoising & Chimera filteringwith vsearch...")
-            denoise_results = executor.map(run_vsearch_denoise_uchime, fastas, markers)
+            print("Denoising & Chimera filtering with vsearch...")
+            denoise_results = executor.map(run_vsearch_denoise_uchime, final_fasta, u_markers)
 
-        shell(f"cat {output.output_dir}/*-split-denoised-no_chimera.fa > {output.indv_merged_denoised}") 
-
-
-        
-        
+        shell(f"cat {output.output_dir}/*-split-denoised-no_chimera.fa > {output.indv_merged_denoised}.temp")
+        shell(f"vsearch --fastx_uniques {output.indv_merged_denoised}.temp --fastaout {output.indv_merged_denoised} --fasta_width 0 --sizein --sizeout --relabel_sha1 ")
+        # swarm test:
+        # swarm -d 1 -z -f --boundary 3 -i swarm-26982-in.tab -j swarm-26982-net.net -s swarm-26982-stats.tsv -w swarm-26982-centroid.fa malamp/bbmerge/denoise/PvP01_02_v2\:327547-327756\:26982-split.fa
+        # normalise to 1000 per sample and unoise
 
 # if the research questions are tolerant to the loss of rare real sequences and/or
 # it is important that as high a proportion of ASVs be valid as possible,
@@ -243,15 +267,15 @@ rule split_dereplicated_fa_uc_to_marker_fa:
 #     shell:
 #         "cat {input.fasta} > {output.merged} "
 
-rule merge_denoised_fasta:
-    input:
-        fasta = expand(f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/merged-denoised-no_chimera.fa", sample = IDs),
-    output:
-        merged = temp(f"{outdir}/malamp/{bbmap_or_bbmerge_fastq_merge}/dereplicated_counted_no_chimeras.fa"),
-        unique = f"{outdir}/malamp/{bbmap_or_bbmerge_fastq_merge}/dereplicated_counted_no_chimeras-unique.fa",
-    shell:
-        "cat {input.fasta} > {output.merged} && "
-        "vsearch --fastx_uniques {output.merged} --fastaout {output.unique} --fasta_width 0 --sizein --sizeout --relabel_sha1 "
+# rule merge_denoised_fasta:
+#     input:
+#         fasta = expand(f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/merged-denoised-no_chimera.fa", sample = IDs),
+#     output:
+#         merged = temp(f"{outdir}/malamp/{bbmap_or_bbmerge_fastq_merge}/dereplicated_counted_no_chimeras.fa"),
+#         unique = f"{outdir}/malamp/{bbmap_or_bbmerge_fastq_merge}/dereplicated_counted_no_chimeras-unique.fa",
+#     shell:
+#         "cat {input.fasta} > {output.merged} && "
+#         "vsearch --fastx_uniques {output.merged} --fastaout {output.unique} --fasta_width 0 --sizein --sizeout --relabel_sha1 "
 
 rule indv_otutab:
     threads: config.get('vsearch_threads', 4)
