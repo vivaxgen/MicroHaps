@@ -1,0 +1,8 @@
+name: shorah
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - "shorah>=1.99.2,<1.100"
+channel_priority: strict

@@ -3,7 +3,7 @@ rule create_meta:
     # create a list
     localrule: True
     input:
-        expand(f'{outdir}/samples/{{sample}}/mhaps-reads/primer-trimmed_R1.fastq.gz', sample=IDs)
+        expand(f'{outdir}/samples/{{sample}}/mhaps-reads/trimmed-filtered_R1.fastq.gz', sample=IDs)
     output:
         f"{outdir}/malamp/meta"
     log:
@@ -17,8 +17,8 @@ rule create_meta:
         read1_list = []
         read2_list = []
         for sample in params.samples:
-            read1_list.append(f"{params.outdir}/samples/{sample}/mhaps-reads/primer-trimmed_R1.fastq.gz")
-            read2_list.append(f"{params.outdir}/samples/{sample}/mhaps-reads/primer-trimmed_R2.fastq.gz")
+            read1_list.append(f"{params.outdir}/samples/{sample}/mhaps-reads/trimmed-filtered_R1.fastq.gz")
+            read2_list.append(f"{params.outdir}/samples/{sample}/mhaps-reads/trimmed-filtered_R2.fastq.gz")
 
         pd.DataFrame({
             'id': params.samples,
@@ -34,14 +34,16 @@ rule run_dada2R:
     params:
         dir = f"{outdir}/malamp/dada2",
         output_filename = "seqtab.tsv",
-        maxEE = config['maxEE'],
-        trimRight = config['trim_right'],
-        minLen = config['min_length'],
-        truncQ = config['truncQ'],
+        ####### read-filtering performed prior #######
+        maxEE = f"{config.get("maxEE", 5)},{config.get("maxEE", 5)}",          # Can recheck but should not perform additional filter, since already pre-filtered previously
+        trimRight = "0,0",                                                          # Already trimmed, should not redo
+        minLen = config['min_length'], # Can recheck but should not perform additional filter, since already pre-filtered previously
+        truncQ = f"{config.get("truncQ", 20)},{config.get("truncQ", 20)}",   # Can recheck but should not perform additional trim, since already pre-trimmed previously
+        ##############################################
         max_consist = config['max_consist'],
         omega_a = config['omegaA'],
         justConcatenate = config['justconcat'],
-        _class = config['class']
+        _class = config['class'],
 
     shell:
         """

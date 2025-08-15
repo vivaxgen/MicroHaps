@@ -23,6 +23,8 @@ if __name__ == "__main__":
     filtered_table = uc_table.query("label_target != '*'")[['label_query', 'label_target']]
     for target in all_targets:
         target_table = filtered_table[filtered_table['label_target'] == target]
+        if target_table.empty:
+            continue
         write_fasta(
             {k: fasta_dict[k] for k in target_table['label_query'] if k in fasta_dict},
             f"{output_dir}/{target}-split.fa"

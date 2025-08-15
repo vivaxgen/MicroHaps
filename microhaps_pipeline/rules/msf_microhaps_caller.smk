@@ -45,7 +45,7 @@ include: "msf_trim.smk"
 # 6 - call dada2 for denoising FASTQ reads
 if config.get("merge_map") == "dada2":
     include: "msf_merge_denoise_dada2.smk"
-elif config.get("merge_map") == "bbmap_merge" or config.get("merge_map") == "bbmerge" or config.get("merge_map") == "fastq_merge" or config.get("merge_map") == "ngmerge":
+elif config.get("merge_map") in ["bbmerge", "fastq_merge", "shorah"]:
     include: "msf_bbmap_bbmerge_vsearch.smk"
 else:
     raise ValueError(f"Unknown merge_map option: {config.get('merge_map')}")
@@ -61,18 +61,7 @@ include: "msf_discovery_calling.smk"
 
 new_postprocess = config.get('post_process', "old")
 
-dada2_output = f"{outdir}/malamp/dada2/seqtab.tsv" # default
-bbmap_merge_output = f"{outdir}/malamp/bbmap_merge/seqtab.tsv"
-bbmerge_output = f"{outdir}/malamp/bbmerge/seqtab.tsv"
-fastq_merge_output = f"{outdir}/malamp/fastq_merge/seqtab.tsv"
-ngmerge_output = f"{outdir}/malamp/ngmerge/seqtab.tsv"
-
-match config.get("merge_map", "dada2"):
-    case "dada2": merging_output = dada2_output
-    case "bbmap_merge": merging_output = bbmap_merge_output
-    case "bbmerge": merging_output = bbmerge_output
-    case "fastq_merge": merging_output = fastq_merge_output
-    case "ngmerge": merging_output = ngmerge_output
+merging_output = f"{outdir}/malamp/{config.get('merge_map')}/seqtab.tsv"
 
 rule all_microhaps:
     input:

@@ -21,7 +21,7 @@ rule align_haplotypes_to_reference:
     shell:
         "minimap2 -x sr -t {threads} {params.minimap_params} --secondary=no --cs={params.cs_style} {params.reference} {input.fasta} --paf-no-hit  -o {output.paf}"
 
-rule post_process_dada2:
+rule post_process_haplotype:
     threads: 1
     input:
         fasta = f"{outdir}/malamp/haplotypes.fasta",
@@ -37,7 +37,7 @@ rule post_process_dada2:
         " --output {output.output_table}"
         " --insert {insertseq_file}"
 
-rule post_process:
+rule post_process_CIGAR:
     threads: 4
     input:
         f"{outdir}/malamp/{dada2_bbmapmerge_bbmap}/seqtab.tsv"

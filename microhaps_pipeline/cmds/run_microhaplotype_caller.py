@@ -89,8 +89,8 @@ def init_argparser():
         help="indicate if post-processing should be done (choices: old [cigar], cs_short, cs_long)"
     )
     p.add_argument("--merge_map", default="dada2", type=str, 
-        choices=["dada2", "bbmap_merge", "bbmerge", "fastq_merge", "ngmerge"],
-        help="indicate if post-processing should be done (choices: dada2 [default], bbmap_merge, bbmerge, fastq_merge, ngmerge)"
+        choices=["dada2", "bbmerge", "fastq_merge", "shorah"],
+        help="indicate if post-processing should be done (choices: dada2 [default], bbmerge, fastq_merge, shorah)"
     )
     return p
 
@@ -143,7 +143,8 @@ def run_microhaps_caller(args):
     sc = SubCommands()
     invocation = prepare_command_log()
     invocation["version"] = sc.list_repo_hashes(to_dict=True)
-    with open(args.outdir + "/runinfo.json", "a+") as f:
+    os.makedirs(args.outdir, exist_ok = True)
+    with open(args.outdir + "/runinfo.json", "w+") as f:
         json.dump(invocation, f, indent=4)
 
     args.target = "all_microhaps"
