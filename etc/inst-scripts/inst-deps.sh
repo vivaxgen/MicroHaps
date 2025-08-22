@@ -16,10 +16,6 @@
 
 echo "Installing other dependencies with micromamba"
 retry 5 micromamba -y install -n ${uMAMBA_ENVNAME} -f ${ENVS_DIR}/MicroHaps/etc/inst-scripts/env.yaml
-if ! micromamba env list | grep -q "shorah"; then
-    retry 5 micromamba -y create -n shorah -f ${ENVS_DIR}/MicroHaps/etc/inst-scripts/shorah.yaml
-fi
-retry 5 micromamba -y install -n shorah -f ${ENVS_DIR}/MicroHaps/etc/inst-scripts/shorah.yaml
 
 echo "Reloading profiles"
 reload_vvg_profiles

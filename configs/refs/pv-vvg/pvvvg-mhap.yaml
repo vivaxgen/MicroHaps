@@ -77,9 +77,9 @@ trimqv: 15 # illumina-2-dye quality-trim of 3' ends
 # trimming-related parameters (shared for different merging algorithms)
 class: "parasite"
 maxEE: 5
-trim_right_R1: 5
-trim_right_R2: 10
-min_length: 30 
+trim_right_R1: 3
+trim_right_R2: 5
+min_length: 30
 truncQ: 20
 cut_window: 3
 
@@ -89,25 +89,31 @@ omegaA: 1e-120
 justconcat: 0
 platform: "PE"
 
+min_overlap: 7
+maxmismatch: 2
 
+recal_qual: False
+recal_param: "clearmatrices loadqbp_p1=t loadqb123_p1=t"
+additional_trim_before_haplotype_generation: True
 # After-merge parameters
 maxEE_after_merge: 1
 
 # BBmap / BBmerge parameters
-bbmerge_parameters: "-Xmx5g maxq=41 maxexpectederrors=1 minoverlap=12 "
+bbmerge_parameters: "-Xmx5g strict maxq=41 maxexpectederrors=5 "
 bbmmerge_threads: 2
 vsearch_threads: 2
-fastq_merge_parameters: "--fastq_qmaxout 41 --fastq_maxee 1 --fastq_minovlen 12 --fastq_maxns 0"
+fastq_merge_parameters: "--fastq_qmaxout 41 --fastq_maxee 5 --fastq_minovlen 7 --fastq_maxdiffpct 0.5 --fastq_maxdiffs 10 --fastq_maxns 0"
 
 # -g Use 'fastq-join' method for merged qual scores
 # -m minoverlap 12 bases
 # -s Option to produce shortest stitched read
 
-
+# final minsize if minsize_ratio < 1 = max(minsize_ratio * total size, minsize)
+unoise_minsize_ratio: 0.05
 unoise_minsize: 8
 unoise_alpha: 2
 
-sequence_to_denoise_criteria: "--id 0.98 --iddef 1 --target_cov 0.98 --query_cov 0.98"
+sequence_to_denoise_criteria: "--id 0.99 --iddef 1 --target_cov 1 --query_cov 1"
 
 # per https://github.com/lh3/minimap2/issues/521
 # If minimap2 is not sensitive enough, reduce -k (def: 15) and -w (def: 10) at the cost of mapping speed.

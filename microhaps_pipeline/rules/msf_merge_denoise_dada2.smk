@@ -40,6 +40,8 @@ rule run_dada2R:
         minLen = config['min_length'], # Can recheck but should not perform additional filter, since already pre-filtered previously
         truncQ = f"{config.get("truncQ", 20)},{config.get("truncQ", 20)}",   # Can recheck but should not perform additional trim, since already pre-trimmed previously
         ##############################################
+        minoverlap = config.get("min_overlap", 12),
+        maxmismatch = config.get("maxmismatch", 0),
         max_consist = config['max_consist'],
         omega_a = config['omegaA'],
         justConcatenate = config['justconcat'],
@@ -59,7 +61,9 @@ rule run_dada2R:
             --max_consist {params.max_consist} \
             --omega_a {params.omega_a} \
             --justConcatenate {params.justConcatenate} \
-            --threads {threads} 
+            --threads {threads} \
+            --minoverlap {params.minoverlap} \
+            --maxmismatch {params.maxmismatch}
         """
 
 

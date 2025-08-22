@@ -11,47 +11,76 @@ ruleorder:
 rule bbmerge_to_fq:
     threads: config.get('bbmmerge_threads', 4)
     input:
-        R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/TR-primer-trimmed_R1.fastq.gz",
-        R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/TR-primer-trimmed_R2.fastq.gz",
+        R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/trimmed-filtered_R1.fastq.gz",
+        R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/trimmed-filtered_R2.fastq.gz",
     output:
-        merged = f"{outdir}/samples/{{sample}}/bbmerge/final_merged.fastq.gz",
+        merged = f"{outdir}/samples/{{sample}}/bbmerge/final_merged.corrected.fastq.gz", #final_merged.fastq.gz",
     log:
         f"{outdir}/samples/{{sample}}/logs/bbmerge.log",
     params:
         outdir = outdir,
         bbmerge_parameters = config.get('bbmerge_parameters', ''),
     shell:
-        "bbmerge.sh in1={input.R1} in2={input.R2} outm={output.merged} t={threads} path={params.outdir} {params.bbmerge_parameters} > {log} 2>&1"
+        "bbmerge.sh in1={input.R1} in2={input.R2} outm={output.merged} t={threads} path={params.outdir} {params.bbmerge_parameters} > {log} 2>&1 "
         # po = paired only, "rbm" and "don" (renamebymapping and deleteoldname)
+        # "bfc -t {threads} {output.merged} | gzip -1 > {output.corrected}"
 
 rule fastq_merge_to_fq:
-    threads: config.get('vsearch_threads', 4)
+    threads: config.get('vsearch_threads', 2)
     input:
-        R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/TR-primer-trimmed_R1.fastq.gz",
-        R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/TR-primer-trimmed_R2.fastq.gz",
+        R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/trimmed-filtered_R1.fastq.gz",
+        R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/trimmed-filtered_R2.fastq.gz",
     output:
-        merged = f"{outdir}/samples/{{sample}}/fastq_merge/final_merged.fastq.gz",
+        merged = f"{outdir}/samples/{{sample}}/fastq_merge/final_merged.corrected.fastq.gz", # final_merged.fastq.gz",
     log:
         f"{outdir}/samples/{{sample}}/logs/fastq_merge.log",
     params:
         fastq_merge_parameters = config.get('fastq_merge_parameters', ''),
     shell:
-        "vsearch --fastq_mergepairs {input.R1} --reverse {input.R2} {params.fastq_merge_parameters} --fastqout {output.merged} > {log} 2>&1"
+        "vsearch --fastq_mergepairs {input.R1} --reverse {input.R2} {params.fastq_merge_parameters} --fastqout {output.merged} > {log} 2>&1 "
+
+
+# rule bfc_count:
+#     threads: 4
+#     input:
+#         expand(f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/final_merged.fastq.gz", sample=IDs)
+#     output:
+#         all_merged = temp(f"{outdir}/samples/all_merged.fastq.gz"),
+#         hashfile = temp(f"{outdir}/hashfile.bin"),
+#     log:
+#         f"{outdir}/logs/bfc_count.log",
+#     shell:
+#         "cat {input} > {output.all_merged} && "
+#         "bfc -t {threads} -E -d {output.hashfile} {output.all_merged} 2> {log} "
+
+# rule bfc_correct:
+#     input:
+#         hashfile = f"{outdir}/hashfile.bin",
+#         merged = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/final_merged.fastq.gz",
+#     output:
+#         corrected = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/final_merged.corrected.fastq.gz",
+#     log:
+#         f"{outdir}/samples/{{sample}}/logs/bfc_correct.log"
+#     shell:
+#         "bfc -r {input.hashfile} {input.merged} 2> {log} | gzip -1 > {output.corrected}"
+
+ #corrected = f"{outdir}/samples/{{sample}}/fastq_merge/final_merged.corrected.fastq.gz",
+
 
 # Denoising with vsearch
 # reference: https://learnmetabarcoding.github.io/LearnMetabarcoding/filtering/freq_filtering_and_denoising.html
 rule indv_bbfastq_to_fasta:
     input:
-        merged = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/final_merged.fastq.gz",
+        merged = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/final_merged.corrected.fastq.gz",
     output:
         fasta = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/final_merged.fasta",
     log:
         f"{outdir}/samples/{{sample}}/logs/fastx_uniques.log",
     shell:
-        "vsearch --fastx_uniques {input.merged} --fastaout {output.fasta} --fasta_width 0 --sizeout --relabel {wildcards.sample}: > {log} 2>&1"
+        "vsearch --fastx_uniques {input.merged} --fastaout {output.fasta} --fasta_width 0 --sizeout --sample {wildcards.sample} > {log} 2>&1"
 
 rule dereplicated_fa_to_uc:
-    threads: config.get('vsearch_threads', 4)
+    threads: config.get('vsearch_threads', 2)
     input:
         fasta = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/final_merged.fasta",
         db = insertseq_file,
@@ -69,7 +98,7 @@ rule dereplicated_fa_to_uc:
         """
 
 rule split_dereplicated_fa_uc_to_marker_fa:
-    threads: 4
+    threads: 2
     input:
         uc = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/dereplicated_counted.uc",
         fasta = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/final_merged.fasta",
@@ -80,12 +109,14 @@ rule split_dereplicated_fa_uc_to_marker_fa:
         temp_indv_merged_denoised = temp(f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/dereplicated_counted_no_chimeras-unique.fa.temp",),
     params:
         minsize = config.get("unoise_minsize", 4),  # minimum size of clusters to be kept
+        minsize_ratio = config.get('unoise_minsize_ratio', 1), # final minsize if minsize_ratio < 1 = max(minsize_ratio * total size, minsize)
         unoise_alpha = config.get("unoise_alpha", 2),  # alpha parameter for unoise algorithm
         log_dir = f"{outdir}/samples/{{sample}}/logs",
     run:
         from concurrent.futures import ThreadPoolExecutor
         from glob import glob
         import re
+        import math
 
         # This split the amplicon sequences from each samples into different markers (based on best global pairwise alignment)
         def demux_per_sample(uc, fasta, sample_outdir):
@@ -121,6 +152,21 @@ rule split_dereplicated_fa_uc_to_marker_fa:
             order='unoise_uchime', rescue_cluster=False,
             rescue_params={"cluster_size": 10, "cluster_ratio": 0.01}):
             
+            def get_size_from_fasta(fasta):
+                with open(fasta, 'r') as f:
+                    for line in f:
+                        if line.startswith(">"):
+                            match = re.search(r"size=(\d+)", line)
+                            if match:
+                                yield int(match.group(1))
+            
+            if params.minsize_ratio < 1:
+                total_read_in_fa = sum([read_size for read_size in get_size_from_fasta(fasta)])
+                unoise_minsize = max( math.floor(total_read_in_fa * params.minsize_ratio), params.minsize)
+                print(f"Dynamic unoise minsize for {fasta}: {unoise_minsize}")
+            else:
+                unoise_minsize = params.minsize
+
             if order == 'unoise_uchime':
                 # start -> denoise -> chimera_removal
                 start_fasta = fasta
@@ -130,7 +176,7 @@ rule split_dereplicated_fa_uc_to_marker_fa:
 
                 denoise = f"""vsearch --cluster_unoise {start_fasta} --centroids {intermediate_fasta} \
                     --fasta_width 0 \
-                    --minsize {params.minsize} --unoise_alpha {params.unoise_alpha} \
+                    --minsize {unoise_minsize} --unoise_alpha {params.unoise_alpha} \
                     --threads 1 > {params.log_dir}/vsearch_denoise-{marker}.log 2>&1
                     """
                 shell(denoise)
@@ -158,7 +204,7 @@ rule split_dereplicated_fa_uc_to_marker_fa:
                 shell(chmimera_removal)
                 denoise = f"""vsearch --cluster_unoise {intermediate_fasta} --centroids {final_fasta} \
                     --fasta_width 0 \
-                    --minsize {params.minsize} --unoise_alpha {params.unoise_alpha} \
+                    --minsize {unoise_minsize} --unoise_alpha {params.unoise_alpha} \
                     --threads 1 > {params.log_dir}/vsearch_denoise-{marker}.log 2>&1
                     """
                 shell(denoise)
@@ -171,7 +217,7 @@ rule split_dereplicated_fa_uc_to_marker_fa:
 
         if len(all_outputs) > 1:
             shell(f"cat {' '.join(all_outputs)} > {output.temp_indv_merged_denoised}")
-            shell(f"vsearch --fastx_uniques {output.temp_indv_merged_denoised} --fastaout {output.indv_merged_denoised} --fasta_width 0 --sizein --sizeout --relabel_sha1 ")
+            shell(f"vsearch --fastx_uniques {output.temp_indv_merged_denoised} --fastaout {output.indv_merged_denoised} --sample {wildcards.sample} --fasta_width 0 --sizein --sizeout --relabel_sha1 ")
         else:
             if len(fastas) == 0:
                 print(f"{wildcards.sample} did not have any read-pairs")
@@ -205,7 +251,7 @@ rule merge_denoised_fasta:
         "vsearch --sortbysize {output.unique} --output {output.sorted_unique}"
 
 rule indv_otutab:
-    threads: config.get('vsearch_threads', 4)
+    threads: config.get('vsearch_threads', 2)
     input:
         fasta = f"{outdir}/malamp/{bbmap_or_bbmerge_fastq_merge}/dereplicated_counted_no_chimeras-unique.fa",
         sample_fa = f"{outdir}/samples/{{sample}}/{bbmap_or_bbmerge_fastq_merge}/final_merged.fasta",

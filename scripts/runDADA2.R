@@ -31,6 +31,8 @@ parser$add_argument("-jC", "--justConcatenate", type="integer",
                     help="Specify whether ASVs need to be concatinated with Ns instead of merging")
 parser$add_argument("--bimera", action='store_true', help="Optionally output list of sequences identified as bimeras")
 parser$add_argument("--threads", type="integer", default=1, help="Number of threads to use for parallel processing")
+parser$add_argument("--minoverlap", type="integer", default=12, help="Minimum number of overlap for merging")
+parser$add_argument("--maxmismatch", type="integer", default=0, help="Maximum number of mismatch in overlap region allowed")
 args <- parser$parse_args()
 
 # Universal parameters
@@ -243,7 +245,7 @@ dadaRs <- dada(derepRs, err=errR, selfConsist=selfConsist, multithread=args$thre
 
 # Merge reads
 print("merging paird ends...")
-mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE, justConcatenate=justConcatenate, trimOverhang = TRUE)
+mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, minOverlap = args$minoverlap, maxMismatch = args$maxmismatch, verbose=TRUE, justConcatenate=justConcatenate, trimOverhang = TRUE)
 
 #Generate sequence table
 print("generating sequence table...")
