@@ -40,6 +40,12 @@ primer_fw_file = get_abspath(config['primer_fw'], microhaps_basedir)
 primer_rev_file = get_abspath(config['primer_rev'], microhaps_basedir)
 refseq_file = get_abspath(config['refseq_file'], microhaps_basedir)
 
+def all_markers():
+    import pandas as pd
+    markers = pd.read_table(targetregion_file, header=None, names=["Chr", "Start", "End", "Amplicon_name"])
+    return markers["Amplicon_name"].to_list()
+
+Markers = all_markers()
 # define all output files 
 
 outdir = config['outdir']

@@ -38,7 +38,7 @@ include: "msf_final_bam_to_fastq.smk"
 # 3 - perform microhaps calling
 
 # 4 - hard-trim primers from each of merged reads
-include: "msf_trim.smk"
+include: "msf_trim_dedup.smk"
 
 # 5 - generate a FASTQ file from the trimmmed reads
 
@@ -47,6 +47,8 @@ if config.get("merge_map") == "dada2":
     include: "msf_merge_denoise_dada2.smk"
 elif config.get("merge_map") in ["bbmerge", "fastq_merge"]:
     include: "msf_bbmap_bbmerge_vsearch.smk"
+elif config.get("merge_map") == "fastp":
+    include: "indv_microhaps_trim.smk"
 else:
     raise ValueError(f"Unknown merge_map option: {config.get('merge_map')}")
 
