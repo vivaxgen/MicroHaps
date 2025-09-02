@@ -2,7 +2,7 @@ primers_trimmed = config.get("primers_trimmed", False)
 quality_trim_required = config.get('additional_trim_before_haplotype_generation', False) == True or config.get('merge_map', 'dada2') == 'dada2'
 
 def trim_primers(input_R1, input_R2, output_R1, output_R2, primer_fwd, primer_rv, additional_params, logfile):
-    return shell(f"""cutadapt -g file:{primer_fwd} -G file:{primer_rv} -o {output_R1} -p {output_R2}
+    return shell(f"""cutadapt -g file:{primer_fwd} -G file:{primer_rv} -o {output_R1} -p {output_R2} \
          --pair-adapters --discard-untrimmed {additional_params} --action=trim {input_R1} {input_R2} > {logfile} 2>&1
         """)
 
@@ -30,7 +30,7 @@ rule trim_primers:
         if primers_trimmed: 
             pseudo_trim_primers(input.R1, input.R2, output.R1, output.R2)
         else:
-            trim_primers(input.R1, input.R2, output.R1, output.R2, prim_fw, prim_rv, params.additional_params, log)
+            trim_primers(input.R1, input.R2, output.R1, output.R2, input.prim_fw, input.prim_rv, params.additional_params, log)
 
 rule per_marker_trim_primers:
     threads: 1 if primers_trimmed else 3
@@ -129,15 +129,16 @@ rule per_marker_trim_before_haplotype_generation:
         cut_window = config.get("cut_window", 1),
         window_minqual = config.get("truncQ", 20),
         min_length = config.get("min_length", 30),
-        maxEE = config.get("maxEE", 5)
+        maxEE = config.get("maxEE", 5),
+        log_path = lambda w: f"{outdir}/samples/{w.sample}/logs",
     log:
         fastp_json = f"{outdir}/samples/{{sample}}/logs/fastp_tr_before_read_merging.json",
         fastp_html = f"{outdir}/samples/{{sample}}/logs/fastp_tr_before_read_merging.html",
         vsearch_filter_log = f"{outdir}/samples/{{sample}}/logs/fastx_mee_after_qtrim.log",
-    params:
-        log_path = f"{outdir}/samples/{{sample}}/logs/"
     run:
         import os
+        all_log_paths = " ".join([os.path.join(params.log_path, marker) for marker in Markers])
+        shell(f"mkdir -p {all_log_paths}")
 
         marker_read_dir = os.path.dirname(input.trim_completion)
         all_input_files = [(os.path.join(marker_read_dir, marker, "trimmed_R1.fastq.gz"),
@@ -158,3 +159,5 @@ rule per_marker_trim_before_haplotype_generation:
         else:
             for (inR1, inR2), (outR1, outR2) in zip(all_input_files, all_trimmed_filtered_files):
                 pseudo_quality_trim(inR1, inR2, outR1, outR2)
+
+        shell(f"touch {output.qtrim_completion_flag}")

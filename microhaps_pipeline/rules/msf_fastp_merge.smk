@@ -72,7 +72,7 @@ rule merge_sample_marker_denoise:
         from concurrent.futures import ThreadPoolExecutor
         import os
 
-        marker_read_dir = os.path.dirname(input)
+        marker_read_dir = os.path.dirname(input[0])
         
         def get_min_max_len(marker):
             tolerant_threshold = params.insert_size_tolerant_threshold
@@ -86,16 +86,16 @@ rule merge_sample_marker_denoise:
 
         all_markers = list(Markers)
         logging_dir_marker = [
-            os.path.join(log_dir, marker) for marker in all_markers
+            os.path.join(params.log_dir, marker) for marker in all_markers
         ]
         fastp_merge_args = [
             {
                 "input_R1": os.path.join(marker_read_dir, marker, "trimmed-filtered_R1.fastq.gz"),
                 "input_R2": os.path.join(marker_read_dir, marker, "trimmed-filtered_R2.fastq.gz"),
                 "output_merged": os.path.join(marker_read_dir, marker, "merged.fastq.gz"),
-                "log_json": os.path.join(log_dir, marker, "fastp_merge.json"),
-                "log_html": os.path.join(log_dir, marker, "fastp_merge.html"),
-                "params": fastp_merge_params
+                "log_json": os.path.join(params.log_dir, marker, "fastp_merge.json"),
+                "log_html": os.path.join(params.log_dir, marker, "fastp_merge.html"),
+                "params_": params.fastp_merge_params
             } for marker in all_markers
         ]
         min_max_inserts_length = [get_min_max_len(marker) for marker in all_markers]
@@ -107,7 +107,7 @@ rule merge_sample_marker_denoise:
                     "maxEE": params.maxEE,
                     "min_max": min_max_inserts_length[i]
                 },
-                "log_": os.path.join(log_dir, marker, "vsearch_filter.log")
+                "log_": os.path.join(params.log_dir, marker, "vsearch_filter.log")
             } for i, marker in enumerate(all_markers)
         ]
         vsearch_filter_unique_args = [
@@ -123,7 +123,7 @@ rule merge_sample_marker_denoise:
                 "output_denoised_fasta": os.path.join(marker_read_dir, marker, "merged_denoised.fasta"),
                 "sample": wildcards.sample,
                 "params_": params,
-                "log_": os.path.join(log_dir, marker, "vsearch_unoise.log")
+                "log_": os.path.join(params.log_dir, marker, "vsearch_unoise.log")
             } for marker in all_markers
         ]
         vsearch_uchime_args = [
@@ -164,13 +164,13 @@ rule merge_sample_marker_denoise:
             return completion_step
 
         with ThreadPoolExecutor(max_workers=threads) as executor:
-            result = list(executor.map(process_per_marker, marker_log_dir, fastp_merge_args, vsearch_filter_inserts_args,
+            result = list(executor.map(process_per_marker, logging_dir_marker, fastp_merge_args, vsearch_filter_inserts_args,
                 vsearch_filter_unique_args, vsearch_unoise_args, vsearch_uchime_args))
         
         if not all([res == 6 for res in result]):
             raise Exception("Error in processing some markers, please check previous logs")
-        
-        touch(output)
+
+        shell(f"touch {output}")
 
 
         
@@ -307,60 +307,91 @@ def get_same_marker_all_sample(wildcards):
 
 
 rule merge_per_marker:
+    threads: 2
     input:
         # expand(f"{outdir}/samples/{{sample}}/markers-reads/complete.flag", sample=IDs),
         expand(f"{outdir}/samples/{{sample}}/markers-reads/.merged_denoised", sample=IDs),
     output:
         merged_denoise_nochim_dir =directory(f"{outdir}/malamp/merged/"),
         merged_flag = f"{outdir}/malamp/merged/.merged"
-    run:
-        merged_denoise_nochim_nonuniq = temp(f"{outdir}/malamp/merged/final_merged_{{marker}}.denoised_nochimera.temp.fasta"),
-        merged_denoise_nochim_unsorted = temp(f"{outdir}/malamp/merged/final_merged_{{marker}}.denoised_nochimera.temp1.fasta"),
-        merged_denoise_nochim = f"{outdir}/malamp/merged/final_merged_{{marker}}.denoised_nochimera.fasta",
-
-        
-        """
-        cat {input} > {output.merged_denoise_nochim_nonuniq} &&
-        vsearch --fastx_uniques {output.merged_denoise_nochim_nonuniq} --fastaout {output.merged_denoise_nochim_unsorted} --fasta_width 0 --sizein --sizeout --relabel_sha1 &&
-        vsearch --sortbysize {output.merged_denoise_nochim_unsorted} --output {output.merged_denoise_nochim}
-        """
-        
-        touch(ouput.merged_flag)
-
-
-rule indv_otutab_per_marker:
-    input:
-        fasta = f"{outdir}/malamp/merged/final_merged_{{marker}}.denoised_nochimera.fasta",
-        sample_fa = f"{outdir}/samples/{{sample}}/markers-reads/{{marker}}/merged_uniq.fasta",
-    output:
-        otutab = f"{outdir}/samples/{{sample}}/markers-reads/{{marker}}/seqtab.tsv",
     params:
-        sequence_to_denoise_criteria = config.get('sequence_to_denoise_criteria', "--id 0.98 --iddef 1 --target_cov 0.98 --query_cov 0.98")
-    shell:
-        """
-        vsearch --usearch_global {input.sample_fa} --db {input.fasta} {params.sequence_to_denoise_criteria} \
-        --otutabout {output.otutab} \
-        --maxaccepts 0 --maxrejects 0 --maxhits 1 \
-        --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --threads {threads}
-        """
+        sample_dir = f"{outdir}/samples"
+    run:
+        from concurrent.futures import ThreadPoolExecutor
+        import os
 
-# def get_per_sample_marker_input(wildcards):
-#     all_markers = []
-#     for sample in IDs:
-#         output_dir = checkpoints.bam_to_marker_fastq.get(sample=sample).output[0]
-#         all_markers.extend(glob_wildcards(os.path.join(output_dir, "{marker}", "target_R1.fastq.gz")).marker)
-#     all_markers = list(set(all_markers))
-#     return expand(f"{outdir}/samples/{wildcards.sample}/markers-reads/{{marker}}/seqtab.tsv", marker=all_markers)
+        output_dir = os.path.dirname(output.merged_flag)
+        # 1. making the output directory
+        shell(f"mkdir -p {output.merged_denoise_nochim_dir}")
 
+        def process_per_marker(input_, output_, temp_non_uniq, temp_unsorted):
+            completed = 0
 
-rule merge_otutab_sample:
+            # 2. merge every markers
+            shell(f"cat {input_} > {temp_non_uniq}")
+            completed += 1
+
+            # 3. filter to unique sequences
+            shell(f"vsearch --fastx_uniques {temp_non_uniq} --fastaout {temp_unsorted} --fasta_width 0 --sizein --sizeout --relabel_sha1")
+            completed += 1
+
+            # 4. sort by size
+            shell(f"vsearch --sortbysize {temp_unsorted} --output {output_}")
+            completed += 1
+
+            # 5. clean up
+            shell(f"rm {temp_non_uniq} {temp_unsorted}")
+            completed += 1
+            return completed
+        
+        
+        all_args = []
+        for marker in Markers:
+            all_inputs = [os.path.join(params.sample_dir, sample_, "markers-reads", marker, "final_merged.denoised_nochimera.fasta") for sample_ in IDs]
+            all_args.append(
+            {
+                "input_": " ".join(all_inputs),
+                "output_": os.path.join(output_dir, f"final_merged_{marker}.denoised_nochimera.fasta"),
+                "temp_non_uniq": os.path.join(output_dir, f"final_merged_{marker}.denoised_nochimera.temp.fasta"),
+                "temp_unsorted": os.path.join(output_dir, f"final_merged_{marker}.denoised_nochimera.temp1.fasta")
+            })
+        
+        with ThreadPoolExecutor(max_workers=threads) as executor:
+            result = list(executor.map(lambda args: process_per_marker(**args), all_args))
+
+        if not all([res == 4 for res in result]):
+            raise Exception("Error in processing some markers, please check previous logs")
+
+        shell(f"touch {output.merged_flag}")
+
+rule create_otutab_per_sample:
+    threads: 1
     input:
-        expand(f"{outdir}/samples/{{{{sample}}}}/markers-reads/{{marker}}/seqtab.tsv", marker = Markers)
+        marker_merged_flag = f"{outdir}/malamp/merged/.merged",
+        sample_merged_flag = f"{outdir}/samples/{{sample}}/markers-reads/.merged_denoised",
     output:
         otutab = f"{outdir}/samples/{{sample}}/markers-reads/seqtab.tsv",
+    params:
+        sequence_to_denoise_criteria = config.get('sequence_to_denoise_criteria', "--id 0.98 --iddef 1 --target_cov 0.98 --query_cov 0.98")
     run:
+        import os
+        merged_marker_dir = os.path.dirname(input.marker_merged_flag)
+        sample_dir = os.path.dirname(input.sample_merged_flag)
+
+        per_marker_otu = []
+        for marker in Markers:
+            fasta = os.path.join(merged_marker_dir, f"final_merged_{marker}.denoised_nochimera.fasta")
+            sample_fa = os.path.join(sample_dir, marker, "merged_uniq.fasta")
+            marker_otutab = os.path.join(sample_dir, marker, "seqtab.tsv")
+            shell(f"""vsearch --usearch_global {sample_fa} --db {fasta} {params.sequence_to_denoise_criteria} \
+            --otutabout {marker_otutab} \
+            --maxaccepts 0 --maxrejects 0 --maxhits 1 \
+            --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --threads {threads}
+            """)
+            per_marker_otu.append(marker_otutab)
+
         import pandas as pd
-        all_dfs = [pd.read_table(f, sep="\t", header=0) for f in input]
+        all_dfs = [pd.read_table(f, sep="\t", header=0) for f in per_marker_otu]
         to_concat = [df for df in all_dfs if df.shape[0] > 0]
         if len(to_concat) == 0:
             # All empty
@@ -374,18 +405,65 @@ rule merge_otutab_sample:
             otutab.iloc[:, 1] = otutab.iloc[:, 1].astype(int)
             otutab.to_csv(output.otutab, sep="\t", header=True, index=None)
 
+# rule indv_otutab_per_marker:
+#     input:
+#         fasta = f"{outdir}/malamp/merged/final_merged_{{marker}}.denoised_nochimera.fasta",
+#         sample_fa = f"{outdir}/samples/{{sample}}/markers-reads/{{marker}}/merged_uniq.fasta",
+#     output:
+#         otutab = f"{outdir}/samples/{{sample}}/markers-reads/{{marker}}/seqtab.tsv",
+#     params:
+#         sequence_to_denoise_criteria = config.get('sequence_to_denoise_criteria', "--id 0.98 --iddef 1 --target_cov 0.98 --query_cov 0.98")
+#     shell:
+#         """
+#         vsearch --usearch_global {input.sample_fa} --db {input.fasta} {params.sequence_to_denoise_criteria} \
+#         --otutabout {output.otutab} \
+#         --maxaccepts 0 --maxrejects 0 --maxhits 1 \
+#         --sizein --sizeout --fasta_width 0 --qmask none --dbmask none --threads {threads}
+#         """
+
+# def get_per_sample_marker_input(wildcards):
+#     all_markers = []
+#     for sample in IDs:
+#         output_dir = checkpoints.bam_to_marker_fastq.get(sample=sample).output[0]
+#         all_markers.extend(glob_wildcards(os.path.join(output_dir, "{marker}", "target_R1.fastq.gz")).marker)
+#     all_markers = list(set(all_markers))
+#     return expand(f"{outdir}/samples/{wildcards.sample}/markers-reads/{{marker}}/seqtab.tsv", marker=all_markers)
+
+
+# rule merge_otutab_sample:
+#     input:
+#         expand(f"{outdir}/samples/{{{{sample}}}}/markers-reads/{{marker}}/seqtab.tsv", marker = Markers)
+#     output:
+#         otutab = f"{outdir}/samples/{{sample}}/markers-reads/seqtab.tsv",
+#     run:
+#         import pandas as pd
+#         all_dfs = [pd.read_table(f, sep="\t", header=0) for f in input]
+#         to_concat = [df for df in all_dfs if df.shape[0] > 0]
+#         if len(to_concat) == 0:
+#             # All empty
+#             otutab = pd.DataFrame(columns=["#OTU ID", wildcards.sample])
+#         else:
+#             otutab = pd.concat(to_concat, axis=0, ignore_index=True).fillna(0)
+#             if otutab.shape[1] == 2:
+#                 otutab.columns = ["#OTU ID", wildcards.sample]
+#             else:
+#                 otutab.loc[:, wildcards.sample] = 0
+#             otutab.iloc[:, 1] = otutab.iloc[:, 1].astype(int)
+#             otutab.to_csv(output.otutab, sep="\t", header=True, index=None)
+
 rule merge_otutab_joint:
     input:
         otutabs = expand(f"{outdir}/samples/{{sample}}/markers-reads/seqtab.tsv", sample=IDs),
-        denoise_fa = expand(f"{outdir}/malamp/merged/final_merged_{{marker}}.denoised_nochimera.fasta", marker = Markers)
+        merged_flag = f"{outdir}/malamp/merged/.merged"
     output:
         otutab = f"{outdir}/malamp/fastp/seqtab.tsv",
         filtered_fasta = f"{outdir}/malamp/fastp/dereplicated_counted_no_chimeras-unique.fa",
-    shell:
-        """
-        cat {input.denoise_fa} > {output.filtered_fasta} &&
+    run:
+        denoise_fa = " ".join([f"{outdir}/malamp/merged/final_merged_{marker}.denoised_nochimera.fasta" for marker in Markers])
+        shell(f"""
+        cat {denoise_fa} > {output.filtered_fasta} &&
         python {microhaps_basedir}/scripts/merge_otutab.py \
          --denoised_fasta {output.filtered_fasta} \
          --out_seqtab {output.otutab} \
          --indv_seqtabs {input.otutabs}
-        """
+        """)

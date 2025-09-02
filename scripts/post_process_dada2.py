@@ -12,7 +12,7 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--fasta", help="Path to the haplotype FASTA file.", required=True)
     parser.add_argument("-i", "--insert", help="Path to the insert sequence FASTA file.", required=True)
     parser.add_argument("-o", "--output", help="Path to save the output TSV file.", required=True)
-
+    parser.add_argument("--rename_columns_by_id", action='store_true', default=False, help="Rename columns by ID, do not check for identical sequence.")
     args = parser.parse_args()
 
     import pandas as pd
@@ -106,8 +106,16 @@ if __name__ == "__main__":
         seqtab_df = seqtab_df.drop(columns=to_drop)
         seq_mapping = seq_mapping.dropna(subset=['final_representation'])
 
-    rename_mapping = seq_mapping.set_index('sequence')['final_representation'].to_dict()
-    seqtab_df_renamed = seqtab_df.rename(columns=rename_mapping)
+    if args.rename_columns_by_id:
+        print("HERE")
+        seq_mapping["col"] = seq_mapping["qname"].str.replace("col_", "").astype(int)
+        seq_mapping = seq_mapping.sort_values("col")
+        assert all(seq_mapping["col"] == list(range(seqtab_df.shape[1])))
+        seqtab_df_renamed = seqtab_df.copy()
+        seqtab_df_renamed.columns = seq_mapping["final_representation"].values
+    else:
+        rename_mapping = seq_mapping.set_index('sequence')['final_representation'].to_dict()
+        seqtab_df_renamed = seqtab_df.rename(columns=rename_mapping)
     column_order = ["sample"] + list(seqtab_df_renamed.columns)
     seqtab_df_renamed.index.name = 'sample'
     seqtab_df_renamed.reset_index(inplace=True)

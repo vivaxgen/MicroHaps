@@ -72,7 +72,7 @@ rule all_microhaps:
         f"{outdir}/coverages-mapped.tsv",
         f"{outdir}/.__discovery__",
         merging_output,
-        f"{outdir}/malamp/outputHaplotypes.tsv" if new_postprocess != "old" else f"{outdir}/malamp/outputCIGAR.tsv",
+        *[f"{outdir}/malamp/outputHaplotypes.tsv", f"{outdir}/malamp/outputHaplotypes_rm_ins.tsv"] if new_postprocess != "old" else f"{outdir}/malamp/outputCIGAR.tsv",
         f"{outdir}/malamp/depths-microhaps.png",
         f"{outdir}/malamp/depth-ratio-markers.png",
 

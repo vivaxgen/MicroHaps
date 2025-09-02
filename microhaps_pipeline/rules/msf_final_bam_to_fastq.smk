@@ -75,9 +75,9 @@ rule bam_to_marker_fastq:
         marker_read_dir = directory(f"{outdir}/samples/{{sample}}/markers-reads"),
         completion_flag = f"{outdir}/samples/{{sample}}/markers-reads/.completed",
     log:
-        filter_stats = f"{outdir}/{{sample}}/logs/bam_to_fastq_filter_stats.log"
+        filter_stats = f"{outdir}/logs/{{sample}}/bam_to_fastq_filter_stats.log"
     params:
-        log_dir = f"{outdir}/{{sample}}/logs/",
+        log_dir = f"{outdir}/logs/{{sample}}",
     run:
         shell(f"mkdir -p {output.marker_read_dir}")
         import pandas as pd
@@ -102,7 +102,7 @@ rule bam_to_marker_fastq:
             args.append({
                 "bamfile": input.tempbam,
                 "region": region,
-                "dir_marker": f"{params.per_marker_directory}/{marker}",
+                "dir_marker": f"{output.marker_read_dir}/{marker}",
                 "region_temp_file": region_temp_file,
                 "filtered_region_unsorted_temp_file": filtered_region_unsorted_temp_file,
                 "final_filtered_region_temp_file": final_filtered_region_temp_file,
@@ -113,16 +113,16 @@ rule bam_to_marker_fastq:
 
         def process_per_samples(args):
             # 1. make marker subdir
-            shell(f"mkdir -p {args.dir_marker}")
+            shell(f"mkdir -p {args['dir_marker']}")
             # 2. samtools view the region to a temp file
-            shell(f"samtools view -b {args.bamfile} \"{args.region}\" -o {args.region_temp_file}")
+            shell(f"samtools view -b {args['bamfile']} \"{args['region']}\" -o {args['region_temp_file']}")
             # 3. filter_bam
-            filter_bam(input_bam=args.region_temp_file, output_unsorted_bam=args.filtered_region_unsorted_temp_file,
-                output_filtered_bam=args.final_filtered_region_temp_file, log_file=args.filter_log, nthread=1)
+            filter_bam(input_bam=args['region_temp_file'], output_unsorted_bam=args['filtered_region_unsorted_temp_file'],
+                output_filtered_bam=args['final_filtered_region_temp_file'], log_file=args['filter_log'], nthread=1)
             # 4. bam_to_fastq
-            bam_to_fastq(input_bam=args.final_filtered_region_temp_file, output_R1=args.output_R1, output_R2=args.output_R2, nthread=1)
+            bam_to_fastq(input_bam=args['final_filtered_region_temp_file'], output_R1=args['output_R1'], output_R2=args['output_R2'], nthread=1)
             # 5. remove temp files
-            shell(f"rm -f {args.region_temp_file} {args.filtered_region_unsorted_temp_file} {args.final_filtered_region_temp_file}")
+            shell(f"rm -f {args['region_temp_file']} {args['filtered_region_unsorted_temp_file']} {args['final_filtered_region_temp_file']}")
             return 1
 
 
@@ -137,13 +137,13 @@ rule bam_to_marker_fastq:
         shell(f"cat {all_temp_log} > {log.filter_stats} && rm -f {all_temp_log}")
 
         print(f"Completed processing markers for sample {wildcards.sample}", file = sys.stderr)
-        touch(output.completion_flag)
+        shell(f"touch {output.completion_flag}")
 
 rule final_bam_depth_coverage_per_inserts:
     input:
         bam = f"{outdir}/samples/{{sample}}/maps/final.bam",
         bai = f"{outdir}/samples/{{sample}}/maps/final.bam.bai",
-        insertseq_file = targetregion_file,
+        targetregion_file = targetregion_file,
     output:
         depth_coverage = f"{outdir}/samples/{{sample}}/logs/depth_coverage-mapped.tsv",
     params:
@@ -151,7 +151,7 @@ rule final_bam_depth_coverage_per_inserts:
     run:
         import pandas as pd
         from io import StringIO
-        markers = pd.read_table(input.insertseq_file, header=None, names=["Chr", "Start", "End", "Amplicon_name"])
+        markers = pd.read_table(input.targetregion_file, header=None, names=["Chr", "Start", "End", "Amplicon_name"])
         all_results = []
         markers["region"] = markers["Chr"] + ":" + markers["Start"].astype(str) + "-" + markers["End"].astype(str)
         for marker in markers["region"]:
@@ -167,7 +167,7 @@ rule final_bam_depth_coverage_per_inserts:
 rule aggregate_depth_coverage:
     input:
         per_inserts_depth_coverage = expand(f"{outdir}/samples/{{sample}}/logs/depth_coverage-mapped.tsv", sample=IDs),
-        insertseq_file = targetregion_file,
+        targetregion_file = targetregion_file,
     output:
         depth = f"{outdir}/depths-mapped.tsv",
         coverage = f"{outdir}/coverages-mapped.tsv"
@@ -176,7 +176,7 @@ rule aggregate_depth_coverage:
         from io import StringIO
         all_results = []
 
-        markers = pd.read_table(input.insertseq_file, header=None, names=["Chr", "Start", "End", "Amplicon_name"])
+        markers = pd.read_table(input.targetregion_file, header=None, names=["Chr", "Start", "End", "Amplicon_name"])
         markers["region"] = markers["Chr"] + ":" + markers["Start"].astype(str) + "-" + markers["End"].astype(str)
         all_result = [pd.read_table(f) for f in input.per_inserts_depth_coverage]
         full_result = pd.concat(all_result)
