@@ -14,8 +14,7 @@ import sys
 import os
 import pathlib
 from ngs_pipeline import cerr, cexit, check_multiplexer, prepare_command_log
-from ngs_pipeline.cmds import run_snakefile
-from ngs_pipeline.subcommands import SubCommands
+from ngs_pipeline.cmds import run_snakefile, version
 from glob import glob
 import json
 
@@ -143,9 +142,10 @@ def run_microhaps_caller(args):
         merge_map=args.merge_map,
     )
 
-    sc = SubCommands()
     invocation = prepare_command_log()
-    invocation["version"] = sc.list_repo_hashes(to_dict=True)
+    basedir = os.environ["VVG_BASEDIR"]
+    related_dir = [(d, os.path.join(basedir, "envs", d)) for d in ["MicroHaps", "vvg-box", "ngs-pipeline"]]
+    invocation["version"] = "; ".join([version.get_git_hash(dir_, env_name) for env_name, dir_ in related_dir])
     os.makedirs(args.outdir, exist_ok = True)
     with open(args.outdir + "/runinfo.json", "w+") as f:
         json.dump(invocation, f, indent=4)
