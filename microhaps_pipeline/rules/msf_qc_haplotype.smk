@@ -1,7 +1,7 @@
 rule qc_haplotypes:
     localrule: True
     input:
-        tab = f"{outdir}/malamp/outputHaplotypes.tsv" if new_postprocess != "old" else f"{outdir}/malamp/outputCIGAR.tsv",
+        tab = f"{outdir}/malamp/outputHaplotypes.tsv" if config.get("post_process", "cs_long") != "old" else f"{outdir}/malamp/outputCIGAR.tsv",
     output:
         depths = f"{outdir}/malamp/depths.tsv"
     params:

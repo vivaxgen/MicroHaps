@@ -1,7 +1,6 @@
 dada2_bbmapmerge_bbmap = config.get('merge_map') # dada2, bbmap_merge or bbmerge
 
 rule extract_sequences_from_seqtab:
-    group: "post-process"
     input:
         f"{outdir}/malamp/{dada2_bbmapmerge_bbmap}/seqtab.tsv"
     output:
@@ -10,7 +9,6 @@ rule extract_sequences_from_seqtab:
         "python {microhaps_basedir}/scripts/seqtab_to_fasta.py --table {input[0]} --output_fasta {output.fasta}"
 
 rule align_haplotypes_to_reference:
-    group: "post-process"
     threads: 1
     input:
         fasta = f"{outdir}/malamp/haplotypes.fasta",
@@ -19,12 +17,11 @@ rule align_haplotypes_to_reference:
     params:
         reference = insertseq_file,
         minimap_params = config.get('minimap2_params', ''),
-        cs_style = "long" if new_postprocess == "cs_long" else "short"
+        cs_style = "long" if config.get("post_process", "cs_long") == "cs_long" else "short"
     shell:
         "minimap2 -x sr -t {threads} {params.minimap_params} --secondary=no --cs={params.cs_style} {params.reference} {input.fasta} --paf-no-hit  -o {output.paf}"
 
 rule post_process_haplotype:
-    group: "post-process"
     threads: 1
     input:
         fasta = f"{outdir}/malamp/haplotypes.fasta",

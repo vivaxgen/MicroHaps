@@ -48,7 +48,7 @@ if config.get("merge_map") == "dada2":
 elif config.get("merge_map") in ["bbmerge", "fastq_merge"]:
     include: "msf_bbmap_bbmerge_vsearch.smk"
 elif config.get("merge_map") == "fastp":
-    include: "indv_microhaps_trim.smk"
+    include: "msf_fastp_merge.smk"
 else:
     raise ValueError(f"Unknown merge_map option: {config.get('merge_map')}")
 

@@ -1,69 +1,89 @@
 
-
 # see https://www.htslib.org/algorithms/duplicate.html
-rule optical_dedup:
-    group: "filter_dedup"
+# mode s -  measure positions based on sequence start.
+def optical_dedup(input_bam, output_stats, output_marked_bam, output_deduped_bam, pixel_distance, nthread):
+    return shell(f"""
+        samtools collate -@ {nthread} -O -u {input_bam} \
+        | samtools fixmate -@ {nthread} -m -u - - \
+        | samtools sort -@ {nthread} -u - \
+        | samtools markdup -@ {nthread} -f {output_stats} -m s -d {pixel_distance} - {output_marked_bam} \
+        && samtools view -b -e '[dt]!="SQ"' {output_marked_bam} | samtools sort -@ {nthread} -o {output_deduped_bam}
+    """)
+
+def filter_bam(input_bam, output_unsorted_bam, output_filtered_bam, log_file, nthread):
+    return shell(f"""ngs-pl filter-reads-orientation --remove_FF --remove_RR --remove_RF --remove_trans \
+    --remove_unmapped --remove_secondary --remove_supplementary --max-insert-length 350 \
+    -o {output_unsorted_bam} --outstat {log_file} {input_bam} \
+    && samtools sort -@ {nthread} -o {output_filtered_bam} {output_unsorted_bam}
+    """)
+
+def bam_to_fastq(input_bam, output_R1, output_R2, nthread):
+    return shell(f"""
+        samtools collate -u -O {input_bam} \
+        | samtools fastq --thread {nthread} -1 {output_R1} -2 {output_R2} -0 /dev/null -s /dev/null -n
+    """)
+
+# per_sample = False if config.get("merge_map", "dada2") == "fastp" else True
+
+# after_dedup_per_sample = {
+#     "filtered_unsorted": temp(f"{outdir}/samples/{{sample}}/maps/unsorted.final.filtered.bam"),
+#     "filtered": f"{outdir}/samples/{{sample}}/maps/final.filtered.bam",
+#     "R1": f"{outdir}/samples/{{sample}}/mhaps-reads/target_R1.fastq.gz",
+#     "R2": f"{outdir}/samples/{{sample}}/mhaps-reads/target_R2.fastq.gz",
+# }
+
+# additional_output = after_dedup_per_sample if per_sample else {}
+# print(per_sample)
+# print(additional_output)
+
+rule optical_dedup_filter_sample:
     threads: 4
     input:
         bam = f"{outdir}/samples/{{sample}}/maps/final.bam"
     output:
-        marked = f"{outdir}/samples/{{sample}}/maps/final.temp.mark_dup.bam",
-        deduped = f"{outdir}/samples/{{sample}}/maps/final.temp.op_dedup.bam",
-        stats = f"{outdir}/samples/{{sample}}/maps/dedup_stat.txt"
+        marked = temp(f"{outdir}/samples/{{sample}}/maps/final.temp.mark_dup.bam"),
+        deduped = temp(f"{outdir}/samples/{{sample}}/maps/final.temp.op_dedup.bam"),
+        stats = f"{outdir}/samples/{{sample}}/maps/dedup_stat.txt",
     params:
         pixel_distance = config.get("optical_dedup_pixel_distance", 10) # 10 to be conservative, values dependent on platform
-    shell:
-        # mode s -  measure positions based on sequence start.
-        """
-        samtools collate -@ {threads} -O -u {input.bam} | samtools fixmate -@ {threads} -m -u - - | samtools sort -@ {threads} -u - | samtools markdup -@ {threads} -f {output.stats} -m s -d {params.pixel_distance} - {output.marked} &&
-        samtools view -b -e '[dt]!="SQ"' {output.marked} | samtools sort -@ {threads} -o {output.deduped}
-        """
+    run:
+        optical_dedup(input_bam=input.bam, output_stats=output.stats, output_marked_bam=output.marked, output_deduped_bam=output.deduped, pixel_distance=params.pixel_distance, nthread=threads)
 
-rule filter_bam:
-    group: "filter_dedup"
+
+rule bam_to_sample_fastq:
+    threads: 4
+    input:
+        deduped = f"{outdir}/samples/{{sample}}/maps/final.temp.op_dedup.bam",
+    output:
+        filtered_unsorted = temp(f"{outdir}/samples/{{sample}}/maps/final.temp.filtered_unsorted.bam"),
+        filtered = temp(f"{outdir}/samples/{{sample}}/maps/final.temp.filtered.bam"),
+        R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R1.fastq.gz",
+        R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R2.fastq.gz",
+    log:
+        filter_stats = f"{outdir}/{{sample}}/logs/bam_to_fastq_filter_stats.log"
+    run:
+        filter_bam(input_bam=input.deduped, output_unsorted_bam=output.filtered_unsorted, output_filtered_bam=output.filtered, log_file=log.filter_stats, nthread=threads)
+        bam_to_fastq(input_bam=output.filtered, output_R1=output.R1, output_R2=output.R2, nthread=threads)
+
+rule bam_to_marker_fastq:
     threads: 4
     input:
         tempbam = f"{outdir}/samples/{{sample}}/maps/final.temp.op_dedup.bam",
-    output:
-        unsorted = f"{outdir}/samples/{{sample}}/maps/unsorted.final.filtered.bam",
-        filtered = f"{outdir}/samples/{{sample}}/maps/final.filtered.bam",
-    log:
-        filter_stats = f"{outdir}/samples/{{sample}}/logs/bam_to_fastq_filter_stats.log"
-    shell:
-        "ngs-pl filter-reads-orientation --remove_FF --remove_RR --remove_RF --remove_trans --remove_unmapped --remove_secondary --remove_supplementary --max-insert-length 350 -o {output.unsorted} --outstat {log.filter_stats} {input.tempbam} && "
-        "samtools sort -@ {threads} -o {output.filtered} {output.unsorted}"
-
-rule bam_to_fastq:
-    group: "filter_dedup"
-    threads: 4
-    input: 
-        tempbam = f"{outdir}/samples/{{sample}}/maps/final.filtered.bam",
-    output:
-        R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R1.fastq.gz",
-        R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R2.fastq.gz",
-    shell:
-        "samtools collate -u -O {input.tempbam} "
-        " | samtools fastq --thread {threads} -1 {output.R1} -2 {output.R2} -0 /dev/null -s /dev/null -n"
-
-rule bam_to_marker_fastq:
-    group: "filter_dedup"
-    threads: 4
-    input:
-        tempbam = f"{outdir}/samples/{{sample}}/maps/final.filtered.bam",
-        tempbam_bai = f"{outdir}/samples/{{sample}}/maps/final.filtered.bam.bai",
+        tempbam_bai = f"{outdir}/samples/{{sample}}/maps/final.temp.op_dedup.bam.bai",
         insertseq_file = targetregion_file,
     output:
-        filtered = [f"{outdir}/samples/{{sample}}/markers-reads/{marker}/final.filtered.bam" for marker in Markers],
-        collated = [f"{outdir}/samples/{{sample}}/markers-reads/{marker}/final.temp.op_dedup.collated.bam" for marker in Markers],
-        markers_target = [f"{outdir}/samples/{{sample}}/markers-reads/{marker}/target_R{read1_2}.fastq.gz" for marker in Markers for read1_2 in [1,2]],
-        # complete_flag = f"{outdir}/samples/{{sample}}/markers-reads/complete.flag",
+        marker_read_dir = directory(f"{outdir}/samples/{{sample}}/markers-reads"),
+        completion_flag = f"{outdir}/samples/{{sample}}/markers-reads/.completed",
+    log:
+        filter_stats = f"{outdir}/{{sample}}/logs/bam_to_fastq_filter_stats.log"
     params:
-        per_marker_directory = f"{outdir}/samples/{{sample}}/markers-reads"
+        log_dir = f"{outdir}/{{sample}}/logs/",
     run:
-        shell(f"mkdir -p {params.per_marker_directory}")
-        print(f"mkdir -p {params.per_marker_directory}")
+        shell(f"mkdir -p {output.marker_read_dir}")
         import pandas as pd
         from concurrent.futures import ThreadPoolExecutor
+        import sys
+        import os
 
         markers = pd.read_table(input.insertseq_file, header=None, names=["Chr", "Start", "End", "Amplicon_name"])
         markers["region"] = markers["Chr"] + ":" + markers["Start"].astype(str) + "-" + markers["End"].astype(str)
@@ -71,35 +91,53 @@ rule bam_to_marker_fastq:
         args = []
         for _, row in markers.iterrows():
             marker = row["Amplicon_name"]
+            region = row["region"]
+            dir_marker = os.path.join(output.marker_read_dir, marker)
+            region_temp_file = os.path.join(dir_marker, "region.temp.bam")
+            filtered_region_unsorted_temp_file = os.path.join(dir_marker, "filtered.temp.bam")
+            final_filtered_region_temp_file = os.path.join(dir_marker, "final.filtered.temp.bam")
+            filter_log = os.path.join(params.log_dir, f"{marker}.filter.log")
+            output_R1 = os.path.join(dir_marker, "target_R1.fastq.gz")
+            output_R2 = os.path.join(dir_marker, "target_R2.fastq.gz")
             args.append({
                 "bamfile": input.tempbam,
-                "region": row["region"],
-                "marker": marker,
-                "output_R1": f"{params.per_marker_directory}/{marker}/target_R1.fastq.gz",
-                "output_R2": f"{params.per_marker_directory}/{marker}/target_R2.fastq.gz",
-                "filtered": f"{params.per_marker_directory}/{marker}/final.filtered.bam",
-                "collated": f"{params.per_marker_directory}/{marker}/final.temp.op_dedup.collated.bam",
-                "dir_marker": f"{params.per_marker_directory}/{marker}"
+                "region": region,
+                "dir_marker": f"{params.per_marker_directory}/{marker}",
+                "region_temp_file": region_temp_file,
+                "filtered_region_unsorted_temp_file": filtered_region_unsorted_temp_file,
+                "final_filtered_region_temp_file": final_filtered_region_temp_file,
+                "filter_log": filter_log,
+                "output_R1": output_R1,
+                "output_R2": output_R2,
             })
 
-        def process_marker(args):
-            bamfile = args["bamfile"]
-            region = args["region"]
-            output_R1 = args["output_R1"]
-            output_R2 = args["output_R2"]
-            filtered = args["filtered"]
-            collated = args["collated"]
-            dir_marker = args["dir_marker"]
-            shell(f"mkdir -p {dir_marker} && samtools view -b {bamfile} \"{region}\" | ngs-pl filter-reads-orientation --remove_unmapped -o {filtered} - ")
-            shell(f"samtools collate -o {collated} {filtered}")
-            shell(f"samtools fastq -1 {output_R1} -2 {output_R2} {collated}")
+        def process_per_samples(args):
+            # 1. make marker subdir
+            shell(f"mkdir -p {args.dir_marker}")
+            # 2. samtools view the region to a temp file
+            shell(f"samtools view -b {args.bamfile} \"{args.region}\" -o {args.region_temp_file}")
+            # 3. filter_bam
+            filter_bam(input_bam=args.region_temp_file, output_unsorted_bam=args.filtered_region_unsorted_temp_file,
+                output_filtered_bam=args.final_filtered_region_temp_file, log_file=args.filter_log, nthread=1)
+            # 4. bam_to_fastq
+            bam_to_fastq(input_bam=args.final_filtered_region_temp_file, output_R1=args.output_R1, output_R2=args.output_R2, nthread=1)
+            # 5. remove temp files
+            shell(f"rm -f {args.region_temp_file} {args.filtered_region_unsorted_temp_file} {args.final_filtered_region_temp_file}")
+            return 1
+
 
         nworker = int(threads)
-        print(nworker)
         with ThreadPoolExecutor(max_workers=nworker) as executor:
-            executor.map(process_marker, args)
-        print(f"Completed processing markers for sample {wildcards.sample}")
+            result = list(executor.map(process_per_samples, args))
+        
+        if not all([res == 1 for res in result ]):
+            raise Exception("Error in processing some markers, please check previous logs")
+        # Combine all logs
+        all_temp_log = " ".join([a["filter_log"] for a in args])
+        shell(f"cat {all_temp_log} > {log.filter_stats} && rm -f {all_temp_log}")
 
+        print(f"Completed processing markers for sample {wildcards.sample}", file = sys.stderr)
+        touch(output.completion_flag)
 
 rule final_bam_depth_coverage_per_inserts:
     input:

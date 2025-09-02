@@ -92,6 +92,9 @@ def init_argparser():
         choices=["dada2", "bbmerge", "fastq_merge", "fastp"],
         help="indicate if post-processing should be done (choices: dada2 [default], bbmerge, fastq_merge, fastp)"
     )
+    p.add_argument("--add_args", default="", type=str, 
+        help="additional arg string to pass to snakemake"
+    )
     return p
 
 
@@ -146,10 +149,10 @@ def run_microhaps_caller(args):
     os.makedirs(args.outdir, exist_ok = True)
     with open(args.outdir + "/runinfo.json", "w+") as f:
         json.dump(invocation, f, indent=4)
-
+    
     args.target = "all_microhaps"
     status, elapsed_time = run_snakefile.run_snakefile(
-        args, config=config, show_status=False
+        args, config=config, show_status=False, additional_cli_args=args.add_args
     )
 
     if not status:
