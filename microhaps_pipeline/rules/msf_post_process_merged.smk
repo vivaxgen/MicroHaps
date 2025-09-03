@@ -113,6 +113,13 @@ rule msa_align_haplotype_to_reference:
         
             seqtab_df_renamed = seqtab.copy()
             seqtab_df_renamed.columns = rename_df["cs_tag"].values
+            
+            # check for same cstag without insertions
+            for dup_column in seqtab_df_renamed.columns[seqtab_df_renamed.columns.duplicated(keep = 'first')]:
+                series = seqtab_df_renamed[dup_column].sum(axis = 1)
+                seqtab_df_renamed = seqtab_df_renamed.drop(columns=dup_column)
+                seqtab_df_renamed[dup_column] = series
+
             column_order = ["sample"] + list(seqtab_df_renamed.columns)
             seqtab_df_renamed.index.name = 'sample'
             seqtab_df_renamed.reset_index(inplace=True)
