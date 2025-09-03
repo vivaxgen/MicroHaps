@@ -307,6 +307,7 @@ def get_same_marker_all_sample(wildcards):
 
 
 rule merge_per_marker:
+    priority: 10
     threads: 2
     input:
         # expand(f"{outdir}/samples/{{sample}}/markers-reads/complete.flag", sample=IDs),

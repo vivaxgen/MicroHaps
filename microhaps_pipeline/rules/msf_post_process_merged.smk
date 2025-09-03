@@ -15,7 +15,7 @@ rule msa_align_haplotype_to_reference:
         paf = f"{outdir}/malamp/haplotypes.paf",
         reference = insertseq_file,
         seqtab = f"{outdir}/malamp/{dada2_bbmapmerge_bbmap}/seqtab.tsv",
-        reference_idx = f"{insertseq_file}.1.bt2",
+        reference_idx = f"{insertseq_file.removesuffix('.fasta')}.1.bt2",
     output:
         outHaplotype_rm_ins = f"{outdir}/malamp/outputHaplotypes_rm_ins.tsv",
     params:
@@ -74,7 +74,7 @@ rule msa_align_haplotype_to_reference:
         shell(f"cat {' '.join(output_fasta)} > {joined_fasta}")
 
         output_sam = f"{outdir}/malamp/out.sam"
-        shell(f"bowtie2 -f --end-to-end -x {input.reference} -U {joined_fasta} --mp 1,0 --rdg 2,1 --sam-opt-config 'md' -S {output_sam} 2> {outdir}/logs/align_haplotypes_to_insertseq.log")
+        shell(f"bowtie2 -f --end-to-end -x {input.reference.removesuffix('.fasta')} -U {joined_fasta} --mp 1,0 --rdg 2,1 --sam-opt-config 'md' -S {output_sam} 2> {outdir}/logs/align_haplotypes_to_insertseq.log")
 
         
 

@@ -117,6 +117,7 @@ rule trim_before_haplotype_generation:
             shell(f"touch {output.R_trimmed_R1} {output.R_trimmed_R2}")
 
 rule per_marker_trim_before_haplotype_generation:
+    priority: 20
     threads: 3 if quality_trim_required else 1
     localrule: False if quality_trim_required else True
     input:
