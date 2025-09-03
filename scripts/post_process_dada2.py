@@ -107,7 +107,6 @@ if __name__ == "__main__":
         seq_mapping = seq_mapping.dropna(subset=['final_representation'])
 
     if args.rename_columns_by_id:
-        print("HERE")
         seq_mapping["col"] = seq_mapping["qname"].str.replace("col_", "").astype(int)
         seq_mapping = seq_mapping.sort_values("col")
         assert all(seq_mapping["col"] == list(range(seqtab_df.shape[1])))

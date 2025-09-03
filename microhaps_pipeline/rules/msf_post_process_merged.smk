@@ -15,6 +15,7 @@ rule msa_align_haplotype_to_reference:
         paf = f"{outdir}/malamp/haplotypes.paf",
         reference = insertseq_file,
         seqtab = f"{outdir}/malamp/{dada2_bbmapmerge_bbmap}/seqtab.tsv",
+        reference_idx = f"{insertseq_file}.1.bt2",
     output:
         outHaplotype_rm_ins = f"{outdir}/malamp/outputHaplotypes_rm_ins.tsv",
     params:
@@ -71,27 +72,76 @@ rule msa_align_haplotype_to_reference:
         joined_fasta = f"{outdir}/malamp/haplotypes_rm_ins_aligned.fasta"
         no_ins_paf = f"{outdir}/malamp/haplotypes_rm_ins.paf"
         shell(f"cat {' '.join(output_fasta)} > {joined_fasta}")
-        shell(f"minimap2 -x sr --secondary=no --cs={params.cs_style} {input.reference} {joined_fasta} --paf-no-hit -o {no_ins_paf}")
 
-        shell(f"""python {microhaps_basedir}/scripts/post_process_dada2.py \
-            --paf {no_ins_paf} \
-            --fasta {joined_fasta} \
-            --seqtab {input.seqtab} \
-            --output {output.outHaplotype_rm_ins} \
-            --insert {input.reference} \
-            --rename_columns_by_id""")
+        output_sam = f"{outdir}/malamp/out.sam"
+        shell(f"bowtie2 -f --end-to-end -x {input.reference} -U {joined_fasta} --mp 1,0 --rdg 2,1 --sam-opt-config 'md' -S {output_sam} 2> {outdir}/logs/align_haplotypes_to_insertseq.log")
 
-        print(f"""python {microhaps_basedir}/scripts/post_process_dada2.py \
-            --paf {no_ins_paf} \
-            --fasta {joined_fasta} \
-            --seqtab {input.seqtab} \
-            --output {output.outHaplotype_rm_ins} \
-            --insert {input.reference} \
-            --rename_columns_by_id""")
+        
+
+        def alignment_to_cs_tags(sam, cs_style = "long"):
+            import pysam
+            import cstag
+            
+            long_cs_style = True if cs_style == "long" else False
+
+            algs = pysam.AlignmentFile(sam, "r")
+            qname_cstag = []
+            for alg in algs:
+                if not alg.has_tag("MD"):
+                    raise ValueError("Missing MD tag")
+
+                cs_tag = cstag.call(cigar = alg.cigarstring, md = alg.get_tag("MD"), seq = alg.query_sequence, long = long_cs_style)
+                qname = int(alg.query_name.replace("col_", ""))
+                qname_cstag.append({
+                    "qname": qname, "cs_tag": f"{alg.reference_name},{cs_tag}"
+                })
+            qname_cstag = pd.DataFrame(qname_cstag)
+            qname_cstag = qname_cstag.sort_values("qname")
+            return qname_cstag
+        
+        qname_cstag = alignment_to_cs_tags(output_sam, params.cs_style)
+
+        #check if any columns in seqtab_df that is not in qname_cstag
+
+        def transform_seqtab(seqtab, rename_df):
+            to_drop = [colid for colid in list(range(seqtab.shape[1])) if not colid in rename_df['qname']]
+            to_drop_col = seqtab.columns[to_drop]
+
+            if not to_drop_col.empty:
+                print(f"Warning: The following sequences are not mapped to any reference sequence and will be dropped: {to_drop_col}", file=sys.stderr)
+                seqtab = seqtab.drop(columns=to_drop_col)
+        
+            seqtab_df_renamed = seqtab.copy()
+            seqtab_df_renamed.columns = rename_df["cs_tag"].values
+            column_order = ["sample"] + list(seqtab_df_renamed.columns)
+            seqtab_df_renamed.index.name = 'sample'
+            seqtab_df_renamed.reset_index(inplace=True)
+            return seqtab_df_renamed[column_order]
+
+        transformed_seqtab = transform_seqtab(seqtab_df, qname_cstag)
+        transformed_seqtab.to_csv(output.outHaplotype_rm_ins, sep="\t", index=False, header=True)
 
         temp_files = reference_fasta + query_fasta + output_fasta
 
         shell(f"rm {' '.join(temp_files)}")
+
+        # shell(f"minimap2 -x asm20 --secondary=no --end-bonus --cs={params.cs_style} {input.reference} {joined_fasta} --paf-no-hit -o {no_ins_paf}")
+
+        # shell(f"""python {microhaps_basedir}/scripts/post_process_dada2.py \
+        #     --paf {no_ins_paf} \
+        #     --fasta {joined_fasta} \
+        #     --seqtab {input.seqtab} \
+        #     --output {output.outHaplotype_rm_ins} \
+        #     --insert {input.reference} \
+        #     --rename_columns_by_id""")
+
+        # print(f"""python {microhaps_basedir}/scripts/post_process_dada2.py \
+        #     --paf {no_ins_paf} \
+        #     --fasta {joined_fasta} \
+        #     --seqtab {input.seqtab} \
+        #     --output {output.outHaplotype_rm_ins} \
+        #     --insert {input.reference} \
+        #     --rename_columns_by_id""")
 
 
 rule align_haplotypes_to_reference:
