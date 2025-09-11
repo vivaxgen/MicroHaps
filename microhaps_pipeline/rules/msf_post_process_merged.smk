@@ -55,8 +55,9 @@ rule msa_align_haplotype_to_reference:
 
         shell(f"mkdir -p {outdir}/logs/mafft")
         marker_per_mafft = 2
+        # --threadit = 0 because The iterative refinement step can return different results for different runs, when using mutitple threads.  To obtain the same result for every run, add the --threadit 0 flag, which disables multithreading only for iterative refinement step. (added 2020/Dec)
         def run_mafft(ref_fa, query_fa, output_fa, log_file, marker_per_mafft = 2):
-            shell(f"mafft-ginsi --thread {marker_per_mafft} --threadit 0 --preservecase --keeplength --add {query_fa} {ref_fa} > {output_fa} 2> {log_file}")
+            shell(f"mafft-linsi --maxiterate 1000 --thread {marker_per_mafft} --threadit 0 --preservecase --keeplength --add {query_fa} {ref_fa} > {output_fa} 2> {log_file}")
             inf = seq_utils.read_fasta(output_fa, ordered = True)
             seq_utils.write_fasta(inf[1:], output_fa)
             return 1
