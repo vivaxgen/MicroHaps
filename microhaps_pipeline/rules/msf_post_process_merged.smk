@@ -117,7 +117,7 @@ rule msa_align_haplotype_to_reference:
             
             # check for same cstag without insertions
             for dup_column in seqtab_df_renamed.columns[seqtab_df_renamed.columns.duplicated(keep = 'first')]:
-                series = seqtab_df_renamed[dup_column].sum(axis = 1)
+                series = seqtab_df_renamed[[dup_column]].sum(axis = 1)
                 seqtab_df_renamed = seqtab_df_renamed.drop(columns=dup_column)
                 seqtab_df_renamed[dup_column] = series
 
