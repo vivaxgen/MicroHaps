@@ -75,7 +75,7 @@ rule msa_align_haplotype_to_reference:
         shell(f"cat {' '.join(output_fasta)} > {joined_fasta}")
 
         output_sam = f"{outdir}/malamp/out.sam"
-        shell(f"bowtie2 -f --end-to-end -x {input.reference.removesuffix('.fasta')} -U {joined_fasta} --mp 1,0 --rdg 2,1 --sam-opt-config 'md' -S {output_sam} 2> {outdir}/logs/align_haplotypes_to_insertseq.log")
+        shell(f"bowtie2 -f --end-to-end -x {input.reference.removesuffix('.fasta')} -U {joined_fasta} --mp 1,0 --np 0 --rdg 2,1 --sam-opt-config 'md' -S {output_sam} 2> {outdir}/logs/align_haplotypes_to_insertseq.log")
 
         
 
