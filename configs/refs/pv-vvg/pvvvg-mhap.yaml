@@ -74,6 +74,8 @@ trimqv: 15 # illumina-2-dye quality-trim of 3' ends
 
 # --- parameters for Microhaplotype settings ---
 
+optical_dedup_pixel_distance: 10
+
 # trimming-related parameters (shared for different merging algorithms)
 class: "parasite"
 maxEE: 5
@@ -88,25 +90,19 @@ max_consist: 10
 omegaA: 1e-120
 justconcat: 0
 platform: "PE"
-
 min_overlap: 7
 maxmismatch: 2
 
-recal_qual: False
-recal_param: "clearmatrices loadqbp_p1=t loadqb123_p1=t"
+# fastp merge:
+fastp_merge_params: ""
+insert_size_tolerant_threshold: 0.25
+unoise_minsize: 1
+unoise_minsize_ratio: 1
+unoise_alpha: 1.5
+
 additional_trim_before_haplotype_generation: True
-# After-merge parameters
-maxEE_after_merge: 1
 
-# BBmap / BBmerge parameters
-bbmerge_parameters: "-Xmx5g strict maxq=41 maxexpectederrors=5 "
-bbmmerge_threads: 2
-vsearch_threads: 2
-fastq_merge_parameters: "--fastq_qmaxout 41 --fastq_maxee 5 --fastq_minovlen 7 --fastq_maxdiffpct 0.5 --fastq_maxdiffs 10 --fastq_maxns 0"
 
-# -g Use 'fastq-join' method for merged qual scores
-# -m minoverlap 12 bases
-# -s Option to produce shortest stitched read
 
 # final minsize if minsize_ratio < 1 = max(minsize_ratio * total size, minsize)
 unoise_minsize_ratio: 0.05

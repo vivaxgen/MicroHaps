@@ -45,8 +45,6 @@ include: "msf_trim_dedup.smk"
 # 6 - call dada2 for denoising FASTQ reads
 if config.get("merge_map") == "dada2":
     include: "msf_merge_denoise_dada2.smk"
-elif config.get("merge_map") in ["bbmerge", "fastq_merge"]:
-    include: "msf_bbmap_bbmerge_vsearch.smk"
 elif config.get("merge_map") == "fastp":
     include: "msf_fastp_merge.smk"
 else:

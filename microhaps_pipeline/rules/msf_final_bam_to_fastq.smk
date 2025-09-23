@@ -10,9 +10,9 @@ def optical_dedup(input_bam, output_stats, output_marked_bam, output_deduped_bam
         && samtools view -b -e '[dt]!="SQ"' {output_marked_bam} | samtools sort -@ {nthread} -o {output_deduped_bam}
     """)
 
-def filter_bam(input_bam, output_unsorted_bam, output_filtered_bam, log_file, nthread):
+def filter_bam(input_bam, output_unsorted_bam, output_filtered_bam, log_file, nthread, max_insert = 350):
     return shell(f"""ngs-pl filter-reads-orientation --remove_FF --remove_RR --remove_RF --remove_trans \
-    --remove_unmapped --remove_secondary --remove_supplementary --max-insert-length 350 \
+    --remove_unmapped --remove_secondary --remove_supplementary --max-insert-length {max_insert} \
     -o {output_unsorted_bam} --outstat {log_file} {input_bam} \
     && samtools sort -@ {nthread} -o {output_filtered_bam} {output_unsorted_bam}
     """)
@@ -23,18 +23,10 @@ def bam_to_fastq(input_bam, output_R1, output_R2, nthread):
         | samtools fastq --thread {nthread} -1 {output_R1} -2 {output_R2} -0 /dev/null -s /dev/null -n
     """)
 
-# per_sample = False if config.get("merge_map", "dada2") == "fastp" else True
-
-# after_dedup_per_sample = {
-#     "filtered_unsorted": temp(f"{outdir}/samples/{{sample}}/maps/unsorted.final.filtered.bam"),
-#     "filtered": f"{outdir}/samples/{{sample}}/maps/final.filtered.bam",
-#     "R1": f"{outdir}/samples/{{sample}}/mhaps-reads/target_R1.fastq.gz",
-#     "R2": f"{outdir}/samples/{{sample}}/mhaps-reads/target_R2.fastq.gz",
-# }
-
-# additional_output = after_dedup_per_sample if per_sample else {}
-# print(per_sample)
-# print(additional_output)
+def filter_bam_chrom(input_bam, chrom, output_filtered_bam, output_filtered_bam_inverse):
+    cmds = f"""samtools view -e 'rname=="{chrom}"' -b {input_bam} -o {output_filtered_bam} && \
+        samtools view -e 'rname!="{chrom}"' -b {input_bam} -o {output_filtered_bam_inverse}"""
+    return shell(cmds)
 
 rule optical_dedup_filter_sample:
     threads: 4
@@ -52,18 +44,33 @@ rule optical_dedup_filter_sample:
 
 rule bam_to_sample_fastq:
     threads: 4
+    params:
+        run = 3
     input:
         deduped = f"{outdir}/samples/{{sample}}/maps/final.temp.op_dedup.bam",
+        deduped_index = f"{outdir}/samples/{{sample}}/maps/final.temp.op_dedup.bam.bai",
     output:
         filtered_unsorted = temp(f"{outdir}/samples/{{sample}}/maps/final.temp.filtered_unsorted.bam"),
         filtered = temp(f"{outdir}/samples/{{sample}}/maps/final.temp.filtered.bam"),
+        phix_bam = temp(f"{outdir}/samples/{{sample}}/maps/phix.bam"),
+        no_phix_bam = temp(f"{outdir}/samples/{{sample}}/maps/final.temp.filtered_no_phix.bam"),
+        phix_R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/phix_R1.fastq.gz",
+        phix_R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/phix_R2.fastq.gz",
         R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R1.fastq.gz",
         R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R2.fastq.gz",
     log:
         filter_stats = f"{outdir}/{{sample}}/logs/bam_to_fastq_filter_stats.log"
     run:
-        filter_bam(input_bam=input.deduped, output_unsorted_bam=output.filtered_unsorted, output_filtered_bam=output.filtered, log_file=log.filter_stats, nthread=threads)
-        bam_to_fastq(input_bam=output.filtered, output_R1=output.R1, output_R2=output.R2, nthread=threads)
+        print(params.run)
+        # filter out phix
+        filter_bam_chrom(input_bam=input.deduped, chrom="phix", output_filtered_bam=output.phix_bam, output_filtered_bam_inverse=output.no_phix_bam)
+
+        filter_bam(input_bam=output.phix_bam, output_unsorted_bam=output.filtered_unsorted, output_filtered_bam=output.filtered, log_file=log.filter_stats, nthread=threads, max_insert = 600)
+        bam_to_fastq(input_bam=output.phix_bam, output_R1=output.phix_R1, output_R2=output.phix_R2, nthread=threads)
+        
+        filter_bam(input_bam=output.no_phix_bam, output_unsorted_bam=output.filtered_unsorted, output_filtered_bam=output.filtered, log_file=log.filter_stats, nthread=threads, max_insert = 350)
+        bam_to_fastq(input_bam=output.no_phix_bam, output_R1=output.R1, output_R2=output.R2, nthread=threads)
+        
 
 rule bam_to_marker_fastq:
     threads: 4
@@ -78,6 +85,7 @@ rule bam_to_marker_fastq:
         filter_stats = f"{outdir}/logs/{{sample}}/bam_to_fastq_filter_stats.log"
     params:
         log_dir = f"{outdir}/logs/{{sample}}",
+        run = 2
     run:
         shell(f"mkdir -p {output.marker_read_dir}")
         import pandas as pd
@@ -109,6 +117,20 @@ rule bam_to_marker_fastq:
                 "filter_log": filter_log,
                 "output_R1": output_R1,
                 "output_R2": output_R2,
+                "max_insert ": 350
+            })
+        
+        args.append({
+                "bamfile": input.tempbam,
+                "region": "phix",
+                "dir_marker": f"{output.marker_read_dir}/phix",
+                "region_temp_file": os.path.join(output.marker_read_dir, "phix", "region.temp.bam"),
+                "filtered_region_unsorted_temp_file": os.path.join(output.marker_read_dir, "phix", "filtered.temp.bam"),
+                "final_filtered_region_temp_file": os.path.join(output.marker_read_dir, "phix", "final.filtered.temp.bam"),
+                "filter_log": os.path.join(params.log_dir, "phix.filter.log"),
+                "output_R1": os.path.join(output.marker_read_dir, "phix", "target_R1.fastq.gz"),
+                "output_R2": os.path.join(output.marker_read_dir, "phix", "target_R2.fastq.gz"),
+                "max_insert ": 600
             })
 
         def process_per_samples(args):
@@ -118,7 +140,7 @@ rule bam_to_marker_fastq:
             shell(f"samtools view -b {args['bamfile']} \"{args['region']}\" -o {args['region_temp_file']}")
             # 3. filter_bam
             filter_bam(input_bam=args['region_temp_file'], output_unsorted_bam=args['filtered_region_unsorted_temp_file'],
-                output_filtered_bam=args['final_filtered_region_temp_file'], log_file=args['filter_log'], nthread=1)
+                output_filtered_bam=args['final_filtered_region_temp_file'], log_file=args['filter_log'], nthread=1, max_insert = args['max_insert '])
             # 4. bam_to_fastq
             bam_to_fastq(input_bam=args['final_filtered_region_temp_file'], output_R1=args['output_R1'], output_R2=args['output_R2'], nthread=1)
             # 5. remove temp files
