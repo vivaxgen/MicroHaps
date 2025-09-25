@@ -53,7 +53,7 @@ rule bam_to_sample_fastq:
         R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R1.fastq.gz",
         R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R2.fastq.gz",
     log:
-        filter_stats = f"{outdir}/{{sample}}/logs/bam_to_fastq_filter_stats.log"
+        filter_stats = f"{outdir}/logs/{{sample}}/bam_to_fastq_filter_stats.log"
     run:
         filter_bam(input_bam=input.deduped, output_unsorted_bam=output.filtered_unsorted, output_filtered_bam=output.filtered, log_file=log.filter_stats, nthread=threads, max_insert = 350)
         bam_to_fastq(input_bam=output.filtered, output_R1=output.R1, output_R2=output.R2, nthread=threads)
