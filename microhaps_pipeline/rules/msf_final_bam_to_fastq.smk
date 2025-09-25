@@ -50,10 +50,6 @@ rule bam_to_sample_fastq:
     output:
         filtered_unsorted = temp(f"{outdir}/samples/{{sample}}/maps/final.temp.filtered_unsorted.bam"),
         filtered = temp(f"{outdir}/samples/{{sample}}/maps/final.temp.filtered.bam"),
-        phix_bam = temp(f"{outdir}/samples/{{sample}}/maps/phix.bam"),
-        no_phix_bam = temp(f"{outdir}/samples/{{sample}}/maps/final.temp.filtered_no_phix.bam"),
-        phix_R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/phix_R1.fastq.gz",
-        phix_R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/phix_R2.fastq.gz",
         R1 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R1.fastq.gz",
         R2 = f"{outdir}/samples/{{sample}}/mhaps-reads/target_R2.fastq.gz",
     log:

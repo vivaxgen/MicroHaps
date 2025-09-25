@@ -7,7 +7,7 @@ import ngs_pipeline.rules
 
 include: ngs_pipeline.rules.path("general_params.smk")
 include: ngs_pipeline.rules.path("params_region.smk")
-include: ngs_pipeline.rules.path("utilities.smk")
+# include: ngs_pipeline.rules.path("utilities.smk")
 
 include: "params_mhap.smk"
 
