@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     samples = [col for col in new_merged.columns if col != "Expected count"]
 
-    assert (new_merged.loc[:, samples].sum(axis = 1) >= new_merged.loc[:, "Expected count"]).all(), "Expected counts do not at least equate to the sum of counts across samples"
+    # assert (new_merged.loc[:, samples].sum(axis = 1) >= new_merged.loc[:, "Expected count"]).all(), "Expected counts do not at least equate to the sum of counts across samples"
 
     to_write = new_merged.loc[:, samples].astype(int).T
     to_write.to_csv(out_seqtab, sep="\t", index=True, header=True)

@@ -40,7 +40,7 @@ def vsearch_unoise(input_merged_fasta, output_denoised_fasta, sample, params_, l
         unoise_minsize = max( math.floor(total_read_in_fa * minsize_ratio), minsize)
         print(f"Dynamic unoise minsize for {input_merged_fasta}: {unoise_minsize}", file=sys.stderr)
     else:
-        unoise_minsize = params.minsize
+        unoise_minsize = params_.minsize
         
     return shell(f"""
         vsearch --cluster_unoise {input_merged_fasta} --centroids {output_denoised_fasta} \
@@ -281,7 +281,7 @@ rule create_otutab_per_sample:
             else:
                 otutab.loc[:, wildcards.sample] = 0
             otutab.iloc[:, 1] = otutab.iloc[:, 1].astype(int)
-            otutab.to_csv(output.otutab, sep="\t", header=True, index=None)
+        otutab.to_csv(output.otutab, sep="\t", header=True, index=None)
 
 rule merge_otutab_joint:
     input:

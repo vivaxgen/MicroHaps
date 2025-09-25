@@ -39,6 +39,7 @@ regions:
   - PvP01_14_v2
   - PvP01_API_v2
   - PvP01_MIT_v2
+  - phix
 
 # this is amplicon sequencing, so turn off deduplication
 deduplicate: False
@@ -96,18 +97,12 @@ maxmismatch: 2
 # fastp merge:
 fastp_merge_params: ""
 insert_size_tolerant_threshold: 0.25
-unoise_minsize: 1
+unoise_minsize: 5
 unoise_minsize_ratio: 1
 unoise_alpha: 1.5
 
 additional_trim_before_haplotype_generation: True
 
-
-
-# final minsize if minsize_ratio < 1 = max(minsize_ratio * total size, minsize)
-unoise_minsize_ratio: 0.05
-unoise_minsize: 8
-unoise_alpha: 2
 
 sequence_to_denoise_criteria: "--id 0.99 --iddef 1 --target_cov 1 --query_cov 1"
 
