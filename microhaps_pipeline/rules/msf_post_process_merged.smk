@@ -38,7 +38,7 @@ rule msa_align_haplotype_to_reference:
         query_fasta = []
         output_fasta = []
         log_file = []
-        all_markers_name = paf_df['tname'].unique()
+        all_markers_name = paf_df.query("tname != '*'")['tname'].unique()
         for marker in all_markers_name:
             haplotype_seq_names = paf_df.query("tname == @marker").qname.to_list()
             haplotype_seqs = {a: haplotypes_seq[a] for a in haplotype_seq_names}
