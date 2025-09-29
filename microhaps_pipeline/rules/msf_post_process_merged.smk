@@ -88,6 +88,8 @@ rule msa_align_haplotype_to_reference:
             algs = pysam.AlignmentFile(sam, "r")
             qname_cstag = []
             for alg in algs:
+                if alg.is_unmapped:
+                    continue
                 if not alg.has_tag("MD"):
                     raise ValueError("Missing MD tag")
 
