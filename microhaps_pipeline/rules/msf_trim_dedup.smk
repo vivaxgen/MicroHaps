@@ -72,15 +72,21 @@ def quality_trim(input_R1, input_R2, output_R1, output_R2, filtered_R1, filtered
     window_minqual = parameters.get("truncQ", 20)
     min_length = parameters.get("min_length", 30)
     maxEE = parameters.get("maxEE", 5)
-    return shell(f"""
+    filtered_R1_temp = filtered_R1 + ".temp"
+    filtered_R2_temp = filtered_R2 + ".temp"
+    shell(f"""
         fastp -A -w 3 -i {input_R1} -I {input_R2} -o {output_R1} -O {output_R2} \
             --trim_tail1 {trim_right_R1} --trim_tail2 {trim_right_R2} \
             --cut_tail --cut_tail_window_size {cut_window} --cut_tail_mean_quality {window_minqual} \
             -l {min_length} \
-            -j {fastp_json} -h {fastp_html} &&
-        vsearch --fastx_filter {output_R1} --reverse {output_R2} --fastqout >(gzip -c  > {filtered_R1}) \
-            --fastqout_rev >(gzip -c > {filtered_R2}) --fastq_maxee {maxEE} > {log_vsearch} 2>&1
+            -j {fastp_json} -h {fastp_html} > /dev/null 2>&1 """)
+    shell(f"""
+        vsearch --fastx_filter {output_R1} --reverse {output_R2} --fastqout {filtered_R1_temp} \
+            --fastqout_rev {filtered_R2_temp} --fastq_maxee {maxEE} > {log_vsearch} 2>&1
         """)
+    shell(f"gzip -c {filtered_R1_temp} > {filtered_R1}")
+    shell(f"gzip -c {filtered_R2_temp} > {filtered_R2}")
+    shell(f"rm {filtered_R1_temp} {filtered_R2_temp}")
 
 def pseudo_quality_trim(input_R1, input_R2, filtered_R1, filtered_R2):
     return shell(f"ln -s {input_R1} {filtered_R1} && ln -s {input_R2} {filtered_R2}")
