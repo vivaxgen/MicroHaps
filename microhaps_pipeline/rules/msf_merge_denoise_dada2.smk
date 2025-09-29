@@ -38,7 +38,7 @@ rule run_dada2R:
         maxEE = f"{config.get("maxEE", 5)},{config.get("maxEE", 5)}",          # Can recheck but should not perform additional filter, since already pre-filtered previously
         trimRight = "0,0",                                                          # Already trimmed, should not redo
         minLen = config['min_length'], # Can recheck but should not perform additional filter, since already pre-filtered previously
-        truncQ = f"{config.get("truncQ", 20)},{config.get("truncQ", 20)}",   # Can recheck but should not perform additional trim, since already pre-trimmed previously
+        truncQ = f"{config.get("dada2_truncQ_first", 5)},{config.get("dada2_truncQ_first", 5)}", 
         ##############################################
         minoverlap = config.get("min_overlap", 12),
         maxmismatch = config.get("maxmismatch", 0),

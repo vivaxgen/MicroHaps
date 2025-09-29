@@ -87,6 +87,7 @@ truncQ: 20
 cut_window: 3
 
 # dada2 denoising & haplotype generation
+dada2_trunQ_first: 5
 max_consist: 10
 omegaA: 1e-120
 justconcat: 0
