@@ -88,8 +88,8 @@ def init_argparser():
         help="indicate if post-processing should be done (choices: old [cigar], cs_short, cs_long)"
     )
     p.add_argument("--merge_map", default="dada2", type=str, 
-        choices=["dada2", "bbmerge", "fastq_merge", "fastp"],
-        help="indicate if post-processing should be done (choices: dada2 [default], bbmerge, fastq_merge, fastp)"
+        choices=["dada2", "fastp"],
+        help="indicate if post-processing should be done (choices: dada2 [default], fastp)"
     )
     p.add_argument("--add_args", default="", type=str, 
         help="additional arg string to pass to snakemake"

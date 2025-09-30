@@ -13,7 +13,7 @@ Quick Start
 
 .. code-block:: console
 
-    $ ngs-pl run-microhaplotype-caller -u 4 --panel pvvvg-mhap -o output path_to_fastq/*.fastq.gz
+    $ ngs-pl run-microhaplotype-caller -u 4 --panel pvvvg-mhap -o output --merge_map dada2 --post_process cs_short path_to_fastq/*.fastq.gz
 
 .. note::
     The FASTQ files should be in fastq.gz format (gzip-compressed), and the
@@ -31,6 +31,10 @@ The available panels are:
 Additional panels can be added, for more details please refer to the :doc:`developer's documentation <../develdocs/implementation>`.
 
 The ``-o`` option is used to specify the output directory. 
+
+The ``--merge_map`` option is used to specify how denoising and read-pairs merging are performed. ``dada2`` is the default option. ``fastp`` is an alternate option that is currently under rapid development and finetuning.
+
+The ``post_process`` option specify how the haplotypes is represented at the end. ``old`` method output the haplotype in pseudocigar string format. Recommended option is ``cs_short`` which will output the haplotypes in minimap2's short cs string format, ``cs_long`` is also an option. 
 
 .. warning::
 
@@ -89,4 +93,4 @@ The ``-o`` option is used to specify the output directory.
         stats.tsv
 
 
-The primary output file of interest is the ``outputCIGAR.tsv`` which contains the haplotype and their frequencies across the samples.
+The primary output file of interest is the ``outputCIGAR.tsv`` (generated with ``post_process`` set to ``old``) or ``outputHaplotypes.tsv`` (generated with ``post_process`` set to ``cs_short``) which contains the haplotype and their frequencies across the samples.
