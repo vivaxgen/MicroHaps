@@ -1,0 +1,13 @@
+channels:
+    - conda-forge
+    - bioconda
+    - defaults
+dependencies:
+    - "r-base>=4.5.1,<4.5.2"
+    - "r-argparse<2.3"
+    - "r-data.table<1.18"
+    - "r-seqinr<4.3"
+    - "r-domc<1.4"
+    - "r-network>=1.19,<1.20"
+    - "r-ggnetwork>=0.5,<0.6"
+channel_priority: strict

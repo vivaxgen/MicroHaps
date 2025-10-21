@@ -48,7 +48,7 @@ rule run_dada2R:
         _class = config['class'],
 
     shell:
-        """
+        """micromamba run -n muhaps-dada2 \
         Rscript {microhaps_basedir}/scripts/runDADA2.R  \
             --path_to_meta {input.meta} \
             --class {params._class} \
