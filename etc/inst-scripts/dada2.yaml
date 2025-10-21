@@ -10,4 +10,5 @@ dependencies:
     - "r-domc<1.4"
     - "r-network>=1.19,<1.20"
     - "r-ggnetwork>=0.5,<0.6"
+    - "r-devtools>=2.4.6,<2.5"
 channel_priority: strict
