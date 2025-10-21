@@ -50,9 +50,17 @@ To test your install, and read about programme specifications / options:
 Updating the pipeline
 ----------------------
 
-To update the pipeline line, assuming that the environment has been activated,
+To update the pipeline including its dependencies, assuming that the environment has been activated,
 run the following command:
 
 .. code-block:: console
 
-	$ $VVG_BIN/update-pipeline.sh
+	$ $VVGBIN/update-box
+
+To only update the pipeline code (so not updating its dependencies), run the following instead:
+
+.. code-block:: console
+
+        $ $VVGBIN/update-box --pull-repo-only
+
+
