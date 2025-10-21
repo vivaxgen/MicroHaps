@@ -79,20 +79,35 @@ def init_argparser():
         help="data is from Illumina 2 dye instruments: NovaSeq, NextSeq, MiniSeq",
     )
     p.add_argument("-o", "--outdir", default="output-dir", help="outdir")
-    p.add_argument("infiles", nargs="+")
     p.add_argument(
-        "--primers-trimmed", default=False, action="store_true", help="indicate if primers have been trimmed"
+        "-i", "--manifest", default=None, help="use manifest file for input files"
     )
-    p.add_argument("--post_process", default="old", type=str, 
+    p.add_argument("infiles", nargs="*")
+    p.add_argument(
+        "--primers-trimmed",
+        default=False,
+        action="store_true",
+        help="indicate if primers have been trimmed",
+    )
+    p.add_argument(
+        "--post_process",
+        default="cs_short",
+        type=str,
         choices=["old", "cs_short", "cs_long"],
-        help="indicate if post-processing should be done (choices: old [cigar], cs_short, cs_long)"
+        help="indicate if post-processing should be done (choices: old [cigar], cs_short, cs_long)",
     )
-    p.add_argument("--merge_map", default="dada2", type=str, 
+    p.add_argument(
+        "--merge_map",
+        default="dada2",
+        type=str,
         choices=["dada2", "fastp"],
-        help="indicate if post-processing should be done (choices: dada2 [default], fastp)"
+        help="indicate if post-processing should be done (choices: dada2 [default], fastp)",
     )
-    p.add_argument("--add_args", default="", type=str, 
-        help="additional arg string to pass to snakemake"
+    p.add_argument(
+        "--add_args",
+        default="",
+        type=str,
+        help="additional arg string to pass to snakemake",
     )
     return p
 
@@ -107,6 +122,14 @@ def run_microhaps_caller(args):
     check_multiplexer(args)
 
     os.environ["NGS_IGNORE_TERM_MULTIPLEXER_CHECK"] = "1"
+
+    # check if we are provided with infiles or manifest file
+    if not (any(args.infiles) or args.manifest):
+        cexit(f"ERROR: need to have infiles or manifest file (--manifest)")
+
+    if args.manifest:
+        raise NotImplementedError("This functionality hasn't been implemented")
+
     # check input files
     for infile in args.infiles:
         if not os.path.exists(infile):
@@ -144,12 +167,17 @@ def run_microhaps_caller(args):
 
     invocation = prepare_command_log()
     basedir = os.environ["VVG_BASEDIR"]
-    related_dir = [(d, os.path.join(basedir, "envs", d)) for d in ["MicroHaps", "vvg-box", "ngs-pipeline"]]
-    invocation["version"] = "; ".join([version.get_git_hash(dir_, env_name) for env_name, dir_ in related_dir])
-    os.makedirs(args.outdir, exist_ok = True)
+    related_dir = [
+        (d, os.path.join(basedir, "envs", d))
+        for d in ["MicroHaps", "vvg-box", "ngs-pipeline"]
+    ]
+    invocation["version"] = "; ".join(
+        [version.get_git_hash(dir_, env_name) for env_name, dir_ in related_dir]
+    )
+    os.makedirs(args.outdir, exist_ok=True)
     with open(args.outdir + "/runinfo.json", "w+") as f:
         json.dump(invocation, f, indent=4)
-    
+
     args.target = "all_microhaps"
     status, elapsed_time = run_snakefile.run_snakefile(
         args, config=config, show_status=False, additional_cli_args=args.add_args
