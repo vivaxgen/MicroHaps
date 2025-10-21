@@ -27,4 +27,5 @@ ngs-pl initialize --panel pfspotmal-mhap --target wgs
 
 echo "Installing additional R packages"
 micromamba install -y -n ${uMAMBA_ENVNAME}-dada2  -f ${ENVS_DIR}/MicroHaps/etc/inst-scripts/dada2.yaml
+micromamba remove -n muhaps-dada2 --no-prune-deps bioconductor-dada2
 micromamba run -n muhaps-dada2 Rscript -e 'if (!require("BiocManager", quietly = TRUE)){install.packages("BiocManager", repos = "https://cloud.r-project.org")}; BiocManager::install(version = "3.21", ask= FALSE, force=TRUE); BiocManager::install(c("dada2", "limma"));  if (!require("dcifer", quietly = TRUE)){ install.packages("dcifer", repos = "https://cloud.r-project.org")}; if (!require("moire", quietly = TRUE)){install.packages("moire", repos = c("https://eppicenter.r-universe.dev", "https://cloud.r-project.org"))}'
