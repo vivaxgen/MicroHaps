@@ -27,5 +27,5 @@ ngs-pl initialize --panel pfspotmal-mhap --target wgs
 
 echo "Installing additional R packages"
 retry 5 micromamba install -y -n ${uMAMBA_ENVNAME}-dada2  -f ${ENVS_DIR}/MicroHaps/etc/inst-scripts/dada2.yaml
-retry 5 micromamba -y remove -n ${uMAMBA_ENVNAME}-dada2 --no-prune bioconductor-dada2
-retry 5 micromamba run -n ${uMAMBA_ENVNAME}-dada2 Rscript -e 'if (!require("BiocManager", quietly = TRUE)){install.packages("BiocManager", repos = "https://cloud.r-project.org")}; BiocManager::install(version = "3.20", ask= FALSE, force=TRUE); BiocManager::install(c("dada2", "limma"));  if (!require("dcifer", quietly = TRUE)){ install.packages("dcifer", repos = "https://cloud.r-project.org")}; if (!require("moire", quietly = TRUE)){install.packages("moire", repos = c("https://eppicenter.r-universe.dev", "https://cloud.r-project.org"))}'
+retry 5 micromamba -y remove -n ${uMAMBA_ENVNAME}-dada2 --no-prune-deps bioconductor-dada2
+micromamba run -n ${uMAMBA_ENVNAME}-dada2 Rscript -e 'if (!require("BiocManager", quietly = TRUE)){install.packages("BiocManager", repos = "https://cloud.r-project.org")}; BiocManager::install(version = "3.20", ask= FALSE, force=TRUE); BiocManager::install(c("dada2", "limma"));  if (!require("dcifer", quietly = TRUE)){ install.packages("dcifer", repos = "https://cloud.r-project.org")}; if (!require("moire", quietly = TRUE)){install.packages("moire", repos = c("https://eppicenter.r-universe.dev", "https://cloud.r-project.org"))}'
