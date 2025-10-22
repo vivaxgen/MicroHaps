@@ -191,7 +191,7 @@ rule post_process_CIGAR:
         Table = f"{outdir}/malamp/ASVTable.txt",
         Seqs = f"{outdir}/malamp/ASVSeqs.fasta"
     shell:
-        "micromamba run -n muhaps-dada2 Rscript {microhaps_basedir}/scripts/postProc_dada2.R"
+        "Rscript {microhaps_basedir}/scripts/postProc_dada2.R"
         " -s {input}"
         " --strain PvP01"
         " -ref {insertseq_file}"
