@@ -45,7 +45,7 @@ def vsearch_unoise(input_merged_fasta, output_denoised_fasta, sample, params_, l
     return shell(f"""
         vsearch --cluster_unoise {input_merged_fasta} --centroids {output_denoised_fasta} \
         --fasta_width 0  --minsize {unoise_minsize} --unoise_alpha {unoise_alpha} \
-        --sizein --sizeout --relabel_sha1 \
+         --sizein --sizeout --relabel_sha1 \
         --threads 1 > {unoise_log} 2>&1
         """)
 
@@ -255,7 +255,6 @@ rule create_otutab_per_sample:
             else:
                 # use the sample specific denoised fasta as reference
                 fasta = os.path.join(sample_dir, marker, "final_merged.denoised_nochimera.fasta")
-            fasta = os.path.join(sample_dir, marker, "final_merged.denoised_nochimera.fasta")
             sample_fa = os.path.join(sample_dir, marker, "merged_uniq.fasta")
             marker_otutab = os.path.join(sample_dir, marker, "seqtab.tsv")
             shell(f"""vsearch --usearch_global {sample_fa} --db {fasta} {params.sequence_to_denoise_criteria} \
