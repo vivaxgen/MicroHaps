@@ -45,6 +45,7 @@ def vsearch_unoise(input_merged_fasta, output_denoised_fasta, sample, params_, l
     return shell(f"""
         vsearch --cluster_unoise {input_merged_fasta} --centroids {output_denoised_fasta} \
         --fasta_width 0  --minsize {unoise_minsize} --unoise_alpha {unoise_alpha} \
+        --sizein --sizeout --relabel_sha1 \
         --threads 1 > {unoise_log} 2>&1
         """)
 
@@ -173,27 +174,16 @@ rule merge_sample_marker_denoise:
         shell(f"touch {output}")
 
 
-def get_same_marker_all_sample(wildcards):
-    all_markers = []
-    for sample in IDs:
-        output_dir = checkpoints.bam_to_marker_fastq.get(sample=sample).output[0]
-        all_markers.extend(glob_wildcards(os.path.join(output_dir, "{marker}", "target_R1.fastq.gz")).marker)
-    all_markers = list(set(all_markers))
-    return expand(f"{outdir}/samples/{{sample}}/markers-reads/{wildcards.marker}/final_merged.denoised_nochimera.fasta",
-                  sample=IDs)
-
-
 rule merge_per_marker:
     priority: 10
     threads: 2
     input:
-        # expand(f"{outdir}/samples/{{sample}}/markers-reads/complete.flag", sample=IDs),
         expand(f"{outdir}/samples/{{sample}}/markers-reads/.merged_denoised", sample=IDs),
     output:
         merged_denoise_nochim_dir =directory(f"{outdir}/malamp/merged/"),
         merged_flag = f"{outdir}/malamp/merged/.merged"
     params:
-        sample_dir = f"{outdir}/samples"
+        sample_dir = f"{outdir}/samples",
     run:
         from concurrent.futures import ThreadPoolExecutor
         import os
@@ -250,7 +240,8 @@ rule create_otutab_per_sample:
     output:
         otutab = f"{outdir}/samples/{{sample}}/markers-reads/seqtab.tsv",
     params:
-        sequence_to_denoise_criteria = config.get('sequence_to_denoise_criteria', "--id 0.98 --iddef 1 --target_cov 0.98 --query_cov 0.98")
+        sequence_to_denoise_criteria = config.get('sequence_to_denoise_criteria', "--id 0.98 --iddef 1 --target_cov 0.98 --query_cov 0.98"),
+        joint_haplotype_call = config.get('joint_haplotype_call', False)
     run:
         import os
         merged_marker_dir = os.path.dirname(input.marker_merged_flag)
@@ -258,7 +249,13 @@ rule create_otutab_per_sample:
 
         per_marker_otu = []
         for marker in Markers:
-            fasta = os.path.join(merged_marker_dir, f"final_merged_{marker}.denoised_nochimera.fasta")
+            if params.joint_haplotype_call:
+                # use the joint denoised fasta as reference
+                fasta = os.path.join(merged_marker_dir, f"final_merged_{marker}.denoised_nochimera.fasta")
+            else:
+                # use the sample specific denoised fasta as reference
+                fasta = os.path.join(sample_dir, marker, "final_merged.denoised_nochimera.fasta")
+            fasta = os.path.join(sample_dir, marker, "final_merged.denoised_nochimera.fasta")
             sample_fa = os.path.join(sample_dir, marker, "merged_uniq.fasta")
             marker_otutab = os.path.join(sample_dir, marker, "seqtab.tsv")
             shell(f"""vsearch --usearch_global {sample_fa} --db {fasta} {params.sequence_to_denoise_criteria} \
