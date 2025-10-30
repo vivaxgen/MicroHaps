@@ -68,8 +68,7 @@ parameter_df <- data.frame(maxEE=maxEE,
 		max_consist=max_consist,
 		randomize=randomize,
 		selfConsist=selfConsist,
-		OMEGA_A=omega_a,
-  		justConcatenate=justConcatenate)
+		OMEGA_A=omega_a)
 
 print(parameter_df)
 
