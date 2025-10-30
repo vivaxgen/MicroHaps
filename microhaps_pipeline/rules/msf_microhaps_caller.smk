@@ -47,6 +47,9 @@ if config.get("merge_map") == "dada2":
     include: "msf_merge_denoise_dada2.smk"
 elif config.get("merge_map") == "fastp":
     include: "msf_fastp_merge.smk"
+elif config.get("merge_map") == "fastp_dada2":
+    include: "msf_fastp_merge.smk"
+    include: "msf_dada2_denoise.smk"
 else:
     raise ValueError(f"Unknown merge_map option: {config.get('merge_map')}")
 

@@ -100,8 +100,8 @@ def init_argparser():
         "--merge_map",
         default="dada2",
         type=str,
-        choices=["dada2", "fastp"],
-        help="indicate if post-processing should be done (choices: dada2 [default], fastp)",
+        choices=["dada2", "fastp", "fastp_dada2"],
+        help="indicate if post-processing should be done (choices: dada2 [default], fastp, fastp_dada2)",
     )
     p.add_argument(
         "--add_args",

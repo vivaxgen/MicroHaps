@@ -6,12 +6,15 @@ def fastp_merge_reads(input_R1, input_R2, output_merged, log_json, log_html, par
         fastp -A -Q -L -m --in1 {input_R1} --in2 {input_R2} --merged_out {output_merged} -j {log_json} -h {log_html} {params_}
     """)
 
-def vsearch_filter_insert_length(input_merged, output_merged_fasta, params_, log_ = None):
+def vsearch_filter_insert_length(input_merged, output_merged_fasta, params_, output_merged_fastq = None, log_ = None):
     maxEE = params_.get("maxEE", 5)
     min_max = params_.get("min_max", (0, 0))
     vsearch_filter_log = "/dev/null" if log_ is None or log_ == "" else log_
+    addn_output = ""
+    if not output_merged_fastq is None:
+        addn_output = f"--fastqout {output_merged_fastq}"
     return shell(f"""
-        vsearch --fastx_filter {input_merged} --fastaout {output_merged_fasta} --fastq_maxee {maxEE} \
+        vsearch --fastx_filter {input_merged} --fastaout {output_merged_fasta} {addn_output} --fastq_maxee {maxEE} \
         --fastq_minlen {min_max[0]} --fastq_maxlen {min_max[1]} > {vsearch_filter_log} 2>&1
     """)
 
@@ -104,6 +107,7 @@ rule merge_sample_marker_denoise:
             {
                 "input_merged": os.path.join(marker_read_dir, marker, "merged.fastq.gz"),
                 "output_merged_fasta": os.path.join(marker_read_dir, marker, "merged.fasta"),
+                "output_merged_fastq": os.path.join(marker_read_dir, marker, "merged_filtered.fastq.gz"),
                 "params_": {
                     "maxEE": params.maxEE,
                     "min_max": min_max_inserts_length[i]
