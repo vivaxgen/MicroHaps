@@ -7,7 +7,7 @@ def optical_dedup(input_bam, output_stats, output_marked_bam, output_deduped_bam
         | samtools fixmate -@ {nthread} -m -u - - \
         | samtools sort -@ {nthread} -u - \
         | samtools markdup -@ {nthread} -f {output_stats} -m s -d {pixel_distance} - {output_marked_bam} \
-        && samtools view -b -e '[dt]!="SQ"' {output_marked_bam} | samtools sort -@ {nthread} -o {output_deduped_bam}
+        && samtools view -b -e '[dt]!="SQ" || !exists([dt])' {output_marked_bam} | samtools sort -@ {nthread} -o {output_deduped_bam}
     """)
 
 def filter_bam(input_bam, output_unsorted_bam, output_filtered_bam, log_file, nthread, max_insert = 350):
