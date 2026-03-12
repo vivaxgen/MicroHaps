@@ -114,6 +114,9 @@ def init_argparser():
 
 def run_microhaps_caller(args):
 
+    from ngs_pipeline import fileutils
+    import pickle
+
     # check panel
     if not args.panel:
         cexit("Please provide a panel to use using --panel argument")
@@ -126,9 +129,6 @@ def run_microhaps_caller(args):
     # check if we are provided with infiles or manifest file
     if not (any(args.infiles) or args.manifest):
         cexit(f"ERROR: need to have infiles or manifest file (--manifest)")
-
-    if args.manifest:
-        raise NotImplementedError("This functionality hasn't been implemented")
 
     # check input files
     for infile in args.infiles:
@@ -147,13 +147,31 @@ def run_microhaps_caller(args):
 
     args.paired = True if not args.single else False
 
-    config = dict(
-        infiles=args.infiles,
-        singleton=args.single,
-        paired=args.paired,
+    # Preparing a manifest file for the input files as a pickle file.
+    # This is to avoid overflowing the command line with too many input files, as snakemake passes the config as
+    # command line arguments for the consecutive child (rule) processes.
+
+    read_files = fileutils.ReadFileDict(
+        args.infiles,
         underscore=args.underscore,
-        outdir=pathlib.Path(args.outdir).absolute().as_posix(),
+        mode=fileutils.ReadMode.PAIRED_END if args.paired else (fileutils.ReadMode.SINGLETON if args.single else None),
         skip_list=args.skip if not args.no_skip else [],
+        manifest_file=args.manifest,
+        sort_by_size=True,
+    )
+
+    # save the infiles to a pickle
+
+    manifest_picklefile = pathlib.Path(args.outdir) / "metafile" / "manifest.pickle"
+    manifest_picklefile.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(manifest_picklefile, "wb") as fout:
+        pickle.dump(read_files, fout)
+    cerr(f"Manifest file pickled for {len(read_files._d)} sample(s).")    
+
+    config = dict(
+        outdir=pathlib.Path(args.outdir).absolute().as_posix(),
+        manifest_picklefile=manifest_picklefile,
         # use generic 2-dye instrument
         instrument="nextseq" if args.illumina_2_dye else "generic",
         # run discovery mode
