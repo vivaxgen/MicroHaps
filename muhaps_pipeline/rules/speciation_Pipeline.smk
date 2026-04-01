@@ -138,7 +138,7 @@ rule msa_consensus:
     output:
         msa = f"{out_dir}/combined_consensus.msa.fasta"
     shell:
-        "muscle -in {input.combined_consensus} -out {output.msa}"
+        "muscle -align {input.combined_consensus} -output {output.msa}"
 
 rule get_bedcov_mean:
     input:
