@@ -1,7 +1,7 @@
 
 import os
 import pathlib
-from ngs_pipeline import cerr, cexit, get_snakefile_path, snakeutils
+from ngs_pipeline import cerr, cexit, snakeutils # get_snakefile_path
 from ngs_pipeline.cmds import run_snakefile
 
 
@@ -26,7 +26,7 @@ def run_full_analysis(args):
 
     import muhaps_pipeline
 
-    args.snakefile = get_snakefile_path('speciation_Pipeline.smk', from_module=muhaps_pipeline)
+    args.snakefile = run_snakefile.get_snakefile_path('muhaps_pipeline::speciation_Pipeline.smk')
     args.no_config_cascade = False #True
     args.force = True
 

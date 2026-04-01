@@ -39,7 +39,6 @@ regions:
   - PvP01_14_v2
   - PvP01_API_v2
   - PvP01_MIT_v2
-  - phix
 
 # this is amplicon sequencing, so turn off deduplication
 deduplicate: False

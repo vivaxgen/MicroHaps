@@ -4,9 +4,9 @@ from ngs_pipeline import cerr, fileutils
 
 microhaps_basedir = os.environ['MICROHAPS_BASEDIR']
 
-reference = f'{microhaps_basedir}/{config.get('mit_reference', "refs/MIT/mit_synthetic_genome.fasta")}'
-bedfile = f'{microhaps_basedir}/{config.get('mit_bedfile', "refs/MIT/mit_synthetic_genome.bed")}'
-ref_spec = f'{microhaps_basedir}/{config.get('mit_ref_spec', "refs/MIT/mit_spec2.fasta")}'
+reference = f'{microhaps_basedir}/{config.get('mit_reference', "configs/refs/MIT/mit_synthetic_genome.fasta")}'
+bedfile = f'{microhaps_basedir}/{config.get('mit_bedfile', "configs/refs/MIT/mit_synthetic_genome.bed")}'
+ref_spec = f'{microhaps_basedir}/{config.get('mit_ref_spec', "configs/refs/MIT/mit_spec2.fasta")}'
 
 
 
@@ -138,7 +138,7 @@ rule msa_consensus:
     output:
         msa = f"{out_dir}/combined_consensus.msa.fasta"
     shell:
-        "muscle -in {input.combined_consensus} -out {output.msa}"
+        "muscle -align {input.combined_consensus} -output {output.msa}"
 
 rule get_bedcov_mean:
     input:
