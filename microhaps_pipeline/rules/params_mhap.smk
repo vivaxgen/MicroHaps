@@ -53,21 +53,18 @@ outdir = config['outdir']
 indir=''
 
 # set read mode
-singleton = config.get('singleton', None)
-paired = config.get('paired', None)
-if singleton:
-    read_mode = fileutils.ReadMode.SINGLETON
-elif paired:
-    read_mode = fileutils.ReadMode.PAIRED_END
+
+if (manifest_picklefile := config.get('manifest_picklefile', None)):
+    import pickle
+    with open(manifest_picklefile, 'rb') as fin:
+        read_files = pickle.load(fin)
 else:
-    read_mode = None
-
-
-read_files = fileutils.ReadFileDict(config['infiles'],
-                                    underscore=config['underscore'],
-                                    mode=read_mode,
-                                    skip_list=config.get('skip_list', []),
-)
+    read_files = fileutils.ReadFileDict(
+        config['infiles'],
+        underscore=config['underscore'],
+        mode=read_mode,
+        skip_list=config.get('skip_list', []),
+    )
 IDs = read_files.keys()
 
 

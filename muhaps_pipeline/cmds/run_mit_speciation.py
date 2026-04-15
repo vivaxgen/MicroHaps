@@ -1,7 +1,7 @@
 
 import os
 import pathlib
-from ngs_pipeline import cerr, cexit, snakeutils # get_snakefile_path
+from ngs_pipeline import cerr, cexit, snakeutils
 from ngs_pipeline.cmds import run_snakefile
 
 
