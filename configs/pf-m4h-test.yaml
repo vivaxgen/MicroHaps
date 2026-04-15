@@ -1,0 +1,134 @@
+#
+# pvvvg-mhap.yaml - configuration file for the Menzies vivax microhaps panel
+#
+
+# --- NGS-Pipeline settings ---
+
+optical_dedup: False
+instrument: generic
+platform: generic
+libprep: generic
+
+min_read_qual: 15
+read_length: 100
+
+# TO-DO split refseq for different species
+refseq_file: configs/refs/pf-m4h/test_260213/Pf3D7_v3_combined.fasta
+# strtable_file: configs/refs/Pf/Pf3D7_v3/Pf3D7_v3.str_table.zip # TODO: get the data file
+# knownvariants_dir: configs/refs/Pf/Pf3D7_v3/known-variants # TODO: get the data file
+
+# perform variant calling on all chromosomes as single workflow
+complete_region: Pf3D7_all_v3
+
+# perform targeted variant calling
+targetregion_file: configs/refs/pf-m4h/test_260213/inserts.bed #TODO  -- only pf added
+
+regions:
+  - Pf3D7_01_v3
+  - Pf3D7_02_v3
+  - Pf3D7_03_v3
+  - Pf3D7_04_v3
+  - Pf3D7_05_v3
+  - Pf3D7_06_v3
+  - Pf3D7_07_v3
+  - Pf3D7_08_v3
+  - Pf3D7_09_v3
+  - Pf3D7_10_v3
+  - Pf3D7_11_v3
+  - Pf3D7_12_v3
+  - Pf3D7_13_v3
+  - Pf3D7_14_v3
+  - Pf3D7_API_v3
+  - Pf3D7_MIT_v3
+  - PmUG01_12
+  - PvP01_12_v3
+  - PksH_12
+  - PocGH01_12
+
+# this is amplicon sequencing, so turn off deduplication
+deduplicate: False
+
+# set below to True for new samples (for the purpose of submitting to SRA database)
+keep_paired_bam: False
+
+# set below to True for structural variant (SV) analysis such as CNV
+keep_final_bam: True
+
+# filter to apply for deduplicated BAM
+# read_filters: --remove_FR --remove_RF --remove_FF --remove_RR --remove_trans --remove_unmapped --remove_secondary --remove_supplementary
+# for below, we keep FR, RF, FF and RR orientation for future SV analysis
+read_filters: --remove_trans --remove_unmapped --remove_secondary --remove_supplementary
+
+
+reads_trimmer_wf: trimmer_null.smk
+reads_mapper_wf: mapper_bwa-mem2.smk
+
+# multistep-variant-caller parameters
+prepare_sample_directory_flags: --force
+sample_variant_caller_flags: --force --no-config-cascade
+joint_variant_caller_flags: --force --no-config-cascade
+
+variant_caller_wf: ssf_varcall_gatk_drag.smk
+
+gatk_calibrate_str: True
+haplotypecaller_flags: --max-reads-per-alignment-start 0 --do-not-run-physical-phasing --pileup-detection --dont-use-soft-clipped-bases
+
+# --- end of NGS-Pipeline settings ---
+
+trimqv: 15 # illumina-2-dye quality-trim of 3' ends
+
+# --- parameters for Microhaplotype settings ---
+
+optical_dedup_pixel_distance: 10
+
+# trimming-related parameters (shared for different merging algorithms)
+class: "parasite"
+maxEE: 5
+trim_right_R1: 3
+trim_right_R2: 5
+min_length: 30
+truncQ: 20
+cut_window: 3
+
+# dada2 denoising & haplotype generation
+dada2_truncQ_first: 5
+max_consist: 10
+omegaA: 1e-120
+justconcat: 0
+platform: "PE"
+min_overlap: 7
+maxmismatch: 2
+
+# fastp merge:
+fastp_merge_params: "--overlap_len_require 7"
+insert_size_tolerant_threshold: 0.25
+unoise_minsize: 5
+unoise_minsize_ratio: 1
+unoise_alpha: 1.5
+
+additional_trim_before_haplotype_generation: True
+
+
+sequence_to_denoise_criteria: "--id 0.99 --iddef 1 --target_cov 1 --query_cov 1"
+
+# per https://github.com/lh3/minimap2/issues/521
+# If minimap2 is not sensitive enough, reduce -k (def: 15) and -w (def: 10) at the cost of mapping speed.
+# 1 gap = -6, 2 gaps = -7, .... 
+# 1 mismatch = -4, 2 mismatches = -8 ..
+minimap2_params: "-k 10 -w 5 -A2 -B4 -O4,24 -E2,1 -z 1200 --end-bonus 1200" #TODO: determine the suitable params
+
+#refs
+
+insertseq: configs/refs/pf-m4h/test_260213/inserts.fasta #TODO
+primer_fw: configs/refs/pf-m4h/test_260213/primers_fwd.fasta #TODO
+primer_rev: configs/refs/pf-m4h/test_260213/primers_rev.fasta #TODO
+
+primers_bed: configs/refs/pf-m4h/test_260213/primers.bed
+
+gff_file: configs/refs/Pf/Pf3D7_v3/Pf3D7_v3.gff.bz2
+drugs_resistance_aa_pos: configs/refs/pf-m4h/test_260213/drug_resistance_aa_pos.tsv
+refs_dir: configs/refs/pf-m4h/test_260213
+drugs_resistance_bed: configs/refs/pf-m4h/test_260213/drug_diagnostic.bed
+
+presence_absence_markers: configs/refs/pf-m4h/test_260213/presence_absence.bed
+# EOF

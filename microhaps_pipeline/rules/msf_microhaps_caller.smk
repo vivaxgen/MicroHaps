@@ -66,6 +66,16 @@ new_postprocess = config.get('post_process', "old")
 
 merging_output = f"{outdir}/malamp/{config.get('merge_map')}/seqtab.tsv"
 
+drug_resistance_output = []
+if config.get("drugs_resistance_aa_pos", None) is not None:
+    include: "msf_drug_resistance.smk"
+    drug_resistance_output.append(f"{outdir}/malamp/drug_resistance.tsv")
+
+presence_absence_output = []
+if config.get("presence_absence_markers", None) is not None:
+    include: "msf_presence_absence.smk"
+    presence_absence_output.append(f"{outdir}/malamp/presence_absence.tsv")
+
 rule all_microhaps:
     input:
         f"{outdir}/stats.tsv",
@@ -76,6 +86,8 @@ rule all_microhaps:
         *([f"{outdir}/malamp/outputHaplotypes.tsv", f"{outdir}/malamp/outputHaplotypes_rm_ins.tsv"] if new_postprocess != "old" else [f"{outdir}/malamp/outputCIGAR.tsv"]),
         f"{outdir}/malamp/depths-microhaps.png",
         f"{outdir}/malamp/depth-ratio-markers.png",
+        *drug_resistance_output,
+        *presence_absence_output,
 
 rule seqtab:
     input:

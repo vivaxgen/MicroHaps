@@ -142,15 +142,19 @@ rule final_bam_depth_coverage_per_inserts:
         depth_coverage = f"{outdir}/samples/{{sample}}/logs/depth_coverage-mapped.tsv",
     params:
         prefix_to_remove = f"{outdir}/samples/",
+        suffix_to_remove = "/maps/final.bam",
     run:
         import pandas as pd
         from io import StringIO
-        markers = pd.read_table(input.targetregion_file, header=None, names=["Chr", "Start", "End", "Amplicon_name"])
+        markers = pd.read_table(input.targetregion_file, header=None)
+        if markers.shape[1] < 4:
+            markers.loc[:, 3] = markers.apply(lambda x: f"{x[0]}:{x[1]}-{x[2]}", axis=1)
+        markers.columns = ["Chr", "Start", "End", "Amplicon_name"]
         all_results = []
         markers["region"] = markers["Chr"] + ":" + markers["Start"].astype(str) + "-" + markers["End"].astype(str)
         for marker in markers["region"]:
             temp = pd.read_table(StringIO(shell(f"samtools coverage -H -r {marker} {input.bam}", read= True)), header=None, names = ["rname", "startpos", "endpos", "numreads", "covbases", "coverage", "meandepth", "meanbaseq", "meanmapq"])
-            temp["sample"] = input.bam.replace(params.prefix_to_remove, "").replace("/maps/final.bam", "")
+            temp["sample"] = input.bam.replace(params.prefix_to_remove, "").replace(params.suffix_to_remove, "")
             temp["region"] = marker
             all_results.append(temp)
         all_results = pd.concat(all_results)
@@ -161,17 +165,13 @@ rule final_bam_depth_coverage_per_inserts:
 rule aggregate_depth_coverage:
     input:
         per_inserts_depth_coverage = expand(f"{outdir}/samples/{{sample}}/logs/depth_coverage-mapped.tsv", sample=IDs),
-        targetregion_file = targetregion_file,
     output:
         depth = f"{outdir}/depths-mapped.tsv",
         coverage = f"{outdir}/coverages-mapped.tsv"
     run:
         import pandas as pd
-        from io import StringIO
         all_results = []
 
-        markers = pd.read_table(input.targetregion_file, header=None, names=["Chr", "Start", "End", "Amplicon_name"])
-        markers["region"] = markers["Chr"] + ":" + markers["Start"].astype(str) + "-" + markers["End"].astype(str)
         all_result = [pd.read_table(f) for f in input.per_inserts_depth_coverage]
         full_result = pd.concat(all_result)
 
