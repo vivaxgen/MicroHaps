@@ -9,6 +9,7 @@ rule final_presence_absence_report:
 rule merge_presence_absence_report:
     input:
         reports = expand(f"{outdir}/samples/{{sample}}/presence_absence/stats.tsv", sample=IDs),
+        bed = presence_absence_bed,
     output:
         f"{outdir}/malamp/presence_absence.tsv"
     log:
@@ -18,6 +19,8 @@ rule merge_presence_absence_report:
         min_numreads = config.get("presence_absence_min_numreads", 5),
     run:
         import pandas as pd
+        bedfile = pd.read_table(input.bed, header=None, names=["Chr", "Start", "End", "Amplicon_name"])
+        order = bedfile["Amplicon_name"].tolist()
         all_result = [pd.read_table(f) for f in input.reports]
         full_result = pd.concat(all_result)
         full_result["presence"] = "absent"
@@ -26,6 +29,9 @@ rule merge_presence_absence_report:
         full_result["coverage|nread"] = full_result["coverage"].astype(str) + "|" + full_result["numreads"].astype(str)
         full_result.to_csv(log[0], index=False, sep="\t")
         final_result = full_result.pivot_table(index=["Chr", "Start", "End", "Amplicon_name"], columns="sample", values="presence", aggfunc="first", fill_value="absent").reset_index()
+        final_result_cols = final_result.columns.tolist()
+        final_result = final_result.set_index("Amplicon_name").loc[order].reset_index()
+        final_result = final_result[final_result_cols]
         final_result.to_csv(output[0], index=False, sep="\t")
 
 
