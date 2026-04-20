@@ -2,7 +2,7 @@
 # snakemake --snakefile drug_resistance_workflow.smk
 
 
-haplotype_list = get_abspath(config.get("refs_dir") + "/haplotype_list.bed") # TODO to move out to params, etc..
+drugs_resistance_variant_list = get_abspath(config.get("drugs_resistance_variant_list"))
 aa_pos_file = get_abspath(config.get("drugs_resistance_aa_pos"))
 gff = get_abspath(config.get("gff_file"))
 target_bed = get_abspath(config.get("drugs_resistance_bed"))
@@ -15,7 +15,7 @@ rule final_drug_resistance_report:
 rule merge_drug_resistance_report:
     input:
         reports = expand(f"{outdir}/samples/{{sample}}/drugs/drug_resistance_report.tsv", sample=IDs),
-        variant_list = haplotype_list,
+        variant_list = drugs_resistance_variant_list,
     output:
         f"{outdir}/malamp/drug_resistance.tsv"
     run:
@@ -43,7 +43,7 @@ rule predict_aa:
         reference = refseq,
         gff = gff,
         pseudohaplotypes =  f"{outdir}/samples/{{sample}}/drugs/haplotype_pseudohaplotypes.tsv",
-        variant_list = haplotype_list
+        variant_list = drugs_resistance_variant_list
     output:
         protein_predictions = f"{outdir}/samples/{{sample}}/drugs/haplotype_protein_predictions.tsv",
         final_output = f"{outdir}/samples/{{sample}}/drugs/drug_resistance_report.tsv"
@@ -57,7 +57,7 @@ rule predict_aa:
 rule generate_pseudohaplotype:
     input:
         filtered_bam = f"{outdir}/samples/{{sample}}/maps/named_sorted_drugs.bam", 
-        variant_list = haplotype_list,
+        variant_list = drugs_resistance_variant_list,
     output:
         details = f"{outdir}/samples/{{sample}}/drugs/haplotype_details.tsv",
         result = f"{outdir}/samples/{{sample}}/drugs/haplotype_pseudohaplotypes.tsv",
@@ -117,7 +117,7 @@ rule generate_variant_list:
         reference = refseq,
         gff = gff,
     output:
-        haplotype_list
+        drugs_resistance_variant_list
     shell:
         """
         python {microhaps_basedir}/scripts/aa_to_genomic.py --aa_pos_file {input.aa_pos_file} --reference {input.reference} --gff_file {input.gff} --output {output}

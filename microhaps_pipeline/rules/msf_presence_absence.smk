@@ -56,6 +56,7 @@ rule filter_and_index_bam_presence_absence:
         """
         samtools view -h -L {input.bed} {input.merged_bam} | 
         samtools ampliconclip -b {params.primers_bed} -f {log} {params.samtools_ampliconclip_params} --rejects-file {output.rejects} - |
+        samtools sort -n |
         samtools fixmate -mMu -  - |
         samtools calmd -u - {refseq} - |
         samtools sort -o {output.index_sorted}

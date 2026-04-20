@@ -133,3 +133,16 @@ dmypy.json
 
 # macos
 .DS_Store
+
+# indexes
+*.bt2
+*.amb
+*.ann
+*.fai
+*.bwt*
+*.pac
+*.0123
+*.dict
+
+# misc - ignore extension
+*.ignore

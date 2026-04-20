@@ -12,7 +12,7 @@ libprep: generic
 min_read_qual: 15
 read_length: 100
 
-refseq_file: configs/refs/Pf/Pf3D7_v3/Pf3D7_v3.fasta
+refseq_file: configs/refs/pf-m4h/Pf3D7_v3_combined.fasta
 # strtable_file: configs/refs/Pv/PvP01_v2/PvP01_v2.str_table.zip #to-change
 # knownvariants_dir: configs/refs/Pv/PvP01_v2/known-variants #to-change
 
@@ -118,5 +118,16 @@ insertseq: configs/refs/pf-m4h/inserts.fasta
 primer_fw: configs/refs/pf-m4h/primers_fwd.fasta 
 primer_rev: configs/refs/pf-m4h/primers_rev.fasta
 
+insertseq: configs/refs/pf-m4h/inserts.fasta
+primer_fw: configs/refs/pf-m4h/primers_fwd.fasta
+primer_rev: configs/refs/pf-m4h/primers_rev.fasta
 
+primers_bed: configs/refs/pf-m4h/primers.bed
+
+gff_file: configs/refs/Pf/Pf3D7_v3/Pf3D7_v3.gff.bz2
+drugs_resistance_variant_list: configs/refs/pf-m4h/drug_resistance_genomic_pos.tsv
+drugs_resistance_aa_pos: configs/refs/pf-m4h/drug_resistance_aa_pos.tsv
+drugs_resistance_bed: configs/refs/pf-m4h/drug_diagnostic.bed
+
+presence_absence_markers: configs/refs/pf-m4h/presence_absence.bed
 # EOF

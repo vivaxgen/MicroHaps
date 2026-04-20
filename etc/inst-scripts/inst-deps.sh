@@ -23,6 +23,7 @@ reload_vvg_profiles
 
 echo "Initialize enviroment"
 ngs-pl initialize --panel pvvvg-mhap --target wgs
+ngs-pl initialize --panel pf-m4h --target wgs
 ngs-pl initialize --panel pfspotmal-mhap --target wgs
 
 echo "Installing additional R packages"
