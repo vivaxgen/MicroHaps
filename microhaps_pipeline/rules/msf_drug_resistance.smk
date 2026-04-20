@@ -1,7 +1,3 @@
-# /home/data/malaria/work/ldwg/LATEST_NGSPL/vvg-MicroHaps/bin/activate
-# snakemake --snakefile drug_resistance_workflow.smk
-
-
 drugs_resistance_variant_list = get_abspath(config.get("drugs_resistance_variant_list"))
 aa_pos_file = get_abspath(config.get("drugs_resistance_aa_pos"))
 gff = get_abspath(config.get("gff_file"))
@@ -16,12 +12,14 @@ rule merge_drug_resistance_report:
     input:
         reports = expand(f"{outdir}/samples/{{sample}}/drugs/drug_resistance_report.tsv", sample=IDs),
         variant_list = drugs_resistance_variant_list,
+        gene_aa_pos = aa_pos_file,
     output:
         f"{outdir}/malamp/drug_resistance.tsv"
     run:
         import pandas as pd
         variants_ = pd.read_table(input.variant_list, header=None, names=["chrom", "pos0", "pos", "variant_id"])
-
+        genes = pd.read_table(input.gene_aa_pos)
+        genes = genes[["gene", "gene_id"]].drop_duplicates()
         columns = ["sample"] + sorted(variants_["variant_id"].unique().tolist(), key=lambda x: (x.split(":")[0], int(x.split(":")[1])))
         all_reports = []
         for report_ in input.reports:
@@ -36,7 +34,35 @@ rule merge_drug_resistance_report:
                     counts = ','.join([str(a) for a in res['count'].values])
                     result.append(f"{aas}|{counts}")
             all_reports.append(result)
-        combined_report_df = pd.DataFrame(all_reports, columns = columns).to_csv(output[0], index=False, sep="\t")
+        combined_report_df = pd.DataFrame(all_reports, columns = columns)
+        # transform every cell apart from sample to aa|count format, collapsing identical aas and summing counts for identical aas
+        def collapse_aa_counts(x):
+            aas, counts = x.split("|")
+            aa_count_dict = {}
+            for aa, count in zip(aas.split(","), counts.split(",")):
+                if aa == "X":
+                    aa = "."
+                if aa in aa_count_dict:
+                    aa_count_dict[aa] += int(count)
+                else:
+                    aa_count_dict[aa] = int(count)
+            # sortd by count descending
+            sorted_aa_count = sorted(aa_count_dict.items(), key=lambda x: x[1], reverse=True)
+            collapsed_aas = ','.join([aa for aa, count in sorted_aa_count])
+            collapsed_counts = ','.join([str(count) for aa, count in sorted_aa_count])
+            return f"{collapsed_aas}|{collapsed_counts}"
+        for col in combined_report_df.columns[1:]:
+            combined_report_df[col] = combined_report_df[col].apply(lambda x: collapse_aa_counts(x))
+        variant_header = combined_report_df.columns[1:]
+        def gene_id_to_gene_name(gene_id):
+            gene_name = genes.query("gene_id == @gene_id")["gene"].values
+            if len(gene_name) > 0:
+                return gene_name[0]
+            else:
+                return gene_id
+        new_variant_header = [gene_id_to_gene_name(v.split(":")[0]) + ":" + v.split(":")[1] for v in variant_header]
+        combined_report_df.columns = ["sample"] + new_variant_header
+        combined_report_df.to_csv(output[0], index=False, sep="\t")
 
 rule predict_aa:
     input:
