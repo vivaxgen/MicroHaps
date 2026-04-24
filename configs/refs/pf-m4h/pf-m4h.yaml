@@ -39,6 +39,10 @@ regions:
   - Pf3D7_14_v3
   - Pf3D7_API_v3
   - Pf3D7_MIT_v3
+  - PmUG01_12
+  - PvP01_12_v3
+  - PksH_12
+  - PocGH01_12
 
 # this is amplicon sequencing, so turn off deduplication
 deduplicate: False
