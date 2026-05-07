@@ -15,8 +15,8 @@
 #micromamba -y install samclip -c conda-forge -c bioconda -c defaults
 
 echo "Installing other dependencies with micromamba"
-retry 5 micromamba -y install -n ${uMAMBA_ENVNAME} -f ${ENVS_DIR}/MicroHaps/etc/inst-scripts/env.yaml
-retry 5 micromamba -y install -n ${uMAMBA_ENVNAME} -f ${ENVS_DIR}/MicroHaps/etc/inst-scripts/dada2.yaml
+retry 5 micromamba -vvv -y install -n ${uMAMBA_ENVNAME} -f ${ENVS_DIR}/MicroHaps/etc/inst-scripts/env.yaml
+retry 5 micromamba -vvv -y install -n ${uMAMBA_ENVNAME} -f ${ENVS_DIR}/MicroHaps/etc/inst-scripts/dada2.yaml
 
 echo "Reloading profiles"
 reload_vvg_profiles
