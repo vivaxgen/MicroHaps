@@ -70,6 +70,7 @@ drug_resistance_output = []
 if config.get("drugs_resistance_aa_pos", None) is not None:
     include: "msf_drug_resistance.smk"
     drug_resistance_output.append(f"{outdir}/malamp/drug_resistance.tsv")
+    drug_resistance_output.append(f"{outdir}/malamp/drug_resistance_flagged.tsv")
 
 presence_absence_output = []
 if config.get("presence_absence_markers", None) is not None:

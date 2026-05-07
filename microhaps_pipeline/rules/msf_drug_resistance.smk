@@ -1,4 +1,5 @@
 drugs_resistance_variant_list = get_abspath(config.get("drugs_resistance_variant_list"))
+db_path = get_abspath(config.get("drug_resistance_db"))
 aa_pos_file = get_abspath(config.get("drugs_resistance_aa_pos"))
 gff = get_abspath(config.get("gff_file"))
 target_bed = get_abspath(config.get("drugs_resistance_bed"))
@@ -6,7 +7,22 @@ target_bed = get_abspath(config.get("drugs_resistance_bed"))
 rule final_drug_resistance_report:
     input:
         f"{outdir}/malamp/drug_resistance.tsv",
-        f"{outdir}/samples/{{sample}}/drugs/drug_resistance_stats.tsv"
+        f"{outdir}/samples/{{sample}}/drugs/drug_resistance_stats.tsv",
+        f"{outdir}/malamp/drug_resistance_flagged.tsv",
+
+rule flag_drug_resistance:
+    input:
+        final_report = f"{outdir}/malamp/drug_resistance.tsv",
+        db = db_path,
+    output:
+        flagged_report = f"{outdir}/malamp/drug_resistance_flagged.tsv"
+    params:
+        min_depth_drug_resistance = config.get("min_depth_drug_resistance", 10),
+    shell:
+        """
+        python {microhaps_basedir}/scripts/flag_potential_resistance.py -i {input.final_report} -d {input.db} -o {output.flagged_report} --min_depth {params.min_depth_drug_resistance}
+        """
+
 
 rule merge_drug_resistance_report:
     input:

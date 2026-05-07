@@ -132,6 +132,8 @@ gff_file: configs/refs/Pf/Pf3D7_v3/Pf3D7_v3.gff.bz2
 drugs_resistance_variant_list: configs/refs/pf-m4h/drug_resistance_genomic_pos.tsv
 drugs_resistance_aa_pos: configs/refs/pf-m4h/drug_resistance_aa_pos.tsv
 drugs_resistance_bed: configs/refs/pf-m4h/drug_diagnostic.bed
+drug_resistance_db: configs/refs/pf-m4h/Pfalciparum_drug_resistance_markers_compendium.tsv
+min_depth_drug_resistance: 10
 
 presence_absence_markers: configs/refs/pf-m4h/presence_absence.bed
 # EOF
