@@ -3,8 +3,12 @@
 # installation script for vivaxgen MicroHaps pipeline [https://github.com/vivaxgen/MicroHaps]
 
 # optional variable:
-# - BASEDIR
-# - OMIT
+# - VVG_BASEDIR
+# - PIXI_ENVNAME
+# - VVG_EXCLUDE
+# - VVG_INCLUDE
+# - VVG_MHAPS_REPOURL
+
 
 set -eu
 
@@ -24,23 +28,21 @@ case "$parent" in
 esac
 
 # Parsing arguments
-if [ -t 0 ] && [ -z "${BASEDIR:-}" ]; then
+if [ -t 0 ] && [ -z "${VVG_BASEDIR:-}" ]; then
   printf "Pipeline base directory? [./vvg-MicroHaps] "
-  read BASEDIR
+  read VVG_BASEDIR
 fi
 
 # default value
-BASEDIR="${BASEDIR:-./vvg-MicroHaps}"
+VVG_BASEDIR="${VVG_BASEDIR:-./vvg-MicroHaps}"
 
-OMIT="${OMIT:-}"
-uMAMBA_ENVNAME='muhaps'
+PIXI_ENVNAME='muhaps'
 source <(curl -L https://raw.githubusercontent.com/vivaxgen/ngs-pipeline/main/install.sh)
 
 # prepare MicroHaps pipeline environment
 
 echo Cloning vivaxGEN MicroHaps pipeline
-git clone --depth 1  https://github.com/vivaxgen/MicroHaps.git ${ENVS_DIR}/MicroHaps
-ln -sr ${ENVS_DIR}/MicroHaps/etc/bashrc.d/50-microhaps ${BASHRC_DIR}/
+git clone --depth 1  ${VVG_MHAPS_REPOURL:-https://github.com/vivaxgen/MicroHaps.git} ${ENVS_DIR}/MicroHaps
 
 source ${ENVS_DIR}/MicroHaps/etc/inst-scripts/inst-deps.sh
 
