@@ -37,11 +37,13 @@ fi
 VVG_BASEDIR="${VVG_BASEDIR:-./vvg-MicroHaps}"
 
 PIXI_ENVNAME='muhaps'
+
+echo ">> Installing vivaxGEN MicroHaps pipeline to ${VVG_BASEDIR} with environment name ${PIXI_ENVNAME}"
 source <(curl -L https://raw.githubusercontent.com/vivaxgen/ngs-pipeline/main/install.sh)
 
 # prepare MicroHaps pipeline environment
 
-echo Cloning vivaxGEN MicroHaps pipeline
+echo ">> Cloning vivaxGEN MicroHaps pipeline"
 git clone --depth 1  ${VVG_MHAPS_REPOURL:-https://github.com/vivaxgen/MicroHaps.git} ${ENVS_DIR}/MicroHaps
 
 source ${ENVS_DIR}/MicroHaps/etc/inst-scripts/inst-deps.sh
