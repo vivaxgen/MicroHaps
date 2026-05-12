@@ -9,6 +9,8 @@
 # - VVG_INCLUDE
 # - VVG_MHAPS_REPOURL
 
+__VERSION__='2026.05.08.01'
+echo -e "\e[32m>> vivaxGEN MicroHaps pipeline installation script version: ${__VERSION__}\e[0m"
 
 set -eu
 
@@ -38,15 +40,15 @@ VVG_BASEDIR="${VVG_BASEDIR:-./vvg-MicroHaps}"
 
 PIXI_ENVNAME='muhaps'
 
-echo ">> Installing vivaxGEN MicroHaps pipeline to ${VVG_BASEDIR} with environment name ${PIXI_ENVNAME}"
+echo -e "\e[32m>> Installing vivaxGEN MicroHaps pipeline to ${VVG_BASEDIR} with environment name ${PIXI_ENVNAME}\e[0m"
 source <(curl -L https://raw.githubusercontent.com/vivaxgen/ngs-pipeline/main/install.sh)
 
 # prepare MicroHaps pipeline environment
 
-echo ">> Cloning vivaxGEN MicroHaps pipeline"
+echo -e "\e[32m>> Cloning vivaxGEN MicroHaps pipeline\e[0m"
 git clone --depth 1  ${VVG_MHAPS_REPOURL:-https://github.com/vivaxgen/MicroHaps.git} ${ENVS_DIR}/MicroHaps
 
-source ${ENVS_DIR}/MicroHaps/etc/inst-scripts/inst-deps.sh
+source ${ENVS_DIR}/MicroHaps/etc/inst-scripts/inst-stage-2.sh
 
 echo "MicroHaps" >> ${ETC_DIR}/installed-repo.txt
 
