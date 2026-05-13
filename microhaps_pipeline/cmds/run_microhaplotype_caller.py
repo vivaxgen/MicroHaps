@@ -171,7 +171,7 @@ def run_microhaps_caller(args):
 
     config = dict(
         outdir=pathlib.Path(args.outdir).absolute().as_posix(),
-        manifest_picklefile=manifest_picklefile,
+        manifest_picklefile=manifest_picklefile.absolute().as_posix(),
         # use generic 2-dye instrument
         instrument="nextseq" if args.illumina_2_dye else "generic",
         # run discovery mode
