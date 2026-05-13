@@ -26,6 +26,9 @@ relatively current version of bash):
 
 	"${SHELL}" <(curl -L https://raw.githubusercontent.com/vivaxgen/MicroHaps/main/install.sh)
 
+For installing in macos (M-series), use the following command (after enabling rosetta):
+
+	PIXI_OVERRIDE_PLATFORM=osx-64 "${SHELL}" <(curl -L https://raw.githubusercontent.com/vivaxgen/MicroHaps/main/install.sh)
 
 The installation requires ~ 20-45 minutes as most of R packages need to be recompiled
 during installation.
