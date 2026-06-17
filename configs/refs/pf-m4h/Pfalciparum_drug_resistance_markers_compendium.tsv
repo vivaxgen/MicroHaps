@@ -120,10 +120,7 @@ Index	Classification	Drug	Gene	Alteration
 66	Potential marker (Lab.)	Cycloguanil	Pfdhfr	S108N
 67	Potential marker (Lab.)	Cycloguanil	Pfdhfr	C50R
 67	Potential marker (Lab.)	Cycloguanil	Pfdhfr	S108N
-68	Potential marker (Lab.)	Lumefantrine	Pfmdr1	Amplification
-69	Validated marker (Epi., Lab. & Clin.)	Mefloquine	Pfmdr1	Amplification
 70	Validated marker (Epi., Lab. & Clin.)	Piperaquine	Pfcrt	C350R
-71	Validated marker (Epi., Lab. & Clin.)	Piperaquine	Pfpm2/3	Amplification
 72	Potential marker (Lab.)	Piperaquine	Pfcrt	C101F
 73	Validated marker (Epi., Lab. & Clin.)	Piperaquine	Pfcrt	F145I
 74	Validated marker (Epi., Lab. & Clin.)	Piperaquine	Pfcrt	H97Y
@@ -147,14 +144,12 @@ Index	Classification	Drug	Gene	Alteration
 84	Potential marker (Lab.)	Pyrimethamine	Pfdhfr	S108N
 84	Potential marker (Lab.)	Pyrimethamine	Pfdhfr	I164L
 85	Candidate marker (Epi. & Lab.)	Pyrimethamine	Pfdhfr	S108N
-86	Candidate marker (Epi. & Lab.)	Pyrimethamine	Pfgch1	Amplification
 87	Potential marker (Lab.)	Pyrimethamine	Pfdhfr	I164L
 88	Potential marker (Lab.)	Pyrimethamine	Pfdhfr	N51I
 89	Potential marker (Lab.)	Pyrimethamine	Pfdhfr	C59R
 90	Potential marker (Lab.)	Quinine	Pfmdr1	S1034C
 90	Potential marker (Lab.)	Quinine	Pfmdr1	N1042D
 90	Potential marker (Lab.)	Quinine	Pfmdr1	D1246Y
-91	Potential marker (Lab.)	Quinine	Pfmdr1	Amplification
 92	Potential marker (Lab.)	Quinine	Pfcrt	Q352K
 92	Potential marker (Lab.)	Quinine	Pfcrt	Q352R
 93	Potential marker (Lab.)	Sulfadoxine	Pfdhps	S436A

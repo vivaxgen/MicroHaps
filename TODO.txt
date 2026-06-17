@@ -1,4 +1,2 @@
-
-- install bioconductor-dada2 from micromamba instead of compiling it
-
-
+- [X] remove Pf-drug resistance targets that are amplification-based  
+- [ ] remove Pf-drug resistance targets that are not covered 

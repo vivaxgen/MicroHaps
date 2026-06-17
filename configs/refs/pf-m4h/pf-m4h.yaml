@@ -13,8 +13,8 @@ min_read_qual: 15
 read_length: 100
 
 refseq_file: configs/refs/pf-m4h/Pf3D7_v3_combined.fasta
-# strtable_file: configs/refs/Pv/PvP01_v2/PvP01_v2.str_table.zip #to-change
-# knownvariants_dir: configs/refs/Pv/PvP01_v2/known-variants #to-change
+strtable_file: configs/refs/Pf/Pf3D7_v3/Pf3D7_v3.str_table.zip #to-change
+knownvariants_dir: configs/refs/Pf/Pf3D7_v3/Pf3D7_v3/known-variants #to-change
 
 # perform variant calling on all chromosomes as single workflow
 complete_region: Pf3D7_all_v3 #to-change
