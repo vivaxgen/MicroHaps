@@ -1,8 +1,8 @@
 
 
-import ngs_pipeline.rules
+from ngs_pipeline.rules import inc
 
-include: ngs_pipeline.rules.path("multistep_variant_calling.smk")
+include: inc("ngs_pipeline::multistep_variant_calling.smk")
 
 if config.get("joint_discovery"):
     final_output = f"{outdir}/joint/concatenated.vcf.gz.tbi"
@@ -10,9 +10,23 @@ else:
     final_output = []
 
 
+
+
 ruleorder: mark_prepared > run_prepare_sample_directory
-ruleorder: gather_stats_sample > gather_stats
+#ruleorder: gather_stats_sample > gather_stats
+ruleorder: mapping_stats > gather_stats
 ruleorder: prepare_shallow_dir > index_bai
+
+
+rule mapping_stats:
+    localrule: True
+    input:
+        expand(f"{outdir}/samples/{{sample}}/logs/stats.tsv", sample=read_files.samples()),
+    output:
+        f"{outdir}/stats.tsv"
+    shell:
+        'ngs-pl gather-stats -o {output} {outdir}/samples'
+
 
 rule mark_prepared:
     localrule: True

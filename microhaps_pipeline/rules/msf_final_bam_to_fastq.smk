@@ -31,7 +31,7 @@ def filter_bam_chrom(input_bam, chrom, output_filtered_bam, output_filtered_bam_
 rule optical_dedup_filter_sample:
     threads: 4
     input:
-        bam = f"{outdir}/samples/{{sample}}/maps/final.bam"
+        bam = f"{outdir}/samples/{{sample}}/maps/mapped-final.bam"
     output:
         marked = temp(f"{outdir}/samples/{{sample}}/maps/final.temp.mark_dup.bam"),
         deduped = temp(f"{outdir}/samples/{{sample}}/maps/final.temp.op_dedup.bam"),
@@ -135,14 +135,14 @@ rule bam_to_marker_fastq:
 
 rule final_bam_depth_coverage_per_inserts:
     input:
-        bam = f"{outdir}/samples/{{sample}}/maps/final.bam",
-        bai = f"{outdir}/samples/{{sample}}/maps/final.bam.bai",
+        bam = f"{outdir}/samples/{{sample}}/maps/mapped-final.bam",
+        bai = f"{outdir}/samples/{{sample}}/maps/mapped-final.bam.bai",
         targetregion_file = targetregion_file,
     output:
         depth_coverage = f"{outdir}/samples/{{sample}}/logs/depth_coverage-mapped.tsv",
     params:
         prefix_to_remove = f"{outdir}/samples/",
-        suffix_to_remove = "/maps/final.bam",
+        suffix_to_remove = "/maps/mapped-final.bam",
     run:
         import pandas as pd
         from io import StringIO
