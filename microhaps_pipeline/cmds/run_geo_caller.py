@@ -1,0 +1,187 @@
+# run_sample_microhaps_caller.py - Microhaps command
+# [https://github.com/vivaxgen/Microhaps]
+
+__author__ = "Hidayat Trimarsanto"
+__copyright__ = "(C) 2024, Hidayat Trimarsanto"
+__email__ = "trimarsanto@gmail.com,hidayat.trimarsanto@menzies.edu.au"
+__license__ = "MIT"
+
+# to improve the responsiveness during bash autocomplete, do not import heavy
+# modules (such as numpy, pandas, etc) here, but instead import them within the
+# functions that require the respective heavy modules
+
+import sys
+import os
+import pathlib
+from ngs_pipeline import cerr, cexit, check_multiplexer, prepare_command_log
+from ngs_pipeline.cmds import run_snakefile, version
+from glob import glob
+import json
+
+basedir = os.environ.get("MICROHAPS_BASEDIR", None)
+avail_panels = [
+    os.path.basename(panel).replace(".yaml", "")
+    for panel in glob(pathlib.posixpath.join(basedir, "configs", "*.yaml"))
+]
+
+
+def init_argparser():
+    p = run_snakefile.init_argparser("run microhaplotype caller per sample")
+
+    m = p.add_mutually_exclusive_group()
+    m.add_argument(
+        "--single",
+        default=False,
+        action="store_true",
+        help="fastq files are single (non-paired) such as ONT reads",
+    )
+    m.add_argument(
+        "--paired",
+        default=False,
+        action="store_true",
+        help="fastq files are paired such as Illumina paired-end reads",
+    )
+
+    p.add_argument(
+        "-u",
+        "--underscore",
+        default=0,
+        type=int,
+        help="number of underscore character to be stripped, counted in reverse (see docs)",
+    )
+
+    p.add_argument(
+        "--skip",
+        default=["Undetermined"],
+        action="append",
+        help="skip samples with the given name (can be used multiple times)",
+    )
+
+    p.add_argument(
+        "--no-skip", default=False, action="store_true", help="do not skip any samples"
+    )
+
+    p.arg_dict["panel"].help = (
+        f"the panel for this run. Available panels: {', '.join(avail_panels)}"
+    )
+
+    p.add_argument(
+        "--illumina-2-dye",
+        default=False,
+        action="store_true",
+        help="data is from Illumina 2 dye instruments: NovaSeq, NextSeq, MiniSeq",
+    )
+    p.add_argument("-o", "--outdir", default="output-dir", help="outdir")
+    p.add_argument(
+        "-i", "--manifest", default=None, help="use manifest file for input files"
+    )
+    p.add_argument("infiles", nargs="*")
+    p.add_argument(
+        "--primers-trimmed",
+        default=False,
+        action="store_true",
+        help="indicate if primers have been trimmed",
+    )
+
+    p.add_argument(
+        "--add_args",
+        default="",
+        type=str,
+        help="additional arg string to pass to snakemake",
+    )
+    return p
+
+
+def run_geo_microhaps_caller(args):
+
+    from ngs_pipeline import fileutils
+    import pickle
+
+    # check panel
+    if not args.panel:
+        cexit("Please provide a panel to use using --panel argument")
+
+    # check multiplexer
+    check_multiplexer(args)
+
+    os.environ["NGS_IGNORE_TERM_MULTIPLEXER_CHECK"] = "1"
+
+    # check if we are provided with infiles or manifest file
+    if not (any(args.infiles) or args.manifest):
+        cexit(f"ERROR: need to have infiles or manifest file (--manifest)")
+
+    # check input files
+    for infile in args.infiles:
+        if not os.path.exists(infile):
+            cexit(f"error: input file {infile} not found")
+
+    # check skip
+    if args.no_skip:
+        args.skip = []
+
+    args.snakefile = run_snakefile.get_snakefile_path(
+        "microhaps_pipeline::mhap_geo_caller.smk"
+    )
+    args.no_config_cascade = True
+    args.force = True
+
+    args.paired = True if not args.single else False
+
+    # Preparing a manifest file for the input files as a pickle file.
+    # This is to avoid overflowing the command line with too many input files, as snakemake passes the config as
+    # command line arguments for the consecutive child (rule) processes.
+
+    read_files = fileutils.ReadFileDict(
+        args.infiles,
+        underscore=args.underscore,
+        mode=fileutils.ReadMode.PAIRED_END if args.paired else (fileutils.ReadMode.SINGLETON if args.single else None),
+        skip_list=args.skip if not args.no_skip else [],
+        manifest_file=args.manifest,
+        sort_by_size=True,
+    )
+
+    # save the infiles to a pickle
+
+    manifest_picklefile = pathlib.Path(args.outdir) / "metafile" / "manifest.pickle"
+    manifest_picklefile.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(manifest_picklefile, "wb") as fout:
+        pickle.dump(read_files, fout)
+    cerr(f"Manifest file pickled for {len(read_files._d)} sample(s).")    
+
+    config = dict(
+        outdir=pathlib.Path(args.outdir).absolute().as_posix(),
+        manifest_picklefile=manifest_picklefile.absolute().as_posix(),
+        # use generic 2-dye instrument
+        instrument="nextseq" if args.illumina_2_dye else "generic",
+        primers_trimmed=args.primers_trimmed,
+    )
+
+    invocation = prepare_command_log()
+    basedir = os.environ["VVG_BASEDIR"]
+    related_dir = [
+        (d, os.path.join(basedir, "envs", d))
+        for d in ["MicroHaps", "vvg-box", "ngs-pipeline"]
+    ]
+    invocation["version"] = "; ".join(
+        [version.get_git_hash(dir_, env_name) for env_name, dir_ in related_dir]
+    )
+    os.makedirs(args.outdir, exist_ok=True)
+    with open(args.outdir + "/runinfo.json", "w+") as f:
+        json.dump(invocation, f, indent=4)
+
+    args.target = "geo_mhaps"
+    status, elapsed_time = run_snakefile.run_snakefile(
+        args, config=config, show_status=False, additional_cli_args=args.add_args
+    )
+
+    if not status:
+        cerr("[WARNING: run-mhap-geo-caller did not successfully complete]")
+    cerr(f"[Finish run-mhap-geo-caller (time: {elapsed_time})]")
+
+
+def main(args):
+    run_geo_microhaps_caller(args)
+
+
+#  EOF
