@@ -48,7 +48,7 @@ use rule final_bam_depth_coverage_per_inserts as generate_stats_for_presence_abs
 
 rule filter_and_index_bam_presence_absence:
     input:
-        merged_bam = f"{outdir}/samples/{{sample}}/maps/final.bam",
+        merged_bam = f"{outdir}/samples/{{sample}}/maps/mapped-final.bam",
         bed = presence_absence_bed
     output:
         index_sorted = f"{outdir}/samples/{{sample}}/maps/index_sorted_presence_absence.bam",
