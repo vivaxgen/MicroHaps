@@ -2,7 +2,7 @@
 
 from ngs_pipeline.rules import inc
 
-include: inc("ngs_pipeline::multistep_variant_calling.smk")
+include: inc("ngs_pipeline::workflow/multistep_variant_calling.smk")
 
 if config.get("joint_discovery"):
     final_output = f"{outdir}/joint/concatenated.vcf.gz.tbi"
