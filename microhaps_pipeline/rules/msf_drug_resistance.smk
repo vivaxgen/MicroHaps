@@ -131,7 +131,7 @@ rule name_sort_bam:
 
 rule filter_and_sort_bam:
     input:
-        merged_bam = f"{outdir}/samples/{{sample}}/maps/final.bam",
+        merged_bam = f"{outdir}/samples/{{sample}}/maps/mapped-final.bam",
         bed = target_bed,
     output:
         index_sorted = f"{outdir}/samples/{{sample}}/maps/index_sorted_drugs.bam",
