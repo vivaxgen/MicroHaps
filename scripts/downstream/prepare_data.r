@@ -132,9 +132,9 @@ select.markers <- function(long, keep.marker = "pv_microhaplotype") {
       long[grepl("MIT", long[["locus"]]), ]
     },
     pf_microhaplotype = {
-      long[grepl("pf-marker", long[["locus"]]), ]
+      long[ ( grepl("pf-marker", long[["locus"]]) & !grepl("species", long[["locus"]]) ), ]
     },
-    stop("Valid options are 'microhaplotype', 'drugR', 'mitochondria'")
+    stop("Valid options are 'microhaplotype', 'drugR', 'mitochondria' 'pf_microhaplotype'")
   )
 }
 
