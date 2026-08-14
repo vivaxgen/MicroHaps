@@ -40,6 +40,12 @@ parser$add_argument(
   default = 10,
   help = "Minimum total read-pair count per locus per sample (default: 10)"
 )
+parser$add_argument(
+  "--keep_marker",
+  type = "character",
+  default = "pv_microhaplotpye",
+  help = "What markers to keep: pv_microhaplotype | pf_microhaplotype"
+)
 
 args <- parser$parse_args()
 
@@ -49,7 +55,7 @@ rmindel <- args$rmindel
 allele.count.cutoff <- args$allele_count_cutoff
 minimum.total.cutoff <- args$minimum_total_cutoff
 minimum.nloci <- args$minimum_nloci
-
+keep_marker <- args$keep_marker
 
 
 if (!dir.exists(outdir)) {
@@ -113,10 +119,10 @@ rmindel.allele <- function(long) {
 }
 
 
-select.markers <- function(long, keep.marker = "microhaplotype") {
+select.markers <- function(long, keep.marker = "pv_microhaplotype") {
   switch (
     keep.marker,
-    microhaplotype = {
+    pv_microhaplotype = {
       long[!grepl("MIT|DHPS|MDR1", long[["locus"]]), ]
     },
     drugR = {
@@ -124,6 +130,9 @@ select.markers <- function(long, keep.marker = "microhaplotype") {
     },
     mitochondria = {
       long[grepl("MIT", long[["locus"]]), ]
+    },
+    pf_microhaplotype = {
+      long[grepl("pf-marker", long[["locus"]]), ]
     },
     stop("Valid options are 'microhaplotype', 'drugR', 'mitochondria'")
   )
@@ -197,7 +206,7 @@ write.table(long, long.file, quote = FALSE, sep = "\t", row.names = FALSE)
 
 
 # FIXME: comment any lines below to disable certain filters
-mhap <- select.markers(long, keep.marker = "microhaplotype")
+mhap <- select.markers(long, keep.marker = keep_marker)
 mhap.filtered <- allele.count.filter(mhap, allele.count.cutoff)
 mhap.filtered <- minimum.total.filter(mhap.filtered, minimum.total.cutoff)
 mhap.filtered.nloci.per.sample <- calculate.remaining.nloci(mhap.filtered)
