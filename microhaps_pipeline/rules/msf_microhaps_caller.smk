@@ -83,12 +83,16 @@ if config.get("presence_absence_markers", None) is not None:
     include: pkg("msf_presence_absence.smk")
     presence_absence_output.append(f"{outdir}/malamp/presence_absence.tsv")
 
+depths_mapped_plot = [f"{outdir}/depths-mapped.png"]
+if len(Plates) > 1:
+    depths_mapped_plot += [f"{outdir}/depths-mapped_{plate}.png" for plate in Plates]
 
 rule all_microhaps:
     input:
         f"{outdir}/stats.tsv",
-        f"{outdir}/depths-mapped.png",
+        *depths_mapped_plot,
         f"{outdir}/coverages-mapped.tsv",
+        f"{outdir}/depths-mapped.tsv",
         f"{outdir}/.__discovery__",
         merging_output,
         *([f"{outdir}/malamp/outputHaplotypes.tsv", f"{outdir}/malamp/outputHaplotypes_rm_ins.tsv"] if new_postprocess != "old" else [f"{outdir}/malamp/outputCIGAR.tsv"]),

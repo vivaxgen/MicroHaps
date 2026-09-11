@@ -39,12 +39,22 @@ insertseq_file = get_abspath(config['insertseq'], microhaps_basedir)
 primer_fw_file = get_abspath(config['primer_fw'], microhaps_basedir)
 primer_rev_file = get_abspath(config['primer_rev'], microhaps_basedir)
 refseq_file = get_abspath(config['refseq_file'], microhaps_basedir)
+plate_info_path = config.get("plate_info", None)
+plate_info = get_abspath(plate_info_path) if plate_info_path is not None else None 
+
+def all_plates():
+    import pandas as pd
+    if plate_info is None:
+        return ["1"]
+    plates = pd.read_table(plate_info)
+    return plates["Plate"].unique().tolist()
 
 def all_markers():
     import pandas as pd
     markers = pd.read_table(targetregion_file, header=None, names=["Chr", "Start", "End", "Amplicon_name"])
     return markers["Amplicon_name"].to_list()
 
+Plates = all_plates()
 Markers = all_markers()
 # define all output files 
 

@@ -153,7 +153,7 @@ rule final_bam_depth_coverage_per_inserts:
         all_results = []
         markers["region"] = markers["Chr"] + ":" + markers["Start"].astype(str) + "-" + markers["End"].astype(str)
         for marker in markers["region"]:
-            temp = pd.read_table(StringIO(shell(f"samtools coverage -H -r {marker} {input.bam}", read= True)), header=None, names = ["rname", "startpos", "endpos", "numreads", "covbases", "coverage", "meandepth", "meanbaseq", "meanmapq"])
+            temp = pd.read_table(StringIO(shell(f"samtools coverage -H -l 50 -r {marker} {input.bam}", read= True)), header=None, names = ["rname", "startpos", "endpos", "numreads", "covbases", "coverage", "meandepth", "meanbaseq", "meanmapq"])
             temp["sample"] = input.bam.replace(params.prefix_to_remove, "").replace(params.suffix_to_remove, "")
             temp["region"] = marker
             all_results.append(temp)
@@ -161,29 +161,53 @@ rule final_bam_depth_coverage_per_inserts:
         full_result = markers.merge(all_results, left_on="region", right_on="region", how="outer").drop("region", axis=1)
         full_result.to_csv(output.depth_coverage, sep="\t", index=False)
 
-
 rule aggregate_depth_coverage:
     input:
         per_inserts_depth_coverage = expand(f"{outdir}/samples/{{sample}}/logs/depth_coverage-mapped.tsv", sample=IDs),
+    params:
+        plate_info = plate_info,
     output:
         depth = f"{outdir}/depths-mapped.tsv",
         coverage = f"{outdir}/coverages-mapped.tsv"
     run:
         import pandas as pd
+        if params.plate_info is not None:
+            plate_info = pd.read_table(params.plate_info)
+            has_plate_info = True
+        else:
+            has_plate_info = False
+
         all_results = []
 
         all_result = [pd.read_table(f) for f in input.per_inserts_depth_coverage]
         full_result = pd.concat(all_result)
+        
+        if has_plate_info:
+            full_result = full_result.merge(plate_info, left_on="Amplicon_name", right_on="Marker", how="left")
+        else:
+            full_result["Plate"] = "1"
 
         # pivot full result to get count of reads per sample per marker
-        full_result2 = full_result.pivot_table(index=["Chr", "Start", "End", "Amplicon_name"], columns="sample", values="numreads", fill_value=0).reset_index()
-        full_result2[full_result2.columns[4:]] = full_result2[full_result2.columns[4:]].astype(int)
+        full_result2 = full_result.pivot_table(index=["Plate", "Chr", "Start", "End", "Amplicon_name"], columns="sample", values="numreads", fill_value=0).reset_index()
+        full_result2[full_result2.columns[5:]] = full_result2[full_result2.columns[5:]].astype(int)
+        full_result2 = full_result2.sort_values(by=["Plate", "Chr", "Start", "End", "Amplicon_name"])
         full_result2.to_csv(output.depth, sep="\t", index=False)
 
-        full_result3 = full_result.pivot_table(index=["Chr", "Start", "End", "Amplicon_name"], columns="sample", values="coverage", fill_value=0).reset_index()
-        full_result3[full_result3.columns[4:]] = full_result3[full_result3.columns[4:]].astype(int)
+        full_result3 = full_result.pivot_table(index=["Plate", "Chr", "Start", "End", "Amplicon_name"], columns="sample", values="coverage", fill_value=0).reset_index()
+        full_result3[full_result3.columns[5:]] = full_result3[full_result3.columns[5:]].astype(int)
+        full_result3 = full_result3.sort_values(by=["Plate", "Chr", "Start", "End", "Amplicon_name"])
         full_result3.to_csv(output.coverage, sep="\t", index=False)
 
+rule split_per_plate:
+    input:
+        depth = f"{outdir}/depths-mapped.tsv",
+    output:
+        depth_per_plate = temp(expand(f"{outdir}/depths-mapped_{{plate}}.tsv", plate=Plates)),
+    run:
+        import pandas as pd
+        depth_df = pd.read_table(input.depth)
+        for plate in Plates:
+            depth_df[depth_df["Plate"] == plate].to_csv(f"{outdir}/depths-mapped_{plate}.tsv", sep="\t", index=False)
 
 rule depth_heatmap:
     input:
@@ -191,9 +215,19 @@ rule depth_heatmap:
     output:
         depth = f"{outdir}/depths-mapped.png",
         marker = f"{outdir}/markers-mapped.png",
+    params:
+        additional_title = "Reads",
     shell:
-        "ngs-pl tab-to-plots --index-column Amplicon_name --additional-title 'Reads'"
+        "ngs-pl tab-to-plots --index-column Amplicon_name --additional-title '{params.additional_title}'"
         "  --outheatmap {output.depth} --outmarker {output.marker} {input.depth}"
 
+use rule depth_heatmap as depth_heatmap_per_plate with:
+    input:
+        depth = f"{outdir}/depths-mapped_{{plate}}.tsv",
+    output:
+        depth = f"{outdir}/depths-mapped_{{plate}}.png",
+        marker = f"{outdir}/markers-mapped_{{plate}}.png",
+    params:
+        additional_title = lambda w: f"Reads - {w.plate}",
 
 # EOF

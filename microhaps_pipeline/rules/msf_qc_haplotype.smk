@@ -37,7 +37,7 @@ rule depth_ratio:
         mapped_df = pd.read_csv(input.depth_mapped, sep='\t')
         microhaps_df = pd.read_csv(input.depth_microhaps, sep='\t')
 
-        depth_mapped = mapped_df.iloc[:, 4:].set_index(mapped_df.Amplicon_name)
+        depth_mapped = mapped_df.iloc[:, 5:].set_index(mapped_df.Amplicon_name)
         depth_microhaps = microhaps_df.iloc[:, 4:].set_index(microhaps_df.Amplicon_name)
 
         ratio_df = (depth_microhaps / depth_mapped).fillna(0).reindex(depth_mapped.index).reset_index()
