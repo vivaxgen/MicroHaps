@@ -73,9 +73,9 @@ def init_argparser():
     )
 
     p.add_argument(
-        "--illumina-2-dye",
-        default=False,
-        action="store_true",
+        "--no-illumina-2-dye",
+        default=True,
+        action="store_false",
         help="data is from Illumina 2 dye instruments: NovaSeq, NextSeq, MiniSeq",
     )
     p.add_argument("-o", "--outdir", default="output-dir", help="outdir")
@@ -94,14 +94,14 @@ def init_argparser():
         default="cs_short",
         type=str,
         choices=["old", "cs_short", "cs_long"],
-        help="indicate if post-processing should be done (choices: old [cigar], cs_short, cs_long)",
+        help="indicate if post-processing should be done (choices: old [cigar], cs_short [default], cs_long)",
     )
     p.add_argument(
         "--merge_map",
-        default="dada2",
+        default="fastp_dada2",
         type=str,
         choices=["dada2", "fastp", "fastp_dada2"],
-        help="indicate if post-processing should be done (choices: dada2 [default], fastp, fastp_dada2)",
+        help="indicate if post-processing should be done (choices: fastp_dada2 [default], fastp, dada2)",
     )
     p.add_argument(
         "--add_args",

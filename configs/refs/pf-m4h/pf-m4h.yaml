@@ -78,7 +78,7 @@ trimqv: 15 # illumina-2-dye quality-trim of 3' ends
 
 # --- parameters for Microhaplotype settings ---
 
-optical_dedup_pixel_distance: 10
+optical_dedup_pixel_distance: 100
 
 # trimming-related parameters (shared for different merging algorithms)
 class: "parasite"
