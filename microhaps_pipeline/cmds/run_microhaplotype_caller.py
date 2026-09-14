@@ -173,7 +173,7 @@ def run_microhaps_caller(args):
         outdir=pathlib.Path(args.outdir).absolute().as_posix(),
         manifest_picklefile=manifest_picklefile.absolute().as_posix(),
         # use generic 2-dye instrument
-        instrument="nextseq" if args.illumina_2_dye else "generic",
+        instrument="generic" if args.no_illumina_2_dye else "nextseq",
         # run discovery mode
         joint_discovery=args.run_discovery,
         gatk_drag_haplotypecaller="gatk_drag_haplotypecaller",
