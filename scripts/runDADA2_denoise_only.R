@@ -168,6 +168,7 @@ dev.off()
 
 #Generate output: sequence table to a tsv
 write.table(seqtab, file=output_filename, quote = FALSE, sep = "\t")
+write.table(seqtab.nochim, file=gsub(".tsv", ".nochim.tsv", output_filename), quote = FALSE, sep = "\t")
 
 # Save Run as R workspace image (Optional)
 if (is.null(args$save_run)||args$save_run == '') {

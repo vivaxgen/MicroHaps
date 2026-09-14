@@ -54,6 +54,7 @@ rule run_dada2R_denoise:
         """
         Rscript {microhaps_basedir}/scripts/runDADA2_denoise_only.R  \
             --path_to_meta {input.meta} \
+            --bimera \
             --dir {params.dir} \
             --output_filename {params.output_filename} \
             --maxEE {params.maxEE} \
