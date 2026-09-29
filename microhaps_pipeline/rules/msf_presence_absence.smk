@@ -11,18 +11,21 @@ rule merge_presence_absence_report:
         reports = expand(f"{outdir}/samples/{{sample}}/presence_absence/stats.tsv", sample=IDs),
         bed = presence_absence_bed,
     output:
-        f"{outdir}/malamp/presence_absence.tsv"
+        f"{outdir}/malamp/presence_absence.tsv",
+        f"{outdir}/malamp/presence_absence_detailed.tsv",
     log:
         f"{outdir}/logs/merge_presence_absence_report.log"
     params:
-        min_coverage = config.get("presence_absence_min_coverage", 90),
-        min_numreads = config.get("presence_absence_min_numreads", 5),
+        min_coverage = config.get("presence_absence_min_coverage", 80),
+        min_numreads = config.get("presence_absence_min_numreads", 1),
     run:
         import pandas as pd
         bedfile = pd.read_table(input.bed, header=None, names=["Chr", "Start", "End", "Amplicon_name"])
         order = bedfile["Amplicon_name"].tolist()
         all_result = [pd.read_table(f) for f in input.reports]
         full_result = pd.concat(all_result)
+        detailed_result = full_result.pivot_table(index=["Chr", "Start", "End", "Amplicon_name"], columns="sample", values=["coverage", "numreads"], aggfunc="first", fill_value=0).reset_index()
+        detailed_result.to_csv(output[1], index=False, sep="\t")
         full_result["presence"] = "absent"
         full_result.loc[(full_result["coverage"] >= params.min_coverage) &
                         (full_result["numreads"] >= params.min_numreads), "presence"] = "present"
