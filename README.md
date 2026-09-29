@@ -30,6 +30,8 @@ For installing in macos (M-series), use the following command (after enabling ro
 
 	PIXI_OVERRIDE_PLATFORM=osx-64 "${SHELL}" <(curl -L https://raw.githubusercontent.com/vivaxgen/MicroHaps/main/install.sh)
 
+*update: PIXI_OVERRIDE_PLATFORM=osx-64 is no longer required tested as of: 29-09-2026. Users will still need to install homebrew, install bash and gnucoreutils*
+
 The installation requires ~ 20-45 minutes as most of R packages need to be recompiled
 during installation.
 
