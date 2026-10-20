@@ -166,6 +166,7 @@ rule aggregate_depth_coverage:
         per_inserts_depth_coverage = expand(f"{outdir}/samples/{{sample}}/logs/depth_coverage-mapped.tsv", sample=IDs),
     params:
         plate_info = plate_info,
+        min_coverage = config.get("inserts_min_coverage", 80),
     output:
         depth = f"{outdir}/depths-mapped.tsv",
         coverage = f"{outdir}/coverages-mapped.tsv"
@@ -188,15 +189,21 @@ rule aggregate_depth_coverage:
             full_result["Plate"] = "1"
 
         # pivot full result to get count of reads per sample per marker
-        full_result2 = full_result.pivot_table(index=["Plate", "Chr", "Start", "End", "Amplicon_name"], columns="sample", values="numreads", fill_value=0).reset_index()
-        full_result2[full_result2.columns[5:]] = full_result2[full_result2.columns[5:]].astype(int)
-        full_result2 = full_result2.sort_values(by=["Plate", "Chr", "Start", "End", "Amplicon_name"])
-        full_result2.to_csv(output.depth, sep="\t", index=False)
-
         full_result3 = full_result.pivot_table(index=["Plate", "Chr", "Start", "End", "Amplicon_name"], columns="sample", values="coverage", fill_value=0).reset_index()
         full_result3[full_result3.columns[5:]] = full_result3[full_result3.columns[5:]].astype(int)
         full_result3 = full_result3.sort_values(by=["Plate", "Chr", "Start", "End", "Amplicon_name"])
         full_result3.to_csv(output.coverage, sep="\t", index=False)
+
+        full_result2 = full_result.pivot_table(index=["Plate", "Chr", "Start", "End", "Amplicon_name"], columns="sample", values="numreads", fill_value=0).reset_index()
+        full_result2[full_result2.columns[5:]] = full_result2[full_result2.columns[5:]].astype(int)
+        full_result2 = full_result2.sort_values(by=["Plate", "Chr", "Start", "End", "Amplicon_name"])
+        # set depth to 0 where the corresponding coverage is below min_coverage
+        index_cols = list(full_result2.columns[:5])
+        sample_cols = list(full_result2.columns[5:])
+        low_cov = (full_result3.set_index(index_cols)[sample_cols] < params.inserts_min_coverage)
+        depth_values = full_result2.set_index(index_cols)[sample_cols]
+        full_result2 = depth_values.mask(low_cov.reindex(depth_values.index), 0).astype(int).reset_index()
+        full_result2.to_csv(output.depth, sep="\t", index=False)
 
 rule split_per_plate:
     input:
