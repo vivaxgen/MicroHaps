@@ -15,7 +15,7 @@ else:
 ruleorder: mark_prepared > run_prepare_sample_directory
 #ruleorder: gather_stats_sample > gather_stats
 ruleorder: mapping_stats > gather_stats
-ruleorder: prepare_shallow_dir > index_bai
+# ruleorder: prepare_shallow_dir > index_bai
 
 
 rule mapping_stats:
@@ -31,34 +31,34 @@ rule mapping_stats:
 rule mark_prepared:
     localrule: True
     input:
-        expand(f"{outdir}/analysis/{{sample}}/maps/mapped-final.bam", sample=IDs),
-        expand(f"{outdir}/analysis/{{sample}}/maps/mapped-final.bam.bai", sample=IDs),
-        expand(f"{outdir}/analysis/{{sample}}/reads", sample=IDs),
+        expand(f"{outdir}/samples/{{sample}}/maps/mapped-final.bam", sample=IDs),
+        expand(f"{outdir}/samples/{{sample}}/maps/mapped-final.bam.bai", sample=IDs),
+        expand(f"{outdir}/samples/{{sample}}/reads", sample=IDs),
     output:
-        f"{outdir}/analysis/._prepared_",
+        f"{outdir}/samples/._prepared_",
     shell:
         """
         touch {output}
         """
 
-rule prepare_shallow_dir:
-    localrule: True
-    input:
-        f"{outdir}/samples/{{sample}}/maps/final.bam",
-        f"{outdir}/samples/{{sample}}/maps/final.bam.bai",
-    output:
-        f"{outdir}/analysis/{{sample}}/maps/mapped-final.bam",
-        f"{outdir}/analysis/{{sample}}/maps/mapped-final.bam.bai",
-        directory(f"{outdir}/analysis/{{sample}}/reads"),
-    params:
-        outdir = f"{outdir}/analysis/{{sample}}/maps",
-    shell:
-        """
-        mkdir -p {params.outdir};
-        ln -s {input[0]} {output[0]};
-        ln -s {input[1]} {output[1]};
-        mkdir -p {output[2]};
-        """
+# rule prepare_shallow_dir:
+#     localrule: True
+#     input:
+#         f"{outdir}/samples/{{sample}}/maps/final.bam",
+#         f"{outdir}/samples/{{sample}}/maps/final.bam.bai",
+#     output:
+#         f"{outdir}/analysis/{{sample}}/maps/mapped-final.bam",
+#         f"{outdir}/analysis/{{sample}}/maps/mapped-final.bam.bai",
+#         directory(f"{outdir}/analysis/{{sample}}/reads"),
+#     params:
+#         outdir = f"{outdir}/analysis/{{sample}}/maps",
+#     shell:
+#         """
+#         mkdir -p {params.outdir};
+#         ln -s {input[0]} {output[0]};
+#         ln -s {input[1]} {output[1]};
+#         mkdir -p {output[2]};
+#         """
 
 rule mark_discovery_done:
     localrule: True

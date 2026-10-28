@@ -200,7 +200,7 @@ rule aggregate_depth_coverage:
         # set depth to 0 where the corresponding coverage is below min_coverage
         index_cols = list(full_result2.columns[:5])
         sample_cols = list(full_result2.columns[5:])
-        low_cov = (full_result3.set_index(index_cols)[sample_cols] < params.inserts_min_coverage)
+        low_cov = (full_result3.set_index(index_cols)[sample_cols] < params.min_coverage)
         depth_values = full_result2.set_index(index_cols)[sample_cols]
         full_result2 = depth_values.mask(low_cov.reindex(depth_values.index), 0).astype(int).reset_index()
         full_result2.to_csv(output.depth, sep="\t", index=False)
