@@ -74,9 +74,9 @@ def init_argparser():
 
     p.add_argument(
         "--no-illumina-2-dye",
-        default=True,
-        action="store_false",
-        help="data is from Illumina 2 dye instruments: NovaSeq, NextSeq, MiniSeq",
+        default=False,
+        action="store_true",
+        help="data is NOT from Illumina 2 dye instruments such as NovaSeq, NextSeq, MiniSeq",
     )
     p.add_argument("-o", "--outdir", default="output-dir", help="outdir")
     p.add_argument(
@@ -172,7 +172,7 @@ def run_microhaps_caller(args):
     config = dict(
         outdir=pathlib.Path(args.outdir).absolute().as_posix(),
         manifest_picklefile=manifest_picklefile.absolute().as_posix(),
-        # use generic 2-dye instrument
+        # use generic 4-dye instrument
         instrument="generic" if args.no_illumina_2_dye else "nextseq",
         # run discovery mode
         joint_discovery=args.run_discovery,
