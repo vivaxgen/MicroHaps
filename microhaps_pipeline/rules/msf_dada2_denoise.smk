@@ -62,6 +62,7 @@ rule run_dada2R_denoise:
             --minLen {params.minLen} \
             --truncQ {params.truncQ} \
             --max_consist {params.max_consist} \
-            --omega_a {params.omega_a}
+            --omega_a {params.omega_a} \
+            --threads {threads}
         """
     
