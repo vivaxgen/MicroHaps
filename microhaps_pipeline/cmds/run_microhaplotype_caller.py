@@ -139,8 +139,13 @@ def run_microhaps_caller(args):
     if args.no_skip:
         args.skip = []
 
+    if args.single and args.panel == "pf-nomads8":
+        snakefile, target = "msf_drug_resistance_lr.smk", "all_drug_resistance_lr"
+    else:
+        snakefile, target = "msf_microhaps_caller.smk", "all_microhaps"
+
     args.snakefile = run_snakefile.get_snakefile_path(
-        "microhaps_pipeline::msf_microhaps_caller.smk"
+        f"microhaps_pipeline::{snakefile}"
     )
     args.no_config_cascade = True
     args.force = True
@@ -182,6 +187,8 @@ def run_microhaps_caller(args):
         post_process=args.post_process,
         merge_map=args.merge_map,
     )
+    if args.single:
+        del config["instrument"]
 
     invocation = prepare_command_log()
     basedir = os.environ["VVG_BASEDIR"]
@@ -196,7 +203,7 @@ def run_microhaps_caller(args):
     with open(args.outdir + "/runinfo.json", "w+") as f:
         json.dump(invocation, f, indent=4)
 
-    args.target = "all_microhaps"
+    args.target = target
     status, elapsed_time = run_snakefile.run_snakefile(
         args, config=config, show_status=False, additional_cli_args=args.add_args
     )

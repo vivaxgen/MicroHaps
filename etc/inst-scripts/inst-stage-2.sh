@@ -25,4 +25,4 @@ echo -e "\e[32m>>>> Initialize panels\e[0m"
 ngs-pl initialize --panel pvvvg-mhap --target wgs
 ngs-pl initialize --panel pf-m4h --target wgs
 ngs-pl initialize --panel pfspotmal-mhap --target wgs
-
+ngs-pl initialize --panel pf-nomads8 --target wgs

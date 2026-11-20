@@ -3,6 +3,7 @@ db_path = get_abspath(config.get("drug_resistance_db"))
 aa_pos_file = get_abspath(config.get("drugs_resistance_aa_pos"))
 gff = get_abspath(config.get("gff_file"))
 target_bed = get_abspath(config.get("drugs_resistance_bed"))
+is_long_read = ngs_platform.upper() in ['ONT']
 
 rule final_drug_resistance_report:
     input:
@@ -97,15 +98,25 @@ rule predict_aa:
         """
 
 rule generate_pseudohaplotype:
+    threads: config.get("drug_resistance_pseudohaplotype_threads", 1)
     input:
         filtered_bam = f"{outdir}/samples/{{sample}}/maps/named_sorted_drugs.bam", 
         variant_list = drugs_resistance_variant_list,
     output:
         details = f"{outdir}/samples/{{sample}}/drugs/haplotype_details.tsv",
         result = f"{outdir}/samples/{{sample}}/drugs/haplotype_pseudohaplotypes.tsv",
+    log:
+        f"{outdir}/samples/{{sample}}/logs/generate_pseudohaplotypes.log"
+    params:
+        min_qual = config.get("drugs_resistance_min_base_qual", 20),
+        single = "--single" if is_long_read else "",
+        chunk_size=lambda wildcards, threads: (
+            f"--chunk_size {config.get('drug_resistance_pseudohaplotype_chunk_size', 300)}"
+            if threads > 1 else ""
+        )
     shell:
         """
-        ngs-pl construct-pseudo-haplotypes --variants_list {input.variant_list} --pileup --pileout {output.details} --sample {wildcards.sample} -o {output.result} {input.filtered_bam}
+        ngs-pl construct-pseudo-haplotypes --log {log} -j {threads} {params.chunk_size} --variants_list {input.variant_list} --min_qual {params.min_qual} {params.single} --pileup --pileout {output.details} --sample {wildcards.sample} -o {output.result} {input.filtered_bam}
         """
 
 rule generate_stats_for_drug_resistance:
@@ -129,28 +140,55 @@ rule name_sort_bam:
         samtools sort -n -o {output.named_sorted} {input.bam}
         """
 
-rule filter_and_sort_bam:
-    input:
-        merged_bam = f"{outdir}/samples/{{sample}}/maps/mapped-final.bam",
-        bed = target_bed,
-    output:
-        index_sorted = f"{outdir}/samples/{{sample}}/maps/index_sorted_drugs.bam",
-        bai = f"{outdir}/samples/{{sample}}/maps/index_sorted_drugs.bam.bai",
-        rejects = f"{outdir}/samples/{{sample}}/maps/rejects_drugs.bam",
-    log:
-        f"{outdir}/samples/{{sample}}/logs/filter_and_sort_drugs.log"
-    params:
-        primers_bed = get_abspath(config.get("primers_bed")),
-        samtools_ampliconclip_params = "--strand --clipped",
-    shell:
-        """
-        samtools view -h -L {input.bed} {input.merged_bam} | 
-        samtools ampliconclip -b {params.primers_bed} -f {log} {params.samtools_ampliconclip_params} --rejects-file {output.rejects} - |
-        samtools sort -n |
-        samtools fixmate -mMu -  - |
-        samtools calmd -u - {refseq} - |
-        samtools sort -o {output.index_sorted}  && samtools index {output.index_sorted}
-        """
+if is_long_read:
+
+    rule filter_and_sort_bam:
+        input:
+            merged_bam = f"{outdir}/samples/{{sample}}/maps/mapped-final.bam",
+            bed = target_bed,
+        output:
+            index_sorted = f"{outdir}/samples/{{sample}}/maps/index_sorted_drugs.bam",
+            bai = f"{outdir}/samples/{{sample}}/maps/index_sorted_drugs.bam.bai",
+            rejects = f"{outdir}/samples/{{sample}}/maps/rejects_drugs.bam",
+        log:
+            f"{outdir}/samples/{{sample}}/logs/filter_and_sort_drugs.log"
+        params:
+            primers_bed = get_abspath(config.get("primers_bed")),
+            samtools_ampliconclip_params = config.get(
+                "ont_ampliconclip_params", "--strand --clipped --tolerance 10"
+            ),
+        shell:
+            """
+            samtools view -h -u -F 0x904 -L {input.bed} {input.merged_bam} |
+            samtools ampliconclip -b {params.primers_bed} -f {log} {params.samtools_ampliconclip_params} --rejects-file {output.rejects} - |
+            samtools calmd -u - {refseq} |
+            samtools sort -o {output.index_sorted} && samtools index {output.index_sorted}
+            """
+
+else:
+
+    rule filter_and_sort_bam:
+        input:
+            merged_bam = f"{outdir}/samples/{{sample}}/maps/mapped-final.bam",
+            bed = target_bed,
+        output:
+            index_sorted = f"{outdir}/samples/{{sample}}/maps/index_sorted_drugs.bam",
+            bai = f"{outdir}/samples/{{sample}}/maps/index_sorted_drugs.bam.bai",
+            rejects = f"{outdir}/samples/{{sample}}/maps/rejects_drugs.bam",
+        log:
+            f"{outdir}/samples/{{sample}}/logs/filter_and_sort_drugs.log"
+        params:
+            primers_bed = get_abspath(config.get("primers_bed")),
+            samtools_ampliconclip_params = "--strand --clipped",
+        shell:
+            """
+            samtools view -h -u -F 0x904 -L {input.bed} {input.merged_bam} |
+            samtools ampliconclip -b {params.primers_bed} -f {log} {params.samtools_ampliconclip_params} --rejects-file {output.rejects} - |
+            samtools sort -n |
+            samtools fixmate -mMu -  - |
+            samtools calmd -u - {refseq} - |
+            samtools sort -o {output.index_sorted}  && samtools index {output.index_sorted}
+            """
 
 rule generate_variant_list:
     localrule: True

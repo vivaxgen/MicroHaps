@@ -1,0 +1,79 @@
+#
+# pf-nomads8.yaml - configuration file for the NOMADS8 panel
+#
+# NOMADS8 is a long-amplicon (~3-4 kb) panel sequenced with ONT, so this panel
+# only maps reads with minimap2 and generates the drug resistance report
+# (no microhaplotype generation). Run with --single:
+#   microhaps run-microhaplotype-caller --panel pf-nomads8 --single -o OUTDIR FASTQ...
+#
+
+# --- NGS-Pipeline settings ---
+
+instrument: ont
+platform: ONT
+libprep: generic
+
+refseq_file: configs/refs/Pf/Pf3D7_v3/Pf3D7_v3.fasta
+refmap_file: configs/refs/Pf/Pf3D7_v3/Pf3D7_v3.fasta.mmi
+insertseq: NOT-DEFINED
+# minimap2 indexes the fasta on the fly; a prebuilt index can be used instead:
+#   minimap2 -x map-ont -d Pf3D7_v3_combined.map-ont.mmi Pf3D7_v3_combined.fasta
+refmap_file: configs/refs/pf-m4h/Pf3D7_v3_combined.fasta
+minimap2_keep_comment: False
+# amplicon regions of the panel
+targetregion_file: configs/refs/pf-nomads8/nomads8.bed
+
+regions:
+  - Pf3D7_01_v3
+  - Pf3D7_02_v3
+  - Pf3D7_03_v3
+  - Pf3D7_04_v3
+  - Pf3D7_05_v3
+  - Pf3D7_06_v3
+  - Pf3D7_07_v3
+  - Pf3D7_08_v3
+  - Pf3D7_09_v3
+  - Pf3D7_10_v3
+  - Pf3D7_11_v3
+  - Pf3D7_12_v3
+  - Pf3D7_13_v3
+  - Pf3D7_14_v3
+
+# this is amplicon sequencing, so turn off deduplication
+deduplicate: False
+
+keep_paired_bam: False
+keep_final_bam: True
+
+# read trimming/filtering with fastplong, keeping only reads of amplicon size
+trimmer_wf: ngs_pipeline::trimmer/fastplong.smk
+min_read_qual: 10
+minlen: 2500
+maxlen: 5000
+fastplong_trim_front: 0
+fastplong_trim_tail: 0
+
+# mapping with minimap2
+mapper_wf: ngs_pipeline::mapper/minimap2_lr.smk
+minimap2_flags: -x map-ont
+
+# --- end of NGS-Pipeline settings ---
+trimqv: 15 # illumina-2-dye quality-trim of 3' ends
+
+# --- drug resistance settings ---
+
+gff_file: configs/refs/Pf/Pf3D7_v3/Pf3D7_v3.gff.bz2
+drugs_resistance_variant_list: configs/refs/pf-nomads8/drug_resistance_genomic_pos.tsv
+drugs_resistance_aa_pos: configs/refs/pf-nomads8/drug_resistance_aa_pos.tsv
+drugs_resistance_bed: configs/refs/pf-nomads8/nomads8.bed
+drug_resistance_db: configs/refs/pf-m4h/Pfalciparum_drug_resistance_markers_compendium.tsv
+min_depth_drug_resistance: 10
+
+drug_resistance_pseudohaplotype_threads: 2
+
+drugs_resistance_min_base_qual: 10
+
+primer_fw: NOT-DEFINED
+primer_rev: NOT-DEFINED
+primers_bed: configs/refs/pf-nomads8/primers.bed
+# EOF
