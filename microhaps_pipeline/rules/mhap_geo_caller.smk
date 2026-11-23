@@ -3,33 +3,38 @@ __copyright__ = "(C) 2024, Hidayat Trimarsanto"
 __email__ = "trimarsanto@gmail.com,hidayat.trimarsanto@menzies.edu.au"
 __license__ = "MIT"
 
-import ngs_pipeline.rules
+from ngs_pipeline import cerr
+from ngs_pipeline.rules import pkg
 
-include: ngs_pipeline.rules.path("general_params.smk")
-include: ngs_pipeline.rules.path("params_region.smk")
+# include: ngs_pipeline.rules.path("general_params.smk")
+# include: ngs_pipeline.rules.path("params_region.smk")
 # include: ngs_pipeline.rules.path("utilities.smk")
 
-include: "params_mhap.smk"
+include: pkg("ngs_pipeline::msf/init.smk")
+include: pkg("ngs_pipeline::params_region.smk")
 
+include: pkg("params_mhap.smk")
 
 # 0 - link read files to individual sample directories
-include: ngs_pipeline.rules.path("msf_prepare_sample_files.smk")
+# include: ngs_pipeline.rules.path("msf_prepare_sample_files.smk")
 
-include: ngs_pipeline.rules.path("msf_trimmer_null.smk")
+include: pkg("ngs_pipeline::trimmer/null.smk")
 
 # 1 - map to the reference sequence
 #     need to use bwa-mem2 since minimap2 (and mm2plus) does not set flags for
 #     READ1 and READ2 in the output file, which is necessary for samtools fastq
 #     to generate paired-end fastq files
-include: ngs_pipeline.rules.path("msf_mapper_bwa-mem2.smk")
+include: pkg("ngs_pipeline::mapper/bwa-mem2.smk")
 
 # 2 - merge multiple bams to a single bam and then generate new bam for reads 
 #     that map to the specific regions of the reference sequence
 #     the bam file {sample}-{idx}.bam is suitable for uploading to public databases
-include: ngs_pipeline.rules.path("msf_merge_map.smk")
+# include: ngs_pipeline.rules.path("msf_merge_map.smk")
+include: pkg("ngs_pipeline::helper/map_handler.smk")
+
 
 # 3 - include all statistics utitlities
-include: ngs_pipeline.rules.path("msf_stats.smk")
+include: pkg("ngs_pipeline::helper/stats.smk")
 
 
 rule collate_bam:
@@ -38,7 +43,7 @@ rule collate_bam:
         runtime="2h"
     threads: 4
     input:
-        bam = f"{outdir}/samples/{{sample}}/maps/final.bam",
+        bam = f"{outdir}/samples/{{sample}}/maps/mapped-final.bam",
         refseq = refseq,
     output:
         collated_bam = f"{outdir}/samples/{{sample}}/maps/final.collate.bam"

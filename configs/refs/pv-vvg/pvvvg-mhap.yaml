@@ -102,7 +102,7 @@ unoise_minsize_ratio: 1
 unoise_alpha: 1.5
 
 additional_trim_before_haplotype_generation: True
-
+geo_variant_list: configs/refs/pv-vvg/geo_mhaps.bed
 
 sequence_to_denoise_criteria: "--id 0.99 --iddef 1 --target_cov 1 --query_cov 1"
 
