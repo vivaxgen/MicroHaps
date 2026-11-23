@@ -6,9 +6,10 @@ rule qc_haplotypes:
         depths = f"{outdir}/malamp/depths.tsv"
     params:
         mindepth = 10,
-        outdir = lambda w, output: output.depths.rsplit('/', 1)[0]
+        outdir = lambda w, output: output.depths.rsplit('/', 1)[0],
+        plate_info = plate_info,
     shell:
-        "ngs-pl tab-to-QC -d {params.mindepth} --outdir {params.outdir} {input}"
+        "ngs-pl tab-to-QC -d {params.mindepth} --outdir {params.outdir} --plate_info {params.plate_info} {input}"
 
 
 rule qc_heatmap:
@@ -38,7 +39,7 @@ rule depth_ratio:
         microhaps_df = pd.read_csv(input.depth_microhaps, sep='\t')
 
         depth_mapped = mapped_df.iloc[:, 5:].set_index(mapped_df.Amplicon_name)
-        depth_microhaps = microhaps_df.iloc[:, 4:].set_index(microhaps_df.Amplicon_name)
+        depth_microhaps = microhaps_df.iloc[:, 5:].set_index(microhaps_df.Amplicon_name)
 
         ratio_df = (depth_microhaps / depth_mapped).fillna(0).reindex(depth_mapped.index).reset_index()
 

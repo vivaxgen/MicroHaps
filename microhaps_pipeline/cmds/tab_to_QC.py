@@ -20,6 +20,7 @@ def init_argparser():
     p = arg_parser("run joint microhaplotype caller")
     p.add_argument("-d", "--mindepth", type=int, default=10)
     p.add_argument("--outdir", default="")
+    p.add_argument("--plate_info", type=str, default=None)
     p.add_argument("infile")
     return p
 
@@ -45,6 +46,12 @@ def tab_to_QC(args):
 
     outdir = pathlib.Path(args.outdir)
     df = pd.read_table(args.infile)
+
+    if args.plate_info is not None:
+        plate_info = pd.read_table(args.plate_info)
+        has_plate_info = True
+    else:
+        has_plate_info = False
 
     tab_df = pd.DataFrame(df["sample"])
 
@@ -103,8 +110,12 @@ def tab_to_QC(args):
     )
     new_df = pd.concat([new_df, pd.DataFrame(tab_df.T.values[1:,:], columns=tab_df.T.values[0,:])], axis = 1)
     new_df["temp"] = new_df["Chr"].str.split("_").str[1]
-    new_df = new_df.sort_values(by=["temp", "Start"])
-    new_df = new_df.drop(columns=["temp"])
+    if has_plate_info:
+        new_df = new_df.merge(plate_info, left_on="Amplicon_name", right_on="Marker", how="left")
+    else:
+        new_df["Plate"] = "1"
+    new_df = new_df.sort_values(by=["Plate", "Chr", "Start", "End", "Amplicon_name"])
+    new_df = new_df[["Plate", "Chr", "Start", "End", "Amplicon_name"] + list(tab_df["sample"])]
     new_df.to_csv(outdir / "depths.tsv", sep="\t", index=False)
 
 
