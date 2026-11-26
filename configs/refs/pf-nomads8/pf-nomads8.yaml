@@ -66,7 +66,7 @@ gff_file: configs/refs/Pf/Pf3D7_v3/Pf3D7_v3.gff.bz2
 drugs_resistance_variant_list: configs/refs/pf-nomads8/drug_resistance_genomic_pos.tsv
 drugs_resistance_aa_pos: configs/refs/pf-nomads8/drug_resistance_aa_pos.tsv
 drugs_resistance_bed: configs/refs/pf-nomads8/nomads8.bed
-drug_resistance_db: configs/refs/pf-m4h/Pfalciparum_drug_resistance_markers_compendium.tsv
+drug_resistance_db: configs/refs/pf-nomads8/Pfalciparum_drug_resistance_markers_compendium_nomads.tsv
 min_depth_drug_resistance: 10
 
 drug_resistance_pseudohaplotype_threads: 2

@@ -118,9 +118,6 @@ minimap2_params: "-k 10 -w 5 -A2 -B4 -O4,24 -E2,1 -z 1200 --end-bonus 1200"
 
 #refs
 plate_info: configs/refs/pf-m4h/plate_info.tsv
-insertseq: configs/refs/pf-m4h/inserts.fasta 
-primer_fw: configs/refs/pf-m4h/primers_fwd.fasta 
-primer_rev: configs/refs/pf-m4h/primers_rev.fasta
 
 insertseq: configs/refs/pf-m4h/inserts.fasta
 primer_fw: configs/refs/pf-m4h/primers_fwd.fasta

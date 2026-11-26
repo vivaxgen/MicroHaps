@@ -15,13 +15,17 @@ rule flag_drug_resistance:
     input:
         final_report = f"{outdir}/malamp/drug_resistance.tsv",
         db = db_path,
+        reference = refseq,
+        gff = gff,
     output:
         flagged_report = f"{outdir}/malamp/drug_resistance_flagged.tsv"
     params:
         min_depth_drug_resistance = config.get("min_depth_drug_resistance", 10),
     shell:
         """
-        python {microhaps_basedir}/scripts/flag_potential_resistance.py -i {input.final_report} -d {input.db} -o {output.flagged_report} --min_depth {params.min_depth_drug_resistance}
+        python {microhaps_basedir}/scripts/flag_potential_resistance.py -i {input.final_report} \
+            -d {input.db} -o {output.flagged_report} --min_depth {params.min_depth_drug_resistance} \
+            --gff_file {input.gff} --reference {input.reference}
         """
 
 
