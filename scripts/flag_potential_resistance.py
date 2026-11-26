@@ -23,6 +23,7 @@ if __name__ == "__main__":
         "Pfdhfr": "PF3D7_0417200", "Pfdhps": "PF3D7_0810800",
         "Pfk13": "PF3D7_1343700", "Pfmdr1": "PF3D7_0523000"}
 
+    NON_AA_CALLS = {".", "*", "X"} 
     def get_ref_aa(gene_id, aa_pos):
         ref_lookup = lambda seqid, pos: fasta_file.fetch(seqid, pos-1, pos).upper()
         aa = gff_csq.GeneCoords(gff_, gene_id).translate_variant(aa_pos, ref_lookup)
@@ -46,21 +47,23 @@ if __name__ == "__main__":
         sample = i
         results.loc[:, sample] = "?"
         for db_i, db_row in results.iterrows():
-            if db_row["interested_aa"] in row.index:
-                if db_row["interested_aa"] not in row.index:
-                    continue
-                gts, depths = row[db_row["interested_aa"]].split("|")
-                gts = gts.split(",")
-                depths = list(map(int, depths.split(",")))
-                if db_row["interested_var"] in gts:
-                    call = "+"
-                    depth = depths[gts.index(db_row["interested_var"])]
-                else:
-                    call = "-"
-                    depth = sum(depths)
-                if depth < args.min_depth:
-                    call += " (low_depth)"
-                results.loc[db_i, sample] = call
+            cell = db_row["interested_aa"]
+            if not cell in row.index or pd.isna(cell):
+                continue
+            gts, depths = row[db_row["interested_aa"]].split("|")
+            calls = [
+                (gt, int(d))
+                for gt, d in zip(gts.split(","), depths.split(","), strict=True)
+                if gt not in NON_AA_CALLS and int(d) >= args.min_depth
+            ]
+            if not calls:
+                continue
+            gts = [gt for gt, _ in calls]
+            if db_row["interested_var"] in gts:
+                call = "+"
+            else:
+                call = "-"
+            results.loc[db_i, sample] = call
 
     results = results.rename(columns={"interested_var": "resistant_aa"})
     results.drop(columns=["interested_aa", "gene_id"]).to_csv(f"{args.output.replace('.tsv', '.details.tsv')}", sep="\t", index=False)
@@ -84,7 +87,6 @@ if __name__ == "__main__":
         for sample in sample_cols:
             values = group[sample]
             observed = sorted({v.split(" ")[0] for v in values})
-            low_depth = values.str.contains("low depth").any()
             match observed:
                 case _ if "?" in observed:
                     call = "?"
@@ -96,7 +98,7 @@ if __name__ == "__main__":
                     call = "-/+"
                 case _:
                     call = "?"
-            row[sample] = call + "*" if low_depth else call
+            row[sample] = call
         return pd.Series(row)
 
     results["interested_aa"] = results["interested_aa"].str.split(":").str[1].astype(int)

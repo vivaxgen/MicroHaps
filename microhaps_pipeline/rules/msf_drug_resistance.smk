@@ -95,7 +95,7 @@ rule predict_aa:
         protein_predictions = f"{outdir}/samples/{{sample}}/drugs/haplotype_protein_predictions.tsv",
         final_output = f"{outdir}/samples/{{sample}}/drugs/drug_resistance_report.tsv"
     params:
-        min_support = 5,
+        min_support = config.get("min_depth_drug_resistance", 10),
     shell:
         """
         python {microhaps_basedir}/scripts/predict_aa.py --reference {input.reference} --gff_file {input.gff} --pseudohaplotypes {input.pseudohaplotypes} --variant_list {input.variant_list} --sample {wildcards.sample} --min_support {params.min_support} --protein_predictions {output.protein_predictions} --drug_resistance_report {output.final_output}
