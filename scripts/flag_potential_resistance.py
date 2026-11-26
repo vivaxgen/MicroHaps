@@ -59,10 +59,12 @@ if __name__ == "__main__":
             if not calls:
                 continue
             gts = [gt for gt, _ in calls]
-            if db_row["interested_var"] in gts:
+            if not db_row["interested_var"] in gts:
+                call = "-"
+            elif all(gt == db_row["interested_var"] for gt in gts):
                 call = "+"
             else:
-                call = "-"
+                call = "-/+"
             results.loc[db_i, sample] = call
 
     results = results.rename(columns={"interested_var": "resistant_aa"})
@@ -94,8 +96,12 @@ if __name__ == "__main__":
                     call = "+"
                 case ["-"]:
                     call = "-"
-                case ["+", "-"]:
+                case ["-/+"]:
                     call = "-/+"
+                case _ if set(observed).issubset({"+", "-/+"}):
+                    call = "+(poly)"
+                case _ if set(observed).issubset({"-", "+", "-/+"}):
+                    call = "-(poly)"
                 case _:
                     call = "?"
             row[sample] = call
